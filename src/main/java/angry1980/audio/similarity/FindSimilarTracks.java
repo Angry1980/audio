@@ -47,4 +47,10 @@ public class FindSimilarTracks implements LongFunction<List<TrackSimilarity>>{
         ;
     }
 
+    @Override
+    public String toString() {
+        return "FindSimilarTracks{" +
+                "fingerprintType=" + fingerprintType +
+                '}';
+    }
 }

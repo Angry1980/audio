@@ -3,24 +3,31 @@ package angry1980.audio.dao;
 import angry1980.audio.model.Track;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 public class TrackDAOFileImpl implements TrackDAO{
 
-    private List<Path> files;
+    private Map<Long, Track> tracks;
 
     public TrackDAOFileImpl(List<Path> files) {
-        this.files = Objects.requireNonNull(files);
+        Objects.requireNonNull(files);
+        this.tracks = LongStream.range(0, files.size())
+                        .mapToObj(id -> new Track(id, files.get((int) id).toString()))
+                        .collect(Collectors.toMap(t -> t.getId(), Function.identity()))
+        ;
     }
 
     @Override
     public Optional<Track> get(long id) {
-        if(id > files.size() - 1){
-            return Optional.empty();
-        }
-        return Optional.of(files.get((int) id))
-                        .map(file -> new Track(id, file.toString()));
+        return Optional.ofNullable(tracks.get(id));
+    }
+
+    @Override
+    public Optional<Collection<Track>> tryToGetAll() {
+        return Optional.of(tracks.values());
+
     }
 }

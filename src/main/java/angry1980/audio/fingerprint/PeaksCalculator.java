@@ -1,0 +1,80 @@
+package angry1980.audio.fingerprint;
+
+import angry1980.audio.model.Peak;
+import angry1980.audio.model.PeaksFingerprint;
+import angry1980.audio.model.Spectrum;
+import angry1980.audio.model.Track;
+import angry1980.audio.utils.Complex;
+import angry1980.audio.utils.SpectrumBuilder;
+import angry1980.audio.Adapter;
+import angry1980.utils.Numbered;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+/**
+ * ported from https://github.com/wsieroci/audiorecognizer
+ */
+public class PeaksCalculator implements Calculator<PeaksFingerprint>{
+
+    private static final int FUZ_FACTOR = 2;
+
+    public static final int UPPER_LIMIT = 300;
+    public static final int LOWER_LIMIT = 40;
+    public static final int[] RANGE = new int[] {40, 80, 120, 180, UPPER_LIMIT + 1 };
+
+    private SpectrumBuilder builder;
+
+    public PeaksCalculator(Adapter adapter) {
+        this.builder = SpectrumBuilder.create(Objects.requireNonNull(adapter));
+    }
+
+    @Override
+    public Optional<PeaksFingerprint> calculate(Track track) {
+        return builder.build(track)
+                .map(this::determineKeyPoints)
+                .map(points -> new PeaksFingerprint(track.getId(), points))
+        ;
+    }
+
+    private List<Peak> determineKeyPoints(Spectrum spectrum) {
+        return IntStream.range(0, spectrum.getData().length)
+                .mapToObj(t -> new Numbered<>(t, hash(spectrum.getData()[t])))
+                .map(t -> new Peak(spectrum.getTrackId(), t.getNumberAsInt(), t.getValue()))
+                .collect(Collectors.toList());
+    }
+
+    private long hash(Complex[] data){
+        return hash(IntStream.range(LOWER_LIMIT, UPPER_LIMIT)
+                    // Get the magnitude:
+                    .mapToObj(freq -> new Numbered<>(freq, Math.log(data[freq].abs() + 1)))
+                    .collect(
+                        Collectors.groupingBy(tuple -> getIndex(tuple.getNumberAsInt()),
+                                Collectors.collectingAndThen(
+                                        Collectors.maxBy((tuple1, tuple2) -> Double.compare(tuple1.getValue(), tuple2.getValue())),
+                                        o -> o.map(tuple -> tuple.getNumber()).orElse(0L)
+                                )
+                        )
+                    ).values()
+        );
+    }
+
+    private long hash(Collection<Long> data) {
+        List<Long> points = new ArrayList<>(data);
+        return (points.get(3) - (points.get(3) % FUZ_FACTOR)) * 100000000
+                + (points.get(2) - (points.get(2) % FUZ_FACTOR))* 100000
+                + (points.get(1) - (points.get(1) % FUZ_FACTOR)) * 100
+                + (points.get(0) - (points.get(0) % FUZ_FACTOR));
+    }
+
+
+    private int getIndex(int freq) {
+        int i = 0;
+        while (RANGE[i] < freq) {
+            i++;
+        }
+        return i;
+    }
+
+}

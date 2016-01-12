@@ -8,6 +8,7 @@ import angry1980.audio.utils.Complex;
 import angry1980.audio.utils.SpectrumBuilder;
 import angry1980.audio.Adapter;
 import angry1980.utils.Numbered;
+import angry1980.utils.Ranges;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,9 +21,8 @@ public class PeaksCalculator implements Calculator<PeaksFingerprint>{
 
     private static final int FUZ_FACTOR = 2;
 
-    public static final int UPPER_LIMIT = 300;
-    public static final int LOWER_LIMIT = 40;
-    public static final int[] RANGE = new int[] {40, 80, 120, 180, UPPER_LIMIT + 1 };
+    //Rhythm frequencies, where the lower and upper bass notes lie.
+    public static final Ranges ranges = new Ranges(40, 300, 4);
 
     private SpectrumBuilder builder;
 
@@ -46,11 +46,11 @@ public class PeaksCalculator implements Calculator<PeaksFingerprint>{
     }
 
     private long hash(Complex[] data){
-        return hash(IntStream.range(LOWER_LIMIT, UPPER_LIMIT)
+        return hash(ranges.stream()
                     // Get the magnitude:
                     .mapToObj(freq -> new Numbered<>(freq, Math.log(data[freq].abs() + 1)))
                     .collect(
-                        Collectors.groupingBy(tuple -> getIndex(tuple.getNumberAsInt()),
+                        Collectors.groupingBy(tuple -> ranges.getIndex(tuple.getNumberAsInt()),
                                 Collectors.collectingAndThen(
                                         Collectors.maxBy((tuple1, tuple2) -> Double.compare(tuple1.getValue(), tuple2.getValue())),
                                         o -> o.map(tuple -> tuple.getNumber()).orElse(0L)
@@ -69,12 +69,5 @@ public class PeaksCalculator implements Calculator<PeaksFingerprint>{
     }
 
 
-    private int getIndex(int freq) {
-        int i = 0;
-        while (RANGE[i] < freq) {
-            i++;
-        }
-        return i;
-    }
 
 }

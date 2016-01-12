@@ -1,11 +1,11 @@
 package angry1980.audio.model;
 
-public class ChromaprintHash {
+public class TrackHash {
 
     private final long trackId;
     private final int hash;
 
-    public ChromaprintHash(long trackId, int hash) {
+    public TrackHash(long trackId, int hash) {
         this.trackId = trackId;
         this.hash = hash;
     }
@@ -20,7 +20,7 @@ public class ChromaprintHash {
 
     @Override
     public String toString() {
-        return "ChromaprintHash{" +
+        return "TrackHash{" +
                 "trackId=" + trackId +
                 ", hash=" + hash +
                 '}';

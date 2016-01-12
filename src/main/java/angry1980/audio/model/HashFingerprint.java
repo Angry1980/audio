@@ -1,13 +1,15 @@
 package angry1980.audio.model;
 
-public class ChromaprintFingerprint implements Fingerprint {
+public class HashFingerprint implements Fingerprint {
 
     private final long trackId;
     private final int[] hashes;
+    private final FingerprintType fingerprintType;
 
-    public ChromaprintFingerprint(long trackId, int[] hashes) {
+    public HashFingerprint(long trackId, int[] hashes, FingerprintType fingerprintType) {
         this.trackId = trackId;
         this.hashes = hashes;
+        this.fingerprintType = fingerprintType;
     }
 
     @Override
@@ -21,14 +23,14 @@ public class ChromaprintFingerprint implements Fingerprint {
 
     @Override
     public FingerprintType getType() {
-        return FingerprintType.CHROMAPRINT;
+        return fingerprintType;
     }
 
     @Override
     public String toString() {
-        return "ChromaprintFingerprint{" +
+        return "HashFingerprint{" +
                 "trackId=" + trackId +
-                ", type="+ getType() +
+                ", type="+ fingerprintType +
                 '}';
     }
 

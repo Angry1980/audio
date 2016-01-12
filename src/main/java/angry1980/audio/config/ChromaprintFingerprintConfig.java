@@ -18,7 +18,7 @@ public class ChromaprintFingerprintConfig {
     private TrackDAO trackDAO;
 
     @Bean
-    public FingerprintDAO chromaprintFinferprintDAO(){
+    public FingerprintDAO chromaprintFingerprintDAO(){
         return new FingerprintDAOInMemoryImpl<>();
     }
 
@@ -27,7 +27,7 @@ public class ChromaprintFingerprintConfig {
         return new FindSimilarTracks(
                 trackSimilarityDAO,
                 chromaprintGetOrCreateFingerprint(),
-                new ChromaprintErrorRatesCalculator(chromaprintFinferprintDAO()),
+                new ChromaprintErrorRatesCalculator(chromaprintFingerprintDAO()),
                 FingerprintType.CHROMAPRINT
         );
     }
@@ -35,10 +35,10 @@ public class ChromaprintFingerprintConfig {
     @Bean
     public GetOrCreateFingerprint chromaprintGetOrCreateFingerprint(){
         return new GetOrCreateFingerprint(
-                chromaprintFinferprintDAO(),
+                chromaprintFingerprintDAO(),
                 trackDAO,
                 new ChromaprintCalculator(),
-                new ChromaprintInvertedIndex(new ChromaprintHashDAOInMemoryImpl())
+                new HashInvertedIndex(new TrackHashDAOInMemoryImpl())
         );
     }
 

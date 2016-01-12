@@ -38,6 +38,12 @@ public class Complex {
 		return re + " + " + im + "i";
 	}
 
+	public double log(int width){
+		double re = re() / ((float)width);
+		double img = im() / ((float)width);
+		return ((re * re) + (img * img));
+	}
+
 	// return abs/modulus/magnitude and angle/phase/argument
 	public double abs() {
 		return Math.hypot(re, im);

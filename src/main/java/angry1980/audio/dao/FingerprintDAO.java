@@ -9,6 +9,8 @@ public interface FingerprintDAO<F extends Fingerprint> {
 
     Collection<F> getAll();
 
+    Collection<F> findByTrackIds(long[] trackIds);
+
     Optional<F> findByTrackId(long trackId);
 
     Optional<F> create(F fingerprint);

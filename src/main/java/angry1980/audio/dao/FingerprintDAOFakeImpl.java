@@ -14,6 +14,11 @@ public class FingerprintDAOFakeImpl implements FingerprintDAO<Fingerprint>{
     }
 
     @Override
+    public Collection<Fingerprint> findByTrackIds(long[] trackIds) {
+        return Collections.emptyList();
+    }
+
+    @Override
     public Optional<Fingerprint> findByTrackId(long trackId) {
         return Optional.empty();
     }

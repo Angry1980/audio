@@ -6,6 +6,8 @@ public class Track {
 
     private final long id;
     private final String path;
+    //for test purpose only
+    private long cluster;
 
     public Track(long id, String path) {
         this.id = id;
@@ -18,6 +20,15 @@ public class Track {
 
     public long getId() {
         return id;
+    }
+
+    public long getCluster() {
+        return cluster;
+    }
+
+    public Track setCluster(long cluster) {
+        this.cluster = cluster;
+        return this;
     }
 
     @Override
@@ -38,6 +49,7 @@ public class Track {
         return "Track{" +
                 "id=" + id +
                 ", path='" + path + '\'' +
+                ", cluster='" + cluster + '\'' +
                 '}';
     }
 }

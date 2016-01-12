@@ -1,11 +1,13 @@
 package angry1980.audio.similarity;
 
 import angry1980.audio.dao.FingerprintDAO;
+import angry1980.audio.dao.TrackDAO;
 import angry1980.audio.model.HashFingerprint;
 import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.TrackSimilarity;
 import org.apache.commons.lang3.ArrayUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -14,15 +16,17 @@ public class ChromaprintErrorRatesCalculator implements Calculator<HashFingerpri
 
     private static final double positiveLimit = 0.8;
 
+    private TrackDAO trackDAO;
     private FingerprintDAO<HashFingerprint> fingerprintDAO;
     private int batchSize;
     private int errorLimit;
 
-    public ChromaprintErrorRatesCalculator(FingerprintDAO<HashFingerprint> fingerprintDAO){
-        this(fingerprintDAO, 25, 8);
+    public ChromaprintErrorRatesCalculator(TrackDAO trackDAO, FingerprintDAO<HashFingerprint> fingerprintDAO){
+        this(trackDAO, fingerprintDAO, 25, 8);
     }
 
-    public ChromaprintErrorRatesCalculator(FingerprintDAO<HashFingerprint> fingerprintDAO, int batchSize, int errorLimit) {
+    public ChromaprintErrorRatesCalculator(TrackDAO trackDAO, FingerprintDAO<HashFingerprint> fingerprintDAO, int batchSize, int errorLimit) {
+        this.trackDAO = Objects.requireNonNull(trackDAO);
         this.fingerprintDAO = Objects.requireNonNull(fingerprintDAO);
         this.batchSize = batchSize;
         this.errorLimit = errorLimit;
@@ -30,7 +34,10 @@ public class ChromaprintErrorRatesCalculator implements Calculator<HashFingerpri
 
     @Override
     public List<TrackSimilarity> calculate(HashFingerprint fingerprint) {
-        return fingerprintDAO.getAll().stream()
+        return trackDAO.get(fingerprint.getTrackId())
+                .map(track -> trackDAO.findByCluster(track.getCluster()).stream().mapToLong(t -> t.getId()).toArray())
+                .map(fingerprintDAO::findByTrackIds)
+                .map(list -> list.stream()
                     .filter(fp -> fp.getTrackId() != fingerprint.getTrackId())
                     .map(fp -> new TrackSimilarity(
                             fingerprint.getTrackId(),
@@ -39,6 +46,7 @@ public class ChromaprintErrorRatesCalculator implements Calculator<HashFingerpri
                             FingerprintType.CHROMAPRINT)
                     ).filter(ts -> ts.getValue() > 20)
                     .collect(Collectors.toList())
+                ).orElseGet(() -> Collections.emptyList())
         ;
     }
 

@@ -16,6 +16,7 @@ import org.springframework.core.env.Environment;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 @PropertySource({"classpath:common.properties"})
@@ -36,7 +37,9 @@ public class CommonConfig {
 
     @Bean
     public TrackDAO trackDAO(){
-        List<Path> files = FileUtils.getFiles(Paths.get(env.getProperty("music.input.folder")), ".mp3");
-        return new TrackDAOFileImpl(files);
+        Path dir = Paths.get(env.getProperty("music.input.folder"));
+        List<Path> files = FileUtils.getFiles(dir, ".mp3");
+        List<String> clusters = FileUtils.getDirs(dir).stream().map(path -> path.toString()).collect(Collectors.toList());
+        return new TrackDAOFileImpl(files, clusters);
     }
 }

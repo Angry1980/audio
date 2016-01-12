@@ -27,7 +27,7 @@ public class ChromaprintFingerprintConfig {
         return new FindSimilarTracks(
                 trackSimilarityDAO,
                 chromaprintGetOrCreateFingerprint(),
-                new ChromaprintErrorRatesCalculator(chromaprintFingerprintDAO()),
+                new ChromaprintErrorRatesCalculator(trackDAO, chromaprintFingerprintDAO()),
                 FingerprintType.CHROMAPRINT
         );
     }

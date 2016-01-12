@@ -2,11 +2,14 @@ package angry1980.utils;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FileUtils {
 
@@ -28,4 +31,12 @@ public class FileUtils {
         return files;
     }
 
+    public static List<Path> getDirs(Path path){
+        try {
+            return Files.list(path).filter(Files::isDirectory).collect(Collectors.toList());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
+    }
 }

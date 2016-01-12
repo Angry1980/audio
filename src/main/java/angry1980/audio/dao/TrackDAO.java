@@ -10,6 +10,8 @@ public interface TrackDAO {
 
     Optional<Track> get(long  id);
 
+    Collection<Track> findByCluster(long cluster);
+
     //todo: use paging
     default Collection<Track> getAll(){
         return tryToGetAll().orElseGet(() -> Collections.emptyList());

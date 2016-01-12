@@ -1,7 +1,7 @@
 package angry1980.audio.similarity;
 
 import angry1980.audio.dao.FingerprintDAO;
-import angry1980.audio.model.ChromaprintFingerprint;
+import angry1980.audio.model.HashFingerprint;
 import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.TrackSimilarity;
 import org.apache.commons.lang3.ArrayUtils;
@@ -10,26 +10,26 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class ChromaprintErrorRatesCalculator implements Calculator<ChromaprintFingerprint> {
+public class ChromaprintErrorRatesCalculator implements Calculator<HashFingerprint> {
 
     private static final double positiveLimit = 0.8;
 
-    private FingerprintDAO<ChromaprintFingerprint> fingerprintDAO;
+    private FingerprintDAO<HashFingerprint> fingerprintDAO;
     private int batchSize;
     private int errorLimit;
 
-    public ChromaprintErrorRatesCalculator(FingerprintDAO<ChromaprintFingerprint> fingerprintDAO){
+    public ChromaprintErrorRatesCalculator(FingerprintDAO<HashFingerprint> fingerprintDAO){
         this(fingerprintDAO, 25, 8);
     }
 
-    public ChromaprintErrorRatesCalculator(FingerprintDAO<ChromaprintFingerprint> fingerprintDAO, int batchSize, int errorLimit) {
+    public ChromaprintErrorRatesCalculator(FingerprintDAO<HashFingerprint> fingerprintDAO, int batchSize, int errorLimit) {
         this.fingerprintDAO = Objects.requireNonNull(fingerprintDAO);
         this.batchSize = batchSize;
         this.errorLimit = errorLimit;
     }
 
     @Override
-    public List<TrackSimilarity> calculate(ChromaprintFingerprint fingerprint) {
+    public List<TrackSimilarity> calculate(HashFingerprint fingerprint) {
         return fingerprintDAO.getAll().stream()
                     .filter(fp -> fp.getTrackId() != fingerprint.getTrackId())
                     .map(fp -> new TrackSimilarity(

@@ -1,6 +1,7 @@
 package angry1980.audio.fingerprint;
 
-import angry1980.audio.model.ChromaprintFingerprint;
+import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.HashFingerprint;
 import angry1980.audio.model.Track;
 import angry1980.utils.ProcessWaiter;
 
@@ -12,11 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class ChromaprintCalculator implements Calculator<ChromaprintFingerprint>{
+public class ChromaprintCalculator implements Calculator<HashFingerprint>{
 
     @Override
-    public Optional<ChromaprintFingerprint> calculate(Track track) {
-        return Optional.of(new ChromaprintFingerprint(track.getId(), convertToInt(calculateAudioHash(track.getPath()))));
+    public Optional<HashFingerprint> calculate(Track track) {
+        return Optional.of(new HashFingerprint(track.getId(), convertToInt(calculateAudioHash(track.getPath())), FingerprintType.CHROMAPRINT));
     }
 
     private int[] convertToInt(byte[] data){

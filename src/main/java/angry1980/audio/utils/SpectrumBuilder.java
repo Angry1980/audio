@@ -11,15 +11,36 @@ import java.util.stream.IntStream;
 
 public class SpectrumBuilder {
 
-
     public static SpectrumBuilder create(Adapter adapter){
         return new SpectrumBuilder(adapter);
     }
 
     private Adapter adapter;
+    private int overlap = 0;
+    private int windowSize = 4096;
+    private int maxWidth = 0;
 
     public SpectrumBuilder(Adapter adapter) {
         this.adapter = Objects.requireNonNull(adapter);
+    }
+
+    public SpectrumBuilder overlap(int overlap) {
+        if(overlap >= 0){
+            this.overlap = overlap;
+        }
+        return this;
+    }
+
+    public SpectrumBuilder windowSize(int windowSize) {
+        if(windowSize > 0 && windowSize % 2 == 0){
+            this.windowSize = windowSize;
+        }
+        return this;
+    }
+
+    public SpectrumBuilder maxWidth(int maxWidth) {
+        this.maxWidth = maxWidth;
+        return this;
     }
 
     public Optional<Spectrum> build(Track track) {
@@ -34,16 +55,17 @@ public class SpectrumBuilder {
     }
 
     private Complex[][] calculateSpectrum(byte[] audio) {
-        int amountPossible = audio.length / 4096;
+        final int overlap = this.overlap > 0 ? this.overlap : this.windowSize;
+        int maxWidth = this.maxWidth > 0 ? this.maxWidth : Integer.MAX_VALUE;
+        int amountPossible = Math.min(maxWidth, ((audio.length - windowSize) / overlap)); //width of the image
         return IntStream.range(0, amountPossible)
-                .mapToObj(times -> IntStream.range(0, 4096)
-                                    .mapToObj(i -> new Complex(audio[(times * 4096) + i], 0))
+                .mapToObj(times -> IntStream.range(0, windowSize)
+                                    .mapToObj(i -> new Complex(audio[(times * overlap) + i], 0))
                                     .collect(Collectors.toList())
                 ).map(FFT::fft)
                 .collect(Collectors.toList())
                 .toArray(new Complex[amountPossible][])
         ;
     }
-
 
 }

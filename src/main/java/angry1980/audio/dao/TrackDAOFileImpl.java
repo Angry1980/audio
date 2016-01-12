@@ -31,15 +31,6 @@ public class TrackDAOFileImpl implements TrackDAO{
         ;
     }
 
-    private long getCluster(List<String> clusters, String path){
-        for(int i = 0; i < clusters.size(); i++){
-            if(path.startsWith(clusters.get(i))){
-                return i;
-            }
-        }
-        return 0;
-    }
-
     @Override
     public Optional<Track> get(long id) {
         return Optional.ofNullable(tracks.get(id));

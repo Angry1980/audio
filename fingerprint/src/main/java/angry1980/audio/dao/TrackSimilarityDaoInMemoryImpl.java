@@ -15,8 +15,8 @@ public class TrackSimilarityDaoInMemoryImpl implements TrackSimilarityDAO {
     }
 
     @Override
-    public Optional<List<TrackSimilarity>> findByTrackId(long trackId) {
-        return Optional.ofNullable(similarities.get(trackId));
+    public List<TrackSimilarity> tryToFindByTrackId(long trackId) {
+        return similarities.get(trackId);
     }
 
     @Override

@@ -4,7 +4,6 @@ import angry1980.audio.model.Fingerprint;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Optional;
 
 public class FingerprintDAOFakeImpl implements FingerprintDAO<Fingerprint>{
 
@@ -19,12 +18,12 @@ public class FingerprintDAOFakeImpl implements FingerprintDAO<Fingerprint>{
     }
 
     @Override
-    public Optional<Fingerprint> findByTrackId(long trackId) {
-        return Optional.empty();
+    public Fingerprint tryToFindByTrackId(long trackId) {
+        return null;
     }
 
     @Override
-    public Optional<Fingerprint> create(Fingerprint fingerprint) {
-        return Optional.of(fingerprint);
+    public Fingerprint tryToCreate(Fingerprint fingerprint) {
+        return fingerprint;
     }
 }

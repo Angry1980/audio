@@ -8,14 +8,19 @@ import java.util.Optional;
 
 public interface TrackDAO {
 
-    Optional<Track> get(long  id);
+    default Optional<Track> get(long  id){
+        return Optional.ofNullable(tryToGet(id));
+    }
+
+    Track tryToGet(long id);
 
     Collection<Track> findByCluster(long cluster);
 
     //todo: use paging
-    default Collection<Track> getAll(){
-        return tryToGetAll().orElseGet(() -> Collections.emptyList());
+    default Optional<Collection<Track>> getAll(){
+        return Optional.ofNullable(tryToGetAll());
     }
 
-    Optional<Collection<Track>> tryToGetAll();
+    //to support java versions less then 8
+    Collection<Track> tryToGetAll();
 }

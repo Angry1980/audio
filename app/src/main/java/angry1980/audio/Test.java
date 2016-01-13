@@ -1,6 +1,7 @@
 package angry1980.audio;
 
 import angry1980.audio.dao.*;
+import angry1980.audio.model.Track;
 import angry1980.audio.model.TrackSimilarity;
 import angry1980.audio.similarity.FindSimilarTracks;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.ComponentScan;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SpringBootApplication
 @ComponentScan(value = {"angry1980.audio.config"})
@@ -45,7 +47,7 @@ public class Test {
 
     public void init(){
         for(FindSimilarTracks handler : findSimilarTracks){
-            trackDAO.getAll().stream()
+            getTracks()
                     .peek(track -> System.out.println(handler + " " + track))
                     .map(track -> handler.apply(track.getId()))
                     .collect(Collectors.toList());
@@ -53,7 +55,7 @@ public class Test {
     }
 
     public void print(){
-        trackDAO.getAll().stream()
+        getTracks()
                 .peek(track -> System.out.println(track + " looks like"))
                 .map(track -> trackSimilarityDAO.findByTrackId(track.getId()))
                 .map(list -> list.orElseGet(() -> Collections.<TrackSimilarity>emptyList()))
@@ -64,5 +66,9 @@ public class Test {
                 .forEach(System.out::println)
         ;
 
+    }
+
+    private Stream<Track> getTracks(){
+        return trackDAO.getAll().orElseGet(() -> Collections.emptyList()).stream();
     }
 }

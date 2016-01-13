@@ -10,9 +10,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.LongFunction;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class FindSimilarTracks implements LongFunction<List<TrackSimilarity>>{
+public class FindSimilarTracks implements LongFunction<List<TrackSimilarity>>, Predicate<FingerprintType> {
 
     private TrackSimilarityDAO trackSimilarityDAO;
     private LongFunction<Fingerprint> fingerprintHandler;
@@ -27,6 +28,11 @@ public class FindSimilarTracks implements LongFunction<List<TrackSimilarity>>{
         this.fingerprintHandler = Objects.requireNonNull(fingerprintHandler);
         this.calculator = Objects.requireNonNull(calculator);
         this.fingerprintType = Objects.requireNonNull(fingerprintType);
+    }
+
+    @Override
+    public boolean test(FingerprintType fingerprintType) {
+        return this.fingerprintType.equals(fingerprintType);
     }
 
     @Override

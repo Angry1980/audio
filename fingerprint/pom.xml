@@ -54,7 +54,7 @@
         <!--<artifactId>jtransforms</artifactId>-->
         <!--<version>2.4.0</version>-->
         <!--</dependency>-->
-        <!-- fix java.io.IOException: mark/reset not supported -->
+        <!-- fix java.io.IOException: mark/reset not supported-->
         <dependency>
             <groupId>com.googlecode.soundlibs</groupId>
             <artifactId>mp3spi</artifactId>

@@ -32,14 +32,14 @@ public class TrackDAOFileImpl implements TrackDAO{
     }
 
     @Override
-    public Optional<Track> get(long id) {
-        return Optional.ofNullable(tracks.get(id));
+    public Track tryToGet(long id) {
+        return tracks.get(id);
     }
 
     @Override
     public Collection<Track> findByCluster(long cluster) {
         if(cluster == 0){
-            return getAll();
+            return tryToGetAll();
         }
         return tracks.values().stream()
                 .filter(track -> track.getCluster() == cluster)
@@ -47,8 +47,8 @@ public class TrackDAOFileImpl implements TrackDAO{
     }
 
     @Override
-    public Optional<Collection<Track>> tryToGetAll() {
-        return Optional.of(tracks.values());
+    public Collection<Track> tryToGetAll() {
+        return tracks.values();
 
     }
 }

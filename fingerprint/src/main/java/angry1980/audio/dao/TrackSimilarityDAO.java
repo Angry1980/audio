@@ -8,7 +8,11 @@ import java.util.Optional;
 
 public interface TrackSimilarityDAO {
 
-    Optional<List<TrackSimilarity>> findByTrackId(long trackId);
+    default Optional<List<TrackSimilarity>> findByTrackId(long trackId){
+        return Optional.ofNullable(tryToFindByTrackId(trackId));
+    }
+
+    List<TrackSimilarity> tryToFindByTrackId(long trackId);
 
     Optional<List<TrackSimilarity>> findByTrackIdAndFingerprintType(long trackId, FingerprintType type);
 

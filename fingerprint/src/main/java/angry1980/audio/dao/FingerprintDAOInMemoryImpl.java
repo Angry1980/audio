@@ -19,8 +19,8 @@ public class FingerprintDAOInMemoryImpl<F extends Fingerprint> implements Finger
     }
 
     @Override
-    public Optional<F> findByTrackId(long trackId) {
-        return Optional.ofNullable(fingerprints.get(trackId));
+    public F tryToFindByTrackId(long trackId) {
+        return fingerprints.get(trackId);
     }
 
     @Override
@@ -33,8 +33,9 @@ public class FingerprintDAOInMemoryImpl<F extends Fingerprint> implements Finger
     }
 
     @Override
-    public Optional<F> create(F fingerprint) {
+    public F tryToCreate(F fingerprint) {
         fingerprints.put(fingerprint.getTrackId(), fingerprint);
-        return Optional.of(fingerprint);
+        return fingerprint;
     }
+
 }

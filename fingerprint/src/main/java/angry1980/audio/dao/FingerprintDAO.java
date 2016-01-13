@@ -11,7 +11,15 @@ public interface FingerprintDAO<F extends Fingerprint> {
 
     Collection<F> findByTrackIds(long[] trackIds);
 
-    Optional<F> findByTrackId(long trackId);
+    default Optional<F> findByTrackId(long trackId){
+        return Optional.ofNullable(tryToFindByTrackId(trackId));
+    }
 
-    Optional<F> create(F fingerprint);
+    F tryToFindByTrackId(long trackId);
+
+    default Optional<F> create(F fingerprint){
+        return Optional.of(tryToCreate(fingerprint));
+    }
+
+    F tryToCreate(F fingerprint);
 }

@@ -12,6 +12,7 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 public class ChromaprintCalculator implements Calculator<HashFingerprint>{
 
@@ -39,7 +40,7 @@ public class ChromaprintCalculator implements Calculator<HashFingerprint>{
             params.add("1024");
 
             Process hasher = new ProcessBuilder().command(params).directory(new File("C:\\utils\\chromaprint")).start();
-
+            //hasher.waitFor(4, TimeUnit.SECONDS);
             ProcessWaiter.Result hasherResult = ProcessWaiter.waitFor(hasher, 5000);
 
             if (hasherResult.isTimeout()) {

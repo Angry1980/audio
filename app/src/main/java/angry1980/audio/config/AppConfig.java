@@ -3,6 +3,7 @@ package angry1980.audio.config;
 import angry1980.audio.Adapter;
 import angry1980.audio.LocalAdapter;
 import angry1980.audio.dao.*;
+import angry1980.audio.netflix.Tracks;
 import angry1980.utils.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -25,10 +26,15 @@ public class AppConfig {
     @Value("${music.similarity.data.file}")
     private String tsDataFile;
 
-    @Bean(destroyMethod = "shutdown", initMethod = "init")
+    @Bean
     public TrackSimilarityDAO trackSimilarityDAO(){
         //return new TrackSimilarityDAOInMemoryImpl();
-        return new TrackSimilarityDAONetflixGraphImpl(new File(tsDataFile));
+        return new TrackSimilarityDAONetflixGraphImpl(netflixTracks());
+    }
+
+    @Bean(destroyMethod = "save")
+    public Tracks netflixTracks(){
+        return new Tracks(new File(tsDataFile));
     }
 
     @Bean
@@ -50,6 +56,6 @@ public class AppConfig {
             }
             files.put(i, t);
         }
-        return new TrackDAOFileImpl(files);
+        return new TrackDAONetflixGraphImpl(netflixTracks(), new TrackDAOFileImpl(files));
     }
 }

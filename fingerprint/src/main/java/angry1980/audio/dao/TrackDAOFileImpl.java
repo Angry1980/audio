@@ -4,7 +4,6 @@ import angry1980.audio.model.Track;
 
 import java.nio.file.Path;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
@@ -14,20 +13,21 @@ public class TrackDAOFileImpl implements TrackDAO{
 
     public TrackDAOFileImpl(List<Path> files){
         Objects.requireNonNull(files);
-        this.tracks = LongStream.range(0, files.size())
+        this.tracks = new HashMap<>();
+        LongStream.range(0, files.size())
                 .mapToObj(id -> new Track(id, files.get((int) id).toString()))
-                .collect(Collectors.toMap(t -> t.getId(), Function.identity()))
+                .forEach(this::create)
         ;
-
     }
 
     public TrackDAOFileImpl(Map<Long, Map<Long, Path>> files) {
         Objects.requireNonNull(files);
-        this.tracks = files.entrySet().stream()
+        this.tracks = new HashMap<>();
+        files.entrySet().stream()
                 .flatMap(entry -> entry.getValue().entrySet().stream()
                                     .map(file -> new Track(file.getKey(), file.getValue().toString()))
                                     .map(t -> t.setCluster(entry.getKey()))
-                ).collect(Collectors.toMap(t -> t.getId(), Function.identity()))
+                ).forEach(this::create)
         ;
     }
 
@@ -49,6 +49,11 @@ public class TrackDAOFileImpl implements TrackDAO{
     @Override
     public Collection<Track> tryToGetAll() {
         return tracks.values();
+    }
 
+    @Override
+    public Track tryToCreate(Track track) {
+        tracks.put(track.getId(), track);
+        return track;
     }
 }

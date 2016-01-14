@@ -6,11 +6,11 @@ import angry1980.audio.model.TrackSimilarity;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class TrackSimilarityDaoInMemoryImpl implements TrackSimilarityDAO {
+public class TrackSimilarityDAOInMemoryImpl implements TrackSimilarityDAO {
 
     private Map<Long, List<TrackSimilarity>> similarities;
 
-    public TrackSimilarityDaoInMemoryImpl() {
+    public TrackSimilarityDAOInMemoryImpl() {
         this.similarities = new HashMap<>();
     }
 

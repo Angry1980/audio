@@ -17,4 +17,5 @@ public interface TrackSimilarityDAO {
     Optional<List<TrackSimilarity>> findByTrackIdAndFingerprintType(long trackId, FingerprintType type);
 
     Optional<TrackSimilarity> create(TrackSimilarity trackSimilarity);
+
 }

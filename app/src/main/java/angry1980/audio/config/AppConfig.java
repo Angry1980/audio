@@ -2,16 +2,14 @@ package angry1980.audio.config;
 
 import angry1980.audio.Adapter;
 import angry1980.audio.LocalAdapter;
-import angry1980.audio.dao.TrackDAO;
-import angry1980.audio.dao.TrackDAOFileImpl;
-import angry1980.audio.dao.TrackSimilarityDAO;
-import angry1980.audio.dao.TrackSimilarityDaoInMemoryImpl;
+import angry1980.audio.dao.*;
 import angry1980.utils.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -24,10 +22,13 @@ public class AppConfig {
 
     @Value("${music.input.folder}")
     private String inputFolder;
+    @Value("${music.similarity.data.file}")
+    private String tsDataFile;
 
-    @Bean
+    @Bean(destroyMethod = "shutdown")
     public TrackSimilarityDAO trackSimilarityDAO(){
-        return new TrackSimilarityDaoInMemoryImpl();
+        //return new TrackSimilarityDAOInMemoryImpl();
+        return new TrackSimilarityDAONetflixGraphImpl(new File(tsDataFile));
     }
 
     @Bean

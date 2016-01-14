@@ -25,7 +25,7 @@ public class AppConfig {
     @Value("${music.similarity.data.file}")
     private String tsDataFile;
 
-    @Bean(destroyMethod = "shutdown")
+    @Bean(destroyMethod = "shutdown", initMethod = "init")
     public TrackSimilarityDAO trackSimilarityDAO(){
         //return new TrackSimilarityDAOInMemoryImpl();
         return new TrackSimilarityDAONetflixGraphImpl(new File(tsDataFile));

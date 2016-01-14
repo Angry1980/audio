@@ -4,20 +4,19 @@ import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.TrackSimilarity;
 import com.netflix.nfgraph.OrdinalIterator;
 import com.netflix.nfgraph.build.NFBuildGraph;
-import com.netflix.nfgraph.compressed.NFCompressedGraph;
 import com.netflix.nfgraph.spec.NFGraphSpec;
 import com.netflix.nfgraph.spec.NFNodeSpec;
 import com.netflix.nfgraph.spec.NFPropertySpec;
 import com.netflix.nfgraph.util.OrdinalMap;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.attribute.FileAttribute;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/*
+ * There are not any mechanism for recreating an NFBuildGraph from an NFCompressedGraph.
+ * So this implementation can be used for accumulating and saving results only.
+ */
 public class TrackSimilarityDAONetflixGraphImpl implements TrackSimilarityDAO {
 
     private File source;
@@ -28,7 +27,6 @@ public class TrackSimilarityDAONetflixGraphImpl implements TrackSimilarityDAO {
 
     public TrackSimilarityDAONetflixGraphImpl(File source) {
         this.source = Objects.requireNonNull(source);
-        init();
     }
 
     @Override
@@ -65,21 +63,43 @@ public class TrackSimilarityDAONetflixGraphImpl implements TrackSimilarityDAO {
         return Optional.of(trackSimilarity);
     }
 
-    public void shutdown(){
-        NFCompressedGraph compressedGraph = graph.compress();
+    public void shutdown() {
+        DataOutputStream out = null;
+        //todo: refactor
         try {
             if(source.exists()) {
                 source.createNewFile();
             }
-            compressedGraph.writeTo(new FileOutputStream(source, true));
+            out = new DataOutputStream(new FileOutputStream(source, false));
+            out.writeInt(tracks.size());
+            for(long node: tracks){
+                out.writeLong(node);
+            }
+            out.writeInt(similarities.size());
+            for(String node: similarities){
+                out.writeUTF(node);
+            }
+            out.writeInt(types.size());
+            for(FingerprintType node: types){
+                out.writeUTF(node.name());
+            }
+            graph.compress().writeTo(out);
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if(out != null){
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
-    private void init(){
-        //todo: add cluster node
+    public void init(){
         NFGraphSpec schema = new NFGraphSpec(
+                //todo: add cluster node
                 new NFNodeSpec(
                         "Track",
                         new NFPropertySpec("has", "Similarity", NFPropertySpec.MULTIPLE | NFPropertySpec.COMPACT)
@@ -96,6 +116,7 @@ public class TrackSimilarityDAONetflixGraphImpl implements TrackSimilarityDAO {
         this.types = new OrdinalMap<>();
     }
 
+    //todo: as separate class
     private String similarity(TrackSimilarity ts){
         return ts.getTrack1() + "-" + ts.getTrack2() + "-" + ts.getValue();
     }

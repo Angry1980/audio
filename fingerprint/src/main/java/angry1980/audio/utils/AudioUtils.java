@@ -4,8 +4,8 @@ import org.tritonus.sampled.convert.PCM2PCMConversionProvider;
 
 import javax.sound.sampled.*;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Optional;
 
 public class AudioUtils {
@@ -21,9 +21,9 @@ public class AudioUtils {
             true //bigEndian
     );
 
-    public static Optional<AudioInputStream> createAudioInputStream(InputStream is){
-        try {
-            return Optional.of(AudioSystem.getAudioInputStream(is));
+    public static Optional<AudioInputStream> createAudioInputStream(File file){
+        try{
+            return Optional.of(AudioSystem.getAudioInputStream(file));
         } catch (UnsupportedAudioFileException e) {
             e.printStackTrace();
         } catch (IOException e) {

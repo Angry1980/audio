@@ -45,7 +45,7 @@ public class SpectrumBuilder {
 
     public Optional<Spectrum> build(Track track) {
         return Optional.of(track)
-                .flatMap(t -> adapter.getContent(t.getPath()))
+                .flatMap(adapter::getContent)
                 .flatMap(AudioUtils::createAudioInputStream)
                 .flatMap(AudioUtils::convertToPCM_SIGNED)
                 .flatMap(AudioUtils::createByteArray)

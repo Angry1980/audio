@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>audio</artifactId>
-        <groupId>angry1980</groupId>
+        <groupId>com.github.angry1980</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>audio-fingerprint</artifactId>

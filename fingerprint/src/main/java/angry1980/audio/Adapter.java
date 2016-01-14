@@ -1,14 +1,15 @@
 package angry1980.audio;
 
-import java.io.IOException;
-import java.io.InputStream;
+import angry1980.audio.model.Track;
+
+import java.io.File;
 import java.util.Optional;
 
 public interface Adapter {
 
-    default Optional<InputStream> getContent(String path){
+    default Optional<File> getContent(Track track){
         try {
-            return Optional.of(tryToGetContent(path));
+            return Optional.ofNullable(tryToGetContent(track));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -17,6 +18,9 @@ public interface Adapter {
     }
 
     //to support java versions that do not support Optional
-    InputStream tryToGetContent(String path) throws Exception;
+    File tryToGetContent(Track track) throws Exception;
 
+    default void clean(){
+
+    }
 }

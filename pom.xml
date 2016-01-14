@@ -8,10 +8,21 @@
     <packaging>pom</packaging>
     <version>0.0.1-SNAPSHOT</version>
 
+    <scm>
+        <connection>scm:git:git@github.com:angry1980/audio.git</connection>
+        <tag>HEAD</tag>
+    </scm>
+
     <modules>
         <module>fingerprint</module>
         <module>app</module>
     </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring.version>4.2.3.RELEASE</spring.version>
+        <spring.boot.version>1.3.0.RELEASE</spring.boot.version>
+    </properties>
 
     <build>
         <plugins>
@@ -31,8 +42,10 @@
         <dependencies>
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>spring-bom</artifactId>
-                <version>4.2.3.RELEASE</version>
+                <artifactId>spring-framework-bom</artifactId>
+                <version>${spring.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

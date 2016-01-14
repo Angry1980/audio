@@ -12,7 +12,7 @@
     <artifactId>audio-app</artifactId>
     <dependencies>
         <dependency>
-            <groupId>angry1980</groupId>
+            <groupId>com.github.angry1980</groupId>
             <artifactId>audio-fingerprint</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -8,14 +8,36 @@
     <packaging>pom</packaging>
     <version>0.0.2-SNAPSHOT</version>
 
+    <name>${project.artifactId}</name>
+    <description>Tools to create audio fingerprint and compare tracks between each other using different algorithms</description>
+    <url>https://github.com/Angry1980/audio</url>
+
+    <developers>
+        <developer>
+            <id>dkhomutov</id>
+            <name>Dmitry Khomutov</name>
+            <email>dhomutov@yandex.ru</email>
+            <timezone>+2</timezone>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <scm>
         <connection>scm:git:git@github.com:angry1980/audio.git</connection>
         <tag>HEAD</tag>
+        <url>https://github.com/Angry1980/audio.git</url>
     </scm>
 
     <distributionManagement>
         <repository>
-            <uniqueVersion>true</uniqueVersion>
+            <uniqueVersion>false</uniqueVersion>
             <id>sonatype-releases</id>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
@@ -48,6 +70,49 @@
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>deploy</phase>
+                        <goals><goal>jar-no-fork</goal></goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <phase>deploy</phase>
+                        <goals><goal>jar</goal></goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>deploy</phase>
+                        <goals><goal>sign</goal></goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!-- explicitly define maven-deploy-plugin after other to force exec order -->
+                <artifactId>maven-deploy-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>deploy</id>
+                        <phase>deploy</phase>
+                        <goals><goal>deploy</goal></goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

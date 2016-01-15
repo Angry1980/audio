@@ -1,8 +1,8 @@
 package angry1980.audio.dsl;
 
-
 import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.TrackSimilarity;
+import com.netflix.nfgraph.NFGraph;
 import com.netflix.nfgraph.OrdinalIterator;
 import com.netflix.nfgraph.build.NFBuildGraph;
 import com.netflix.nfgraph.spec.NFGraphSpec;
@@ -13,6 +13,7 @@ import com.netflix.nfgraph.util.OrdinalMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.IntConsumer;
 
 public class NetflixTrackDSL implements TrackDSL {
 
@@ -45,22 +46,6 @@ public class NetflixTrackDSL implements TrackDSL {
                 ),
                 new NFNodeSpec("SimilarityType")
         );
-    }
-
-    public void addTrack(long track){
-        tracks.add(track);
-    }
-
-    public void addCluster(long cluster){
-        clusters.add(cluster);
-    }
-
-    public void addSimilarity(String s){
-        similarities.add(s);
-    }
-
-    public void addType(FingerprintType type){
-        types.add(type);
     }
 
     public OrdinalMap<Long> getTracks() {
@@ -134,6 +119,14 @@ public class NetflixTrackDSL implements TrackDSL {
             return back();
         }
 
+        protected T importFrom(NFGraph graph, String r, IntConsumer c){
+            OrdinalIterator it = graph.getConnectionIterator(nodeType, ordinal, r);
+            int node;
+            while((node = it.nextOrdinal()) != OrdinalIterator.NO_MORE_ORDINALS) {
+                c.accept(node);
+            }
+            return back();
+        }
     }
 
     public class TrackNetflixBuilder extends NetflixBuilder<TrackNetflixBuilder> implements TrackBuilder<TrackNetflixBuilder>{
@@ -152,12 +145,20 @@ public class NetflixTrackDSL implements TrackDSL {
 
         @Override
         public TrackNetflixBuilder hasSimilarity(int similarityNode){
-            return property("has").to(similarityNode);
+            return property("has").to(similarityNode).addConnection();
+        }
+
+        public TrackNetflixBuilder hasSimilarity(NFGraph graph){
+            return importFrom(graph, "has", this::hasSimilarity);
         }
 
         @Override
         public TrackNetflixBuilder is(long cluster){
             return property("is").to(clusters.add(cluster)).addConnection();
+        }
+
+        public TrackNetflixBuilder is(NFGraph graph){
+            return importFrom(graph, "is", this::is);
         }
 
         @Override
@@ -193,12 +194,20 @@ public class NetflixTrackDSL implements TrackDSL {
 
         @Override
         public SimilarityNetflixBuilder typeOf(FingerprintType type){
-            return property("typeOf").to(types.add(type)).addConnection();
+            return typeOf(types.add(type));
+        }
+
+        public SimilarityNetflixBuilder typeOf(int typeNode){
+            return property("typeOf").to(typeNode).addConnection();
+        }
+
+        public SimilarityNetflixBuilder typeOf(NFGraph graph){
+            return importFrom(graph, "typeOf", this::typeOf);
         }
 
         @Override
         public SimilarityNetflixBuilder addTrack(long trackId){
-            track(trackId).hasSimilarity(ordinal).addConnection();
+            track(trackId).hasSimilarity(ordinal);
             return this;
         }
 

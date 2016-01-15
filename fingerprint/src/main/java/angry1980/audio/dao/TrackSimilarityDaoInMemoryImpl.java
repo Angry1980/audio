@@ -4,6 +4,8 @@ import angry1980.audio.model.TrackSimilarity;
 
 import java.util.*;
 
+@Deprecated
+//use TrackSimilarityDAODslImpl instead
 public class TrackSimilarityDAOInMemoryImpl implements TrackSimilarityDAO {
 
     private Map<Long, List<TrackSimilarity>> similarities;

@@ -1,13 +1,16 @@
 package angry1980.audio;
 
 import angry1980.audio.dao.*;
+import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.Track;
 import angry1980.audio.model.TrackSimilarity;
 import angry1980.audio.similarity.FindSimilarTracks;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 
 import java.util.Collections;
@@ -38,7 +41,12 @@ public class Test {
     private List<FindSimilarTracks> findSimilarTracks;
 
     public static void main(String[] args){
-        ApplicationContext context = new SpringApplication(Test.class).run(args);
+        SpringApplication sa = new SpringApplication(Test.class);
+        sa.setAdditionalProfiles(
+                FingerprintType.CHROMAPRINT.name(),
+                FingerprintType.PEAKS.name()
+        );
+        ConfigurableApplicationContext context = sa.run(args);
         //todo: add shutdown hook
         Test test = context.getBean(Test.class);
         test.init();

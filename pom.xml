@@ -6,7 +6,7 @@
     <groupId>com.github.angry1980</groupId>
     <artifactId>audio</artifactId>
     <packaging>pom</packaging>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
 
     <scm>
         <connection>scm:git:git@github.com:angry1980/audio.git</connection>

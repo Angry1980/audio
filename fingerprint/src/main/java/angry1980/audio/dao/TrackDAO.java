@@ -23,4 +23,10 @@ public interface TrackDAO {
 
     //to support java versions less then 8
     Collection<Track> tryToGetAll();
+
+    default Optional<Track> create(Track track){
+        return Optional.of(tryToCreate(track));
+    }
+
+    Track tryToCreate(Track track);
 }

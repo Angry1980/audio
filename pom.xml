@@ -16,6 +16,7 @@
     <modules>
         <module>fingerprint</module>
         <module>app</module>
+        <module>netflix</module>
     </modules>
 
     <properties>

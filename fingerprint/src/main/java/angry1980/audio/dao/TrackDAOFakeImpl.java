@@ -4,6 +4,7 @@ import angry1980.audio.model.Track;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 
 public class TrackDAOFakeImpl implements TrackDAO{
 
@@ -21,4 +22,15 @@ public class TrackDAOFakeImpl implements TrackDAO{
     public Collection<Track> tryToGetAll() {
         return null;
     }
+
+    @Override
+    public Optional<Track> create(Track track) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Track tryToCreate(Track track) {
+        return null;
+    }
+
 }

@@ -2,38 +2,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>audio</artifactId>
         <groupId>com.github.angry1980</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>audio-app</artifactId>
+    <artifactId>audio-netflix</artifactId>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-autoconfigure</artifactId>
-            <version>${spring.boot.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-actuator</artifactId>
-            <version>${spring.boot.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.github.angry1980</groupId>
             <artifactId>audio-fingerprint</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.angry1980</groupId>
-            <artifactId>audio-netflix</artifactId>
-            <version>${project.version}</version>
+            <groupId>com.netflix.nfgraph</groupId>
+            <artifactId>netflix-graph</artifactId>
+            <version>1.5</version>
         </dependency>
 
     </dependencies>
-
 
 </project>

@@ -5,6 +5,7 @@ import angry1980.audio.model.TrackSimilarity;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public interface TrackSimilarityDAO {
 
@@ -14,7 +15,14 @@ public interface TrackSimilarityDAO {
 
     List<TrackSimilarity> tryToFindByTrackId(long trackId);
 
-    Optional<List<TrackSimilarity>> findByTrackIdAndFingerprintType(long trackId, FingerprintType type);
+    default Optional<List<TrackSimilarity>> findByTrackIdAndFingerprintType(long trackId, FingerprintType type){
+        return Optional.of(
+                tryToFindByTrackId(trackId).stream()
+                        .filter(ts -> ts.getFingerprintType().equals(type))
+                        .collect(Collectors.toList())
+        ).filter(list -> !list.isEmpty());
+    }
 
     Optional<TrackSimilarity> create(TrackSimilarity trackSimilarity);
+
 }

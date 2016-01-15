@@ -1,6 +1,6 @@
-package angry1980.audio.netflix;
+package angry1980.audio.dsl;
 
-import angry1980.audio.dsl.TrackDSL;
+
 import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.TrackSimilarity;
 import com.netflix.nfgraph.OrdinalIterator;
@@ -10,29 +10,19 @@ import com.netflix.nfgraph.spec.NFNodeSpec;
 import com.netflix.nfgraph.spec.NFPropertySpec;
 import com.netflix.nfgraph.util.OrdinalMap;
 
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/*
- * There are not any mechanism for recreating an NFBuildGraph from an NFCompressedGraph.
- * So this implementation can be used for accumulating and saving results only.
- */
 public class NetflixTrackDSL implements TrackDSL {
 
-    private File source;
     private NFBuildGraph graph;
     private OrdinalMap<Long> tracks;
     private OrdinalMap<Long> clusters;
     private OrdinalMap<String> similarities;
     private OrdinalMap<FingerprintType> types;
 
-    public NetflixTrackDSL(File source) {
-        this.source = source;
+    public NetflixTrackDSL() {
         this.graph = new NFBuildGraph(getSchema());
         this.tracks = new OrdinalMap<>();
         this.clusters = new OrdinalMap<>();
@@ -41,6 +31,7 @@ public class NetflixTrackDSL implements TrackDSL {
 
     }
     private NFGraphSpec getSchema(){
+        //todo: move to builders
         return new NFGraphSpec(
                 new NFNodeSpec(
                         "Track",
@@ -56,6 +47,42 @@ public class NetflixTrackDSL implements TrackDSL {
         );
     }
 
+    public void addTrack(long track){
+        tracks.add(track);
+    }
+
+    public void addCluster(long cluster){
+        clusters.add(cluster);
+    }
+
+    public void addSimilarity(String s){
+        similarities.add(s);
+    }
+
+    public void addType(FingerprintType type){
+        types.add(type);
+    }
+
+    public OrdinalMap<Long> getTracks() {
+        return tracks;
+    }
+
+    public OrdinalMap<Long> getClusters() {
+        return clusters;
+    }
+
+    public OrdinalMap<String> getSimilarities() {
+        return similarities;
+    }
+
+    public OrdinalMap<FingerprintType> getTypes() {
+        return types;
+    }
+
+    public NFBuildGraph getGraph() {
+        return graph;
+    }
+
     @Override
     public TrackNetflixBuilder track(long track){
         return new TrackNetflixBuilder(track);
@@ -66,47 +93,12 @@ public class NetflixTrackDSL implements TrackDSL {
         return new SimilarityNetflixBuilder(ts);
     }
 
-    @Override
     public SimilarityNetflixBuilder similarity(int similarityNode){
         return new SimilarityNetflixBuilder(similarityNode);
     }
 
-    public void save(){
-        DataOutputStream out = null;
-        //todo: refactor
-        try {
-            if(source.exists()) {
-                source.createNewFile();
-            }
-            out = new DataOutputStream(new FileOutputStream(source, false));
-            out.writeInt(tracks.size());
-            for(long node: tracks){
-                out.writeLong(node);
-            }
-            out.writeInt(clusters.size());
-            for(long node: clusters){
-                out.writeLong(node);
-            }
-            out.writeInt(similarities.size());
-            for(String node: similarities){
-                out.writeUTF(node);
-            }
-            out.writeInt(types.size());
-            for(FingerprintType node: types){
-                out.writeUTF(node.name());
-            }
-            graph.compress().writeTo(out);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if(out != null){
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+    public SimilarityNetflixBuilder similarity(String similarity){
+        return new SimilarityNetflixBuilder(similarity);
     }
 
     public abstract class NetflixBuilder<T extends NetflixBuilder<T>> implements Builder<T>{

@@ -12,7 +12,6 @@ public interface TrackDSL {
 
     SimilarityBuilder similarity(TrackSimilarity ts);
 
-    SimilarityBuilder similarity(int similarityNode);
 
     interface Builder<T extends Builder<T>>{
 

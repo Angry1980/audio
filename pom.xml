@@ -52,6 +52,7 @@
         <module>fingerprint</module>
         <module>app</module>
         <module>netflix</module>
+        <module>lastfm</module>
     </modules>
 
     <properties>

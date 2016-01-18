@@ -32,6 +32,11 @@
             <artifactId>audio-netflix</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.angry1980</groupId>
+            <artifactId>audio-lastfm</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
     </dependencies>
 

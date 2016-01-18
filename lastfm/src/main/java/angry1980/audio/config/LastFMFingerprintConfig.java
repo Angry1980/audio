@@ -5,16 +5,16 @@ import angry1980.audio.dao.*;
 import angry1980.audio.fingerprint.*;
 import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.HashFingerprint;
-import angry1980.audio.similarity.HashErrorRatesCalculator;
 import angry1980.audio.similarity.FindSimilarTracks;
+import angry1980.audio.similarity.HashErrorRatesCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Profile("CHROMAPRINT")
-public class ChromaprintFingerprintConfig {
+@Profile("LASTFM")
+public class LastFMFingerprintConfig {
 
     @Autowired
     private Adapter adapter;
@@ -24,31 +24,31 @@ public class ChromaprintFingerprintConfig {
     private TrackDAO trackDAO;
 
     @Bean
-    public FingerprintDAO chromaprintFingerprintDAO(){
+    public FingerprintDAO lastFMFingerprintDAO(){
         return new FingerprintDAOInMemoryImpl<>();
     }
 
     @Bean
-    public Calculator<HashFingerprint> chromaprintCalculator(){
-        return new HashProcessCalculator(new ChromaprintProcessCreator(), adapter, FingerprintType.CHROMAPRINT);
+    public Calculator<HashFingerprint> lastFMCalculator(){
+        return new HashProcessCalculator(new LastFMProcessCreator(), adapter, FingerprintType.LASTFM);
     }
 
     @Bean
-    public FindSimilarTracks chromaprintFindSimilarTracks(){
+    public FindSimilarTracks lastFMFindSimilarTracks(){
         return new FindSimilarTracks(
                 trackSimilarityDAO,
-                chromaprintGetOrCreateFingerprint(),
-                new HashErrorRatesCalculator(FingerprintType.CHROMAPRINT, trackDAO, chromaprintFingerprintDAO()),
-                FingerprintType.CHROMAPRINT
+                lastFMGetOrCreateFingerprint(),
+                new HashErrorRatesCalculator(FingerprintType.LASTFM, trackDAO, lastFMFingerprintDAO()),
+                FingerprintType.LASTFM
         );
     }
 
     @Bean
-    public GetOrCreateFingerprint chromaprintGetOrCreateFingerprint(){
+    public GetOrCreateFingerprint lastFMGetOrCreateFingerprint(){
         return new GetOrCreateFingerprint(
-                chromaprintFingerprintDAO(),
+                lastFMFingerprintDAO(),
                 trackDAO,
-                chromaprintCalculator(),
+                lastFMCalculator(),
                 new HashInvertedIndex(new TrackHashDAOInMemoryImpl())
         );
     }

@@ -1,5 +1,6 @@
 package angry1980.audio.config;
 
+import angry1980.audio.Adapter;
 import angry1980.audio.dao.*;
 import angry1980.audio.fingerprint.*;
 import angry1980.audio.model.FingerprintType;
@@ -16,6 +17,8 @@ import org.springframework.context.annotation.Profile;
 public class ChromaprintFingerprintConfig {
 
     @Autowired
+    private Adapter adapter;
+    @Autowired
     private TrackSimilarityDAO trackSimilarityDAO;
     @Autowired
     private TrackDAO trackDAO;
@@ -27,7 +30,7 @@ public class ChromaprintFingerprintConfig {
 
     @Bean
     public Calculator<HashFingerprint> chromaprintCalculator(){
-        return new ChromaprintCalculator();
+        return new HashProcessCalculator(new ChromaprintProcessCreator(), adapter, FingerprintType.CHROMAPRINT);
     }
 
     @Bean

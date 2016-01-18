@@ -30,7 +30,7 @@ public class LastFMFingerprintConfig {
 
     @Bean
     public Calculator<HashFingerprint> lastFMCalculator(){
-        return new LastFMCalculator(adapter);
+        return new HashProcessCalculator(new LastFMProcessCreator(), adapter, FingerprintType.LASTFM);
     }
 
     @Bean

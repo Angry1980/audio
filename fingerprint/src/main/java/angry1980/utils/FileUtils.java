@@ -16,7 +16,7 @@ public class FileUtils {
     public static List<Path> getFiles(Path path, String postfix){
         final List<Path> files = new ArrayList<>();
         try {
-            java.nio.file.Files.walkFileTree(path, new SimpleFileVisitor<Path>(){
+            Files.walkFileTree(path, new SimpleFileVisitor<Path>(){
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     if(!attrs.isDirectory() && file.toString().endsWith(postfix)){

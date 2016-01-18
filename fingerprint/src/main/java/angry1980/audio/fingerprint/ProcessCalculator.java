@@ -1,45 +1,52 @@
 package angry1980.audio.fingerprint;
 
-import angry1980.audio.model.FingerprintType;
-import angry1980.audio.model.HashFingerprint;
+import angry1980.audio.Adapter;
+import angry1980.audio.model.Fingerprint;
 import angry1980.audio.model.Track;
 import angry1980.utils.ProcessWaiter;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
-public class ChromaprintCalculator implements Calculator<HashFingerprint>{
+public abstract class ProcessCalculator<F extends Fingerprint> implements Calculator<F>{
+
+    public interface ProcessCreator{
+
+        ProcessBuilder create(File file);
+
+    }
+
+    private Adapter adapter;
+    private ProcessCreator processCreator;
+
+    public ProcessCalculator(ProcessCreator creator, Adapter adapter) {
+        this.adapter = Objects.requireNonNull(adapter);
+        this.processCreator = Objects.requireNonNull(creator);
+    }
 
     @Override
-    public Optional<HashFingerprint> calculate(Track track) {
-        return Optional.of(new HashFingerprint(track.getId(), convertToInt(calculateAudioHash(track.getPath())), FingerprintType.CHROMAPRINT));
+    public Optional<F> calculate(Track track) {
+        return Optional.of(track)
+                .flatMap(adapter::getContent)
+                .map(this::calculateAudioHash)
+                .map(hash -> this.create(track, hash))
+        ;
     }
 
-    private int[] convertToInt(byte[] data){
-        int[] hashes = new int[data.length/4];
-        IntBuffer buff = ByteBuffer.wrap(data).asIntBuffer();
-        for (int i = 0; i < hashes.length; i ++){
-            hashes[i] = buff.get();
-        }
-        return hashes;
-    }
+    protected abstract F create(Track track, byte[] hash);
 
-    private byte[] calculateAudioHash(String file) {
+    private byte[] calculateAudioHash(File file){
         byte[] hashBuffer = null;
         try {
             List<String> params = new ArrayList<>();
-            params.add("fpcalc");
-            params.add(file);
-            params.add("-length");
-            params.add("1024");
+            params.add("lastfm-fpclient");
+            params.add(file.getAbsolutePath());
 
-            Process hasher = new ProcessBuilder().command(params).directory(new File("C:\\utils\\chromaprint")).start();
+            Process hasher = createProcess(file).start();
             //hasher.waitFor(4, TimeUnit.SECONDS);
             ProcessWaiter.Result hasherResult = ProcessWaiter.waitFor(hasher, 5000);
 
@@ -54,7 +61,14 @@ public class ChromaprintCalculator implements Calculator<HashFingerprint>{
             e.printStackTrace();
         }
         return hashBuffer;
+
     }
+
+    private ProcessBuilder createProcess(File file){
+        return processCreator.create(file);
+    }
+
+
     /*
 
     private static final int INT_LEN = 4;

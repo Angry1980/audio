@@ -6,10 +6,8 @@ import angry1980.audio.model.Track;
 import angry1980.audio.model.TrackSimilarity;
 import angry1980.audio.similarity.FindSimilarTracks;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 

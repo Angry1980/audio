@@ -12,20 +12,22 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class ChromaprintErrorRatesCalculator implements Calculator<HashFingerprint> {
+public class HashErrorRatesCalculator implements Calculator<HashFingerprint> {
 
     private static final double positiveLimit = 0.8;
 
+    private FingerprintType type;
     private TrackDAO trackDAO;
     private FingerprintDAO<HashFingerprint> fingerprintDAO;
     private int batchSize;
     private int errorLimit;
 
-    public ChromaprintErrorRatesCalculator(TrackDAO trackDAO, FingerprintDAO<HashFingerprint> fingerprintDAO){
-        this(trackDAO, fingerprintDAO, 25, 8);
+    public HashErrorRatesCalculator(FingerprintType type, TrackDAO trackDAO, FingerprintDAO<HashFingerprint> fingerprintDAO){
+        this(type, trackDAO, fingerprintDAO, 25, 8);
     }
 
-    public ChromaprintErrorRatesCalculator(TrackDAO trackDAO, FingerprintDAO<HashFingerprint> fingerprintDAO, int batchSize, int errorLimit) {
+    public HashErrorRatesCalculator(FingerprintType type, TrackDAO trackDAO, FingerprintDAO<HashFingerprint> fingerprintDAO, int batchSize, int errorLimit) {
+        this.type = type;
         this.trackDAO = Objects.requireNonNull(trackDAO);
         this.fingerprintDAO = Objects.requireNonNull(fingerprintDAO);
         this.batchSize = batchSize;
@@ -43,7 +45,7 @@ public class ChromaprintErrorRatesCalculator implements Calculator<HashFingerpri
                             fingerprint.getTrackId(),
                             fp.getTrackId(),
                             calculate(fingerprint.getHashes(), fp.getHashes()),
-                            FingerprintType.CHROMAPRINT)
+                            type)
                     ).filter(ts -> ts.getValue() > 20)
                     .collect(Collectors.toList())
                 ).orElseGet(() -> Collections.emptyList())

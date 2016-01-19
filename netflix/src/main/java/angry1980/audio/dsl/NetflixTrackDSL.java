@@ -143,7 +143,6 @@ public class NetflixTrackDSL implements TrackDSL {
             return this;
         }
 
-        @Override
         public TrackNetflixBuilder hasSimilarity(int similarityNode){
             return property("has").to(similarityNode).addConnection();
         }

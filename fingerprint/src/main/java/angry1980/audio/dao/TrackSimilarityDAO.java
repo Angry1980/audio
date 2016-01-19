@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public interface TrackSimilarityDAO {
+public interface TrackSimilarityDAO extends DAO<TrackSimilarity> {
 
     default Optional<List<TrackSimilarity>> findByTrackId(long trackId){
         return Optional.ofNullable(tryToFindByTrackId(trackId));
@@ -22,7 +22,5 @@ public interface TrackSimilarityDAO {
                         .collect(Collectors.toList())
         ).filter(list -> !list.isEmpty());
     }
-
-    Optional<TrackSimilarity> create(TrackSimilarity trackSimilarity);
 
 }

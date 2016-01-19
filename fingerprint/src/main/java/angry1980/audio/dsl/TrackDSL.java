@@ -19,8 +19,6 @@ public interface TrackDSL {
 
     interface TrackBuilder<T extends TrackBuilder<T>> extends Builder<T>{
 
-        T hasSimilarity(int similarityNode);
-
         T is(long cluster);
 
         List<TrackSimilarity> getSimilarities();
@@ -34,6 +32,7 @@ public interface TrackDSL {
         T addTrack(long trackId);
 
         Optional<TrackSimilarity> fetch(long trackId);
+
     }
 
 }

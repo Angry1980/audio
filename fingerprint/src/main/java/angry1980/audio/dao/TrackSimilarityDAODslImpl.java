@@ -18,13 +18,23 @@ public class TrackSimilarityDAODslImpl implements TrackSimilarityDAO {
     }
 
     @Override
-    public Optional<TrackSimilarity> create(TrackSimilarity trackSimilarity) {
+    public TrackSimilarity tryToGet(long id) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Collection<TrackSimilarity> tryToGetAll() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public TrackSimilarity tryToCreate(TrackSimilarity trackSimilarity) {
         trackDSL.similarity(trackSimilarity)
                 .typeOf(trackSimilarity.getFingerprintType())
                 .addTrack(trackSimilarity.getTrack1())
                 .addTrack(trackSimilarity.getTrack2())
         ;
-        return Optional.of(trackSimilarity);
+        return trackSimilarity;
     }
 
 }

@@ -24,7 +24,6 @@ public class AppConfig {
 
     @Bean
     public TrackSimilarityDAO trackSimilarityDAO(){
-        //return new TrackSimilarityDAOInMemoryImpl();
         return new TrackSimilarityDAODslImpl(netflixTrackDSL());
     }
 

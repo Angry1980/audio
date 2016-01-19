@@ -57,12 +57,5 @@ public class InMemoryTrackDSL implements TrackDSL {
             return this;
         }
 
-        @Override
-        public Optional<TrackSimilarity> fetch(long trackId) {
-            return similarities.getOrDefault(trackId, Collections.emptyList())
-                    .stream()
-                    .filter(ts::equals)
-                    .findAny();
-        }
     }
 }

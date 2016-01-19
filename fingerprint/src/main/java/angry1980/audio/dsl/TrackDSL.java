@@ -23,6 +23,8 @@ public interface TrackDSL {
 
         List<TrackSimilarity> getSimilarities();
 
+        long getCluster();
+
     }
 
     interface SimilarityBuilder<T extends SimilarityBuilder<T>> extends Builder<T>{
@@ -30,8 +32,6 @@ public interface TrackDSL {
         T typeOf(FingerprintType type);
 
         T addTrack(long trackId);
-
-        Optional<TrackSimilarity> fetch(long trackId);
 
     }
 

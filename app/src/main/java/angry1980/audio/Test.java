@@ -30,6 +30,7 @@ public class Test {
 //autotests
 //logging
 //process, process waiter refactoring
+//maven release
 
     @Autowired
     private TrackDAO trackDAO;

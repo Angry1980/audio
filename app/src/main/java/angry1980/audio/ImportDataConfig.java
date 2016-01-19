@@ -1,8 +1,9 @@
 package angry1980.audio;
 
 import angry1980.audio.dao.*;
-import angry1980.audio.dsl.InMemoryTrackDSL;
+import angry1980.audio.dsl.Neo4jTrackDSL;
 import angry1980.audio.dsl.TrackDSL;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -16,6 +17,8 @@ public class ImportDataConfig {
     private TrackDAO trackDAO;
     @Autowired
     private TrackSimilarityDAO trackSimilarityDAO;
+    @Autowired
+    private GraphDatabaseService graphDB;
 
     @Bean
     public DataImporter dataImporter(){
@@ -37,7 +40,7 @@ public class ImportDataConfig {
 
     @Bean
     public TrackDSL trackDSLToImport(){
-        return new InMemoryTrackDSL();
+        return new Neo4jTrackDSL(graphDB);
     }
 
 }

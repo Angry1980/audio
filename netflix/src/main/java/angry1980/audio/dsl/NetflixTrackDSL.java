@@ -210,28 +210,30 @@ public class NetflixTrackDSL implements TrackDSL {
             return this;
         }
 
-        @Override
         public Optional<TrackSimilarity> fetch(long track){
-            String s =  similarities.get(ordinal);
-            if(s == null){
-                return Optional.empty();
-            }
+            return Optional.ofNullable(similarities.get(ordinal))
+                    .flatMap(this::parse)
+                    .filter(ts -> ts.getTrack1() == track || ts.getTrack2() == track)
+                    .map(ts -> ts.getTrack1() == track ? ts : ts.reverse())
+                    ;
+        }
+
+        private Optional<TrackSimilarity> parse(String s){
             String[] r = s.split("-");
             if(r.length != 3){
                 return Optional.empty();
             }
             try{
-                long track1 = Long.decode(r[0]);
                 return Optional.of(new TrackSimilarity(
-                        track == track1 ? track1 : Long.decode(r[1]),
-                        track == track1 ? Long.decode(r[1]) : track1,
+                        Long.decode(r[0]),
+                        Long.decode(r[1]),
                         Integer.decode(r[2]),
                         types.get(graph.getConnection("Similarity", ordinal, "typeOf"))
                 ));
             } catch(NumberFormatException e){
                 return Optional.empty();
             }
-        }
 
+        }
     }
 }

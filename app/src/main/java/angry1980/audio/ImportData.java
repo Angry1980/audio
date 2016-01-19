@@ -21,7 +21,8 @@ public class ImportData {
         sa.setAdditionalProfiles(
                 FingerprintType.CHROMAPRINT.name(),
                 FingerprintType.PEAKS.name(),
-                FingerprintType.LASTFM.name()
+                FingerprintType.LASTFM.name(),
+                "IMPORT"
         );
         ConfigurableApplicationContext context = sa.run(args);
         //todo: add shutdown hook

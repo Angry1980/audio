@@ -2,6 +2,7 @@ package angry1980.audio.dsl;
 
 import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.TrackSimilarity;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.*;
 
@@ -12,6 +13,13 @@ public class InMemoryTrackDSL implements TrackDSL {
     @Override
     public TrackBuilder track(long track) {
         return new TrackBuilderImpl(track);
+    }
+
+    @Override
+    public long[] tracks() {
+        return similarities.keySet().stream()
+                .mapToLong(l -> l)
+                .toArray();
     }
 
     @Override
@@ -35,6 +43,11 @@ public class InMemoryTrackDSL implements TrackDSL {
         @Override
         public List<TrackSimilarity> getSimilarities() {
             return similarities.get(trackId);
+        }
+
+        @Override
+        public long getCluster() {
+            return 0;
         }
     }
 

@@ -10,6 +10,8 @@ public interface TrackDSL {
 
     TrackBuilder track(long track);
 
+    long[] tracks();
+
     SimilarityBuilder similarity(TrackSimilarity ts);
 
 

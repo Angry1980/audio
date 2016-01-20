@@ -23,6 +23,18 @@ public class Neo4jTrackDSL implements TrackDSL, InitializingBean{
     }
 
     @Override
+    public long[] tracks() {
+        try(Transaction tx = graphDB.beginTx()){
+            List<Long> r = new ArrayList<>();
+            graphDB.findNodes(NodeType.TRACK).forEachRemaining(
+                    node -> r.add((Long) node.getProperty("id"))
+            );
+            tx.success();
+            return r.stream().mapToLong(l -> l).toArray();
+        }
+    }
+
+    @Override
     public SimilarityBuilder similarity(TrackSimilarity ts) {
         return new Neo4jSimilarityBuilder(ts);
     }
@@ -66,19 +78,27 @@ public class Neo4jTrackDSL implements TrackDSL, InitializingBean{
 
         @Override
         public List<TrackSimilarity> getSimilarities() {
-            Node node = getOrCreate(NodeType.TRACK, trackId);
-            List<TrackSimilarity> result = new ArrayList<>();
-            for(Relationship r : node.getRelationships(RelsType.SIMILAR)){
-                result.add(
-                        new TrackSimilarity(
-                                trackId,
-                                (Long)r.getEndNode().getProperty("id"),
-                                (Integer)r.getProperty("weight"),
-                                FingerprintType.valueOf((String) r.getProperty("type"))
-                        )
-                );
+            try(Transaction tx = graphDB.beginTx()){
+                Node node = getOrCreate(NodeType.TRACK, trackId);
+                List<TrackSimilarity> result = new ArrayList<>();
+                for(Relationship r : node.getRelationships(RelsType.SIMILAR)){
+                    result.add(
+                            new TrackSimilarity(
+                                    trackId,
+                                    (Long)r.getEndNode().getProperty("id"),
+                                    (Integer)r.getProperty("weight"),
+                                    FingerprintType.valueOf((String) r.getProperty("type"))
+                            )
+                    );
+                }
+                tx.success();
+                return result;
             }
-            return result;
+        }
+
+        @Override
+        public long getCluster() {
+            return 0;
         }
     }
 

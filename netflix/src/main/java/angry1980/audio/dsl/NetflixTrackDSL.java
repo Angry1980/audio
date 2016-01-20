@@ -69,6 +69,15 @@ public class NetflixTrackDSL implements TrackDSL {
     }
 
     @Override
+    public long[] tracks() {
+        long[] r = new long[tracks.size()];
+        for(int o = 0; o < tracks.size(); o++){
+            r[o] = tracks.get(o);
+        }
+        return r;
+    }
+
+    @Override
     public TrackNetflixBuilder track(long track){
         return new TrackNetflixBuilder(track);
     }
@@ -169,6 +178,11 @@ public class NetflixTrackDSL implements TrackDSL {
                 similarity(s).fetch(trackId).ifPresent(tss::add);
             }
             return tss;
+        }
+
+        @Override
+        public long getCluster() {
+            return 0;
         }
     }
 

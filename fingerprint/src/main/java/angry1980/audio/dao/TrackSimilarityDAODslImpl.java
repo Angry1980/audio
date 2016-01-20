@@ -3,6 +3,7 @@ package angry1980.audio.dao;
 import angry1980.audio.dsl.TrackDSL;
 import angry1980.audio.model.TrackSimilarity;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class TrackSimilarityDAODslImpl implements TrackSimilarityDAO {
 
@@ -24,7 +25,10 @@ public class TrackSimilarityDAODslImpl implements TrackSimilarityDAO {
 
     @Override
     public Collection<TrackSimilarity> tryToGetAll() {
-        throw new UnsupportedOperationException();
+        return Arrays.stream(trackDSL.tracks())
+                .mapToObj(l -> l)
+                .flatMap(t -> this.tryToFindByTrackId(t).stream())
+                .collect(Collectors.toList());
     }
 
     @Override

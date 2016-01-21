@@ -6,6 +6,7 @@ import angry1980.audio.fingerprint.*;
 import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.HashFingerprint;
 import angry1980.audio.similarity.FindSimilarTracks;
+import angry1980.audio.similarity.FindSimilarTracksImpl;
 import angry1980.audio.similarity.HashErrorRatesCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -35,7 +36,7 @@ public class LastFMFingerprintConfig {
 
     @Bean
     public FindSimilarTracks lastFMFindSimilarTracks(){
-        return new FindSimilarTracks(
+        return new FindSimilarTracksImpl(
                 trackSimilarityDAO,
                 lastFMGetOrCreateFingerprint(),
                 new HashErrorRatesCalculator(FingerprintType.LASTFM, trackDAO, lastFMFingerprintDAO()),

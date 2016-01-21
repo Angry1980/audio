@@ -40,8 +40,8 @@ public class DataImporter {
         }
 
         public boolean isEmpty(){
-            return !trackDAO.getAll().isPresent()
-                    && !trackSimilarityDAO.getAll().isPresent();
+            return trackDAO.getAll().map(c -> c.isEmpty()).orElse(true)
+                    && trackSimilarityDAO.getAll().map(c -> c.isEmpty()).orElse(true);
         }
 
         public TrackDAO getTrackDAO() {

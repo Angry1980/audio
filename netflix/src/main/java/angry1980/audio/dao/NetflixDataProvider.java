@@ -34,22 +34,27 @@ public class NetflixDataProvider implements InitializingBean {
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         if(!source.exists()){
             return;
         }
-        DataInputStream in = new DataInputStream(new FileInputStream(source));
-        longVocabulary.read(in, data.getTracks());
-        longVocabulary.read(in, data.getClusters());
-        stringVocabulary.read(in, data.getPaths());
-        stringVocabulary.read(in, data.getSimilarities());
-        typeVocabulary.read(in, data.getTypes());
-        NFGraph graph = NFCompressedGraph.readFrom(in);
-        in.close();
-        copyConnections(graph, data.getSimilarities(), NetflixNodeType.SIMILARITY, NetflixRelationType.TYPE_OF);
-        copyConnections(graph, data.getTracks(), NetflixNodeType.TRACK, NetflixRelationType.HAS);
-        copyConnections(graph, data.getTracks(), NetflixNodeType.TRACK, NetflixRelationType.IS);
-        copyConnections(graph, data.getTracks(), NetflixNodeType.TRACK, NetflixRelationType.SITUATED);
+        try {
+            DataInputStream in = new DataInputStream(new FileInputStream(source));
+            longVocabulary.read(in, data.getTracks());
+            longVocabulary.read(in, data.getClusters());
+            stringVocabulary.read(in, data.getPaths());
+            stringVocabulary.read(in, data.getSimilarities());
+            typeVocabulary.read(in, data.getTypes());
+            NFGraph graph = NFCompressedGraph.readFrom(in);
+            in.close();
+            copyConnections(graph, data.getSimilarities(), NetflixNodeType.SIMILARITY, NetflixRelationType.TYPE_OF);
+            copyConnections(graph, data.getTracks(), NetflixNodeType.TRACK, NetflixRelationType.HAS);
+            copyConnections(graph, data.getTracks(), NetflixNodeType.TRACK, NetflixRelationType.IS);
+            copyConnections(graph, data.getTracks(), NetflixNodeType.TRACK, NetflixRelationType.SITUATED);
+        } catch(Exception e){
+            //todo: clean data
+            System.out.print(e);
+        }
     }
 
     private <T> void copyConnections(NFGraph graph, OrdinalMap<T> values, NetflixNodeType nodeType, NetflixRelationType relationType){

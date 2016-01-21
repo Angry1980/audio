@@ -23,9 +23,7 @@ public class Test {
 //todo:
 //similarity type - comparing, minhash, errorrates
 // parameters for different implementations to props file
-//neo4j
 // observable service
-//last fm
 //wavelet
 //autotests
 //logging

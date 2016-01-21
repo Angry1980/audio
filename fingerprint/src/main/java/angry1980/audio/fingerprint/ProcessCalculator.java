@@ -7,8 +7,7 @@ import angry1980.utils.ProcessWaiter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -42,9 +41,6 @@ public abstract class ProcessCalculator<F extends Fingerprint> implements Calcul
     private byte[] calculateAudioHash(File file){
         byte[] hashBuffer = null;
         try {
-            List<String> params = new ArrayList<>();
-            params.add("lastfm-fpclient");
-            params.add(file.getAbsolutePath());
 
             Process hasher = createProcess(file).start();
             //hasher.waitFor(4, TimeUnit.SECONDS);
@@ -52,6 +48,7 @@ public abstract class ProcessCalculator<F extends Fingerprint> implements Calcul
 
             if (hasherResult.isTimeout()) {
             } else if (hasherResult.getCode() != 0) {
+                System.err.println(new String(hasherResult.getErrorStream().toByteArray()));
             } else {
                 hashBuffer = hasherResult.getOutputStream().toByteArray();
             }

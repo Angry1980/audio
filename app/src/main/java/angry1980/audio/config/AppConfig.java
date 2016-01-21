@@ -4,11 +4,11 @@ import angry1980.audio.Adapter;
 import angry1980.audio.LocalAdapter;
 import angry1980.audio.FileTracksProvider;
 import angry1980.audio.dao.*;
-import angry1980.audio.dsl.NetflixDataProvider;
-import angry1980.audio.dsl.NetflixTrackDSL;
+import angry1980.audio.dao.NetflixDataProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 
 import java.io.File;
@@ -24,12 +24,12 @@ public class AppConfig {
 
     @Bean
     public TrackSimilarityDAO trackSimilarityDAO(){
-        return new TrackSimilarityDAODslImpl(netflixTrackDSL());
+        return new TrackSimilarityDAONetflixImpl(netflixData());
     }
 
     @Bean
-    public NetflixTrackDSL netflixTrackDSL(){
-        return new NetflixTrackDSL();
+    public NetflixData netflixData(){
+        return new NetflixData();
     }
 
     @Bean
@@ -39,16 +39,17 @@ public class AppConfig {
 
     @Bean
     public TrackDAO trackDAO(){
-        return new TrackDAODslImpl(netflixTrackDSL(), new TrackDAOInMemoryImpl());
+        return new TrackDAONetflixImpl(netflixData());
     }
 
     @Bean
+    @Profile("!IMPORT")
     public FileTracksProvider tracksProvider(){
         return new FileTracksProvider(inputFolder, trackDAO());
     }
 
     @Bean(destroyMethod = "save")
     public NetflixDataProvider netflixDataProvider(){
-        return new NetflixDataProvider(new File(tsDataFile), netflixTrackDSL());
+        return new NetflixDataProvider(new File(tsDataFile), netflixData());
     }
 }

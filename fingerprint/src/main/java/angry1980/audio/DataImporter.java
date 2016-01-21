@@ -14,6 +14,10 @@ public class DataImporter {
     }
 
     public void importTo(TrackDataEnvironment to){
+        if(!to.isEmpty()){
+            System.out.println("Data has been already imported");
+            return;
+        }
         from.getTrackDAO().getAll()
                 .flatMap(to.getTrackDAO()::createAll)
                 .ifPresent(
@@ -33,6 +37,11 @@ public class DataImporter {
         public TrackDataEnvironment(TrackDAO trackDAO, TrackSimilarityDAO trackSimilarityDAO) {
             this.trackDAO = Objects.requireNonNull(trackDAO);
             this.trackSimilarityDAO = Objects.requireNonNull(trackSimilarityDAO);
+        }
+
+        public boolean isEmpty(){
+            return trackDAO.getAll().map(c -> c.isEmpty()).orElse(true)
+                    && trackSimilarityDAO.getAll().map(c -> c.isEmpty()).orElse(true);
         }
 
         public TrackDAO getTrackDAO() {

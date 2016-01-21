@@ -1,6 +1,8 @@
-package angry1980.audio.dsl;
+package angry1980.audio.dao;
 
 import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.NetflixNodeType;
+import angry1980.audio.model.NetflixRelationType;
 import com.netflix.nfgraph.NFGraph;
 import com.netflix.nfgraph.OrdinalIterator;
 import com.netflix.nfgraph.compressed.NFCompressedGraph;
@@ -12,7 +14,7 @@ import java.io.*;
 public class NetflixDataProvider implements InitializingBean {
 
     private File source;
-    private NetflixTrackDSL tracks;
+    private NetflixData data;
     private Vocabulary<String> stringVocabulary = new Vocabulary<>(
                                                 in -> in.readUTF(),
                                                 (out, node) -> out.writeUTF(node)
@@ -26,25 +28,46 @@ public class NetflixDataProvider implements InitializingBean {
                                                 (out, node) -> out.writeUTF(node.name())
     );
 
-    public NetflixDataProvider(File source, NetflixTrackDSL tracks) {
+    public NetflixDataProvider(File source, NetflixData data) {
         this.source = source;
-        this.tracks = tracks;
+        this.data = data;
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         if(!source.exists()){
             return;
         }
-        DataInputStream in = new DataInputStream(new FileInputStream(source));
-        longVocabulary.read(in, tracks.getTracks());
-        longVocabulary.read(in, tracks.getClusters());
-        stringVocabulary.read(in, tracks.getSimilarities());
-        typeVocabulary.read(in, tracks.getTypes());
-        NFGraph graph = NFCompressedGraph.readFrom(in);
-        in.close();
-        tracks.getSimilarities().forEach(s -> tracks.similarity(s).typeOf(graph));
-        tracks.getTracks().forEach(t -> tracks.track(t).hasSimilarity(graph).is(graph));
+        try {
+            DataInputStream in = new DataInputStream(new FileInputStream(source));
+            longVocabulary.read(in, data.getTracks());
+            longVocabulary.read(in, data.getClusters());
+            stringVocabulary.read(in, data.getPaths());
+            stringVocabulary.read(in, data.getSimilarities());
+            typeVocabulary.read(in, data.getTypes());
+            NFGraph graph = NFCompressedGraph.readFrom(in);
+            in.close();
+            copyConnections(graph, data.getSimilarities(), NetflixNodeType.SIMILARITY, NetflixRelationType.TYPE_OF);
+            copyConnections(graph, data.getTracks(), NetflixNodeType.TRACK, NetflixRelationType.HAS);
+            copyConnections(graph, data.getTracks(), NetflixNodeType.TRACK, NetflixRelationType.IS);
+            copyConnections(graph, data.getTracks(), NetflixNodeType.TRACK, NetflixRelationType.SITUATED);
+        } catch(Exception e){
+            //todo: clean data
+            System.out.print(e);
+        }
+    }
+
+    private <T> void copyConnections(NFGraph graph, OrdinalMap<T> values, NetflixNodeType nodeType, NetflixRelationType relationType){
+        values.forEach(
+                t -> {
+                    int ordinal = values.get(t);
+                    OrdinalIterator it = graph.getConnectionIterator(nodeType.name(), ordinal, relationType.name());
+                    int s;
+                    while((s = it.nextOrdinal()) != OrdinalIterator.NO_MORE_ORDINALS) {
+                        data.getGraph().addConnection(nodeType.name(), ordinal, relationType.name(), s);
+                    }
+                }
+        );
     }
 
     public void save(){
@@ -57,11 +80,12 @@ public class NetflixDataProvider implements InitializingBean {
             }
         }
         try(DataOutputStream out = new DataOutputStream(new FileOutputStream(source, false))) {
-            longVocabulary.write(out, tracks.getTracks());
-            longVocabulary.write(out, tracks.getClusters());
-            stringVocabulary.write(out, tracks.getSimilarities());
-            typeVocabulary.write(out, tracks.getTypes());
-            tracks.getGraph().compress().writeTo(out);
+            longVocabulary.write(out, data.getTracks());
+            longVocabulary.write(out, data.getClusters());
+            stringVocabulary.write(out, data.getPaths());
+            stringVocabulary.write(out, data.getSimilarities());
+            typeVocabulary.write(out, data.getTypes());
+            data.getGraph().compress().writeTo(out);
         } catch (IOException e) {
             e.printStackTrace();
         }

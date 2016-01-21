@@ -23,4 +23,8 @@ public interface TrackSimilarityDAO extends DAO<TrackSimilarity> {
         ).filter(list -> !list.isEmpty());
     }
 
+    @Override
+    default TrackSimilarity tryToGet(long id) {
+        throw new UnsupportedOperationException();
+    }
 }

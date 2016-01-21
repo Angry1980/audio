@@ -14,11 +14,6 @@ public class DataImporter {
     }
 
     public void importTo(TrackDataEnvironment to){
-        from.getTrackSimilarityDAO().getAll()
-                .flatMap(to.getTrackSimilarityDAO()::createAll)
-                .isPresent();
-
-/*
         from.getTrackDAO().getAll()
                 .flatMap(to.getTrackDAO()::createAll)
                 .ifPresent(
@@ -28,7 +23,6 @@ public class DataImporter {
                                                 .flatMap(to.getTrackSimilarityDAO()::createAll)
                                     )
                 );
-*/
     }
 
     public static class TrackDataEnvironment{

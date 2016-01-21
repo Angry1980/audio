@@ -43,8 +43,8 @@ public class Test {
         SpringApplication sa = new SpringApplication(Test.class);
         sa.setAdditionalProfiles(
                 FingerprintType.CHROMAPRINT.name(),
-                FingerprintType.PEAKS.name(),
-                FingerprintType.LASTFM.name()
+                FingerprintType.PEAKS.name()//,
+                //FingerprintType.LASTFM.name()
         );
         ConfigurableApplicationContext context = sa.run(args);
         //todo: add shutdown hook

@@ -5,6 +5,8 @@ import angry1980.audio.LocalAdapter;
 import angry1980.audio.FileTracksProvider;
 import angry1980.audio.dao.*;
 import angry1980.audio.dao.NetflixDataProvider;
+import angry1980.audio.service.TrackService;
+import angry1980.audio.service.TrackServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,5 +53,10 @@ public class AppConfig {
     @Bean(destroyMethod = "save")
     public NetflixDataProvider netflixDataProvider(){
         return new NetflixDataProvider(new File(tsDataFile), netflixData());
+    }
+
+    @Bean
+    public TrackService trackService(){
+        return new TrackServiceImpl(trackDAO());
     }
 }

@@ -1,8 +1,10 @@
 package angry1980.audio.dao;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public interface DAO<T> {
@@ -15,6 +17,10 @@ public interface DAO<T> {
     T tryToGet(long id);
 
     //todo: use paging
+    default Collection<T> getAllOrEmpty(){
+        return getAll().orElseGet(() -> Collections.emptyList());
+    }
+
     default Optional<Collection<T>> getAll(){
         return Optional.ofNullable(tryToGetAll());
     }

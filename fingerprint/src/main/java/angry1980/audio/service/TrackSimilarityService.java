@@ -7,6 +7,8 @@ import rx.Observable;
 
 public interface TrackSimilarityService {
 
+    Observable<Track> getTracksToCalculateSimilarity();
+
     Observable<TrackSimilarities> findOrCalculateSimilarities(Track track);
 
     Observable<TrackSimilarities> findOrCalculateSimilarities(Track track, FingerprintType fingerprintType);

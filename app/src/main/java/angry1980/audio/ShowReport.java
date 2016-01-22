@@ -1,8 +1,6 @@
 package angry1980.audio;
 
 import angry1980.audio.model.FingerprintType;
-import angry1980.audio.model.Track;
-import angry1980.audio.model.TrackSimilarity;
 import angry1980.audio.service.TrackSimilarityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,10 +9,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Import;
-
-import java.util.Collections;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @SpringBootApplication
 @Import(ShowReportConfig.class)
@@ -35,12 +29,12 @@ public class ShowReport {
                 FingerprintType.CHROMAPRINT.name(),
                 FingerprintType.PEAKS.name(),
                 FingerprintType.LASTFM.name(),
-                "IMPORT"
+                "IMPORT",
+                "NEO4J"
         );
         ConfigurableApplicationContext context = sa.run(args);
-        //todo: add shutdown hook
+        context.registerShutdownHook();
         context.getBean(ShowReport.class).importData().print();
-        ;
     }
 
     public ShowReport importData(){
@@ -49,12 +43,13 @@ public class ShowReport {
     }
 
     public void print(){
-        trackSimilarityService.getReport().subscribe(ts -> {
-            LOG.info("{} looks like", ts.getTrack());
-            ts.groupByTrack().entrySet().stream()
-                    .map(Object::toString)
-                    .forEach(LOG::info);
-        });
+        trackSimilarityService.getReport()
+                .subscribe(ts -> {
+                    LOG.info("{} looks like", ts.getTrack());
+                    ts.groupByTrack().entrySet().stream()
+                        .map(Object::toString)
+                        .forEach(LOG::info);
+                });
     }
 
 }

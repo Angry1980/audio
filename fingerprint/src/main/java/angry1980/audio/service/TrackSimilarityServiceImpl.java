@@ -6,23 +6,33 @@ import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.Track;
 import angry1980.audio.similarity.FindSimilarTracks;
 import angry1980.audio.similarity.TrackSimilarities;
+import angry1980.audio.similarity.TracksToCalculate;
 import angry1980.utils.ImmutableCollectors;
 import rx.Observable;
 
 import java.util.List;
+import java.util.Objects;
 
 public class TrackSimilarityServiceImpl implements TrackSimilarityService {
 
     private TrackDAO trackDAO;
     private TrackSimilarityDAO trackSimilarityDAO;
     private List<FindSimilarTracks> findSimilarTracks;
+    private TracksToCalculate tracksToCalculate;
 
     public TrackSimilarityServiceImpl(TrackDAO trackDAO,
                                       TrackSimilarityDAO trackSimilarityDAO,
-                                      List<FindSimilarTracks> findSimilarTracks) {
-        this.trackDAO = trackDAO;
-        this.trackSimilarityDAO = trackSimilarityDAO;
-        this.findSimilarTracks = findSimilarTracks;
+                                      List<FindSimilarTracks> findSimilarTracks,
+                                      TracksToCalculate tracksToCalculate) {
+        this.trackDAO = Objects.requireNonNull(trackDAO);
+        this.trackSimilarityDAO = Objects.requireNonNull(trackSimilarityDAO);
+        this.findSimilarTracks = Objects.requireNonNull(findSimilarTracks);
+        this.tracksToCalculate = Objects.requireNonNull(tracksToCalculate);
+    }
+
+    @Override
+    public Observable<Track> getTracksToCalculateSimilarity() {
+        return tracksToCalculate.get();
     }
 
     @Override

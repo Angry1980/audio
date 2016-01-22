@@ -1,7 +1,6 @@
 package angry1980.audio;
 
 import angry1980.audio.model.FingerprintType;
-import angry1980.audio.service.TrackService;
 import angry1980.audio.service.TrackSimilarityService;
 import angry1980.audio.similarity.TrackSimilarities;
 import org.slf4j.Logger;
@@ -12,10 +11,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import rx.Subscriber;
+import rx.schedulers.Schedulers;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 
 @SpringBootApplication
 @ComponentScan(value = {"angry1980.audio.config"})
-public class Calculate extends Subscriber<TrackSimilarities>{
+public class Calculate{
 
     private static Logger LOG = LoggerFactory.getLogger(Calculate.class);
 //todo:
@@ -27,7 +30,7 @@ public class Calculate extends Subscriber<TrackSimilarities>{
 //maven release
 
     @Autowired
-    private TrackService trackService;
+    private Executor executor;
     @Autowired
     private TrackSimilarityService trackSimilarityService;
 
@@ -39,36 +42,54 @@ public class Calculate extends Subscriber<TrackSimilarities>{
                 //FingerprintType.LASTFM.name()
         );
         ConfigurableApplicationContext context = sa.run(args);
-        //todo: add shutdown hook
-        Calculate test = context.getBean(Calculate.class);
-        test.run();
+        context.registerShutdownHook();
+        CountDownLatch latch = new CountDownLatch(1);
+        context.getBean(Calculate.class).run(latch);
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            LOG.error("Error while application working", e);
+        }
+        context.close();
     }
 
-    public void run(){
-        //todo: try few threads
-        trackService.getTracksToCalculateSimilarity()
+    public void run(CountDownLatch latch){
+        trackSimilarityService.getTracksToCalculateSimilarity()
                 .doOnNext(track -> LOG.info("Similarity calculation for {}", track))
+                .observeOn(Schedulers.from(executor))
                 .flatMap(trackSimilarityService::findOrCalculateSimilarities)
-                .subscribe(this);
+                .subscribeOn(Schedulers.from(executor))
+                .subscribe(new SubscriberImpl(latch));
     }
 
-    @Override
-    public void onError(Throwable throwable) {
-        LOG.error("Error while track similarity calculation", throwable);
-    }
+    public class SubscriberImpl extends Subscriber<TrackSimilarities>{
 
-    @Override
-    public void onNext(TrackSimilarities result) {
-        LOG.info("Similarity calculation for {} is finished", result.getTrack());
-    }
+        private CountDownLatch latch;
 
-    @Override
-    public void onCompleted() {
-        trackSimilarityService.getReport().subscribe(ts -> {
-            LOG.info("{} looks like", ts.getTrack());
-            ts.groupByTrack().entrySet().stream()
-                    .map(Object::toString)
-                    .forEach(LOG::info);
-        });
+        public SubscriberImpl(CountDownLatch latch) {
+            this.latch = latch;
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+            LOG.error("Error while track similarity calculation", throwable);
+        }
+
+        @Override
+        public void onNext(TrackSimilarities result) {
+            LOG.info("Similarity calculation for {} is finished", result.getTrack());
+        }
+
+        @Override
+        public void onCompleted() {
+            trackSimilarityService.getReport().subscribe(ts -> {
+                LOG.info("{} looks like", ts.getTrack());
+                ts.groupByTrack().entrySet().stream()
+                        .map(Object::toString)
+                        .forEach(LOG::info);
+            });
+            latch.countDown();
+        }
+
     }
 }

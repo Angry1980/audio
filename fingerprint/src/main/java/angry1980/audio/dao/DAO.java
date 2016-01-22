@@ -1,5 +1,7 @@
 package angry1980.audio.dao;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
@@ -15,6 +17,10 @@ public interface DAO<T> {
     T tryToGet(long id);
 
     //todo: use paging
+    default Collection<T> getAllOrEmpty(){
+        return getAll().orElseGet(ImmutableList::of);
+    }
+
     default Optional<Collection<T>> getAll(){
         return Optional.ofNullable(tryToGetAll());
     }

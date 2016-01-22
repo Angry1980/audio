@@ -6,10 +6,12 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.io.File;
 
 @Configuration
+@Profile("NEO4J")
 public class Neo4jConfig implements InitializingBean{
 
     @Bean

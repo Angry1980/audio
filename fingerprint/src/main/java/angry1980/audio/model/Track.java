@@ -7,11 +7,16 @@ public class Track {
     private final long id;
     private final String path;
     //for test purpose only
-    private long cluster;
+    private final long cluster;
 
     public Track(long id, String path) {
+        this(id, path, -1);
+    }
+
+    public Track(long id, String path, long cluster) {
         this.id = id;
         this.path = path;
+        this.cluster = cluster;
     }
 
     public String getPath() {
@@ -24,11 +29,6 @@ public class Track {
 
     public long getCluster() {
         return cluster;
-    }
-
-    public Track setCluster(long cluster) {
-        this.cluster = cluster;
-        return this;
     }
 
     @Override

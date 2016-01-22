@@ -48,7 +48,7 @@ public class TrackDAONetflixImpl extends Netflix<Long> implements TrackDAO{
     }
 
     private Track track(long id){
-        return new Track(id, trackPath(id)).setCluster(trackCluster(id));
+        return new Track(id, trackPath(id), trackCluster(id));
     }
 
     private String trackPath(long id){

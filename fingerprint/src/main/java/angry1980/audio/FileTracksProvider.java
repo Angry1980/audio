@@ -37,8 +37,7 @@ public class FileTracksProvider implements InitializingBean{
         }
         files.entrySet().stream()
                 .flatMap(entry -> entry.getValue().entrySet().stream()
-                        .map(file -> new Track(file.getKey(), file.getValue().toString()))
-                        .map(t -> t.setCluster(entry.getKey()))
+                        .map(file -> new Track(file.getKey(), file.getValue().toString(), entry.getKey()))
                 ).forEach(trackDAO::create)
         ;
 

@@ -2,10 +2,14 @@ package angry1980.audio;
 
 import angry1980.audio.dao.TrackDAO;
 import angry1980.audio.dao.TrackSimilarityDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
 public class DataImporter {
+
+    private static Logger LOG = LoggerFactory.getLogger(DataImporter.class);
 
     private TrackDataEnvironment from;
 
@@ -15,7 +19,7 @@ public class DataImporter {
 
     public void importTo(TrackDataEnvironment to){
         if(!to.isEmpty()){
-            System.out.println("Data has been already imported");
+            LOG.info("Data has been already imported");
             return;
         }
         from.getTrackDAO().getAll()

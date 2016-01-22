@@ -1,5 +1,7 @@
 package angry1980.audio.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tritonus.sampled.convert.PCM2PCMConversionProvider;
 
 import javax.sound.sampled.*;
@@ -9,6 +11,8 @@ import java.io.IOException;
 import java.util.Optional;
 
 public class AudioUtils {
+
+    private static Logger LOG = LoggerFactory.getLogger(AudioUtils.class);
 
     private AudioUtils(){
     }
@@ -24,10 +28,8 @@ public class AudioUtils {
     public static Optional<AudioInputStream> createAudioInputStream(File file){
         try{
             return Optional.of(AudioSystem.getAudioInputStream(file));
-        } catch (UnsupportedAudioFileException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOG.error("Error while trying to create audio input stream", e);
         }
         return Optional.empty();
     }
@@ -42,7 +44,7 @@ public class AudioUtils {
             }
             return Optional.of(out.toByteArray());
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("Error while reading audio content", e);
         }
         return Optional.empty();
     }
@@ -60,7 +62,7 @@ public class AudioUtils {
                 false
         );
         if (!conversionProvider.isConversionSupported(PCM_SIGNED_FORMAT, decodedFormat)) {
-            System.out.println("Conversion is not supported");
+            LOG.warn("Conversion to PCM signed format is not supported");
             return Optional.empty();
         }
         return Optional.ofNullable(

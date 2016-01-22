@@ -1,10 +1,10 @@
 package angry1980.audio.dao;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public interface DAO<T> {
@@ -18,7 +18,7 @@ public interface DAO<T> {
 
     //todo: use paging
     default Collection<T> getAllOrEmpty(){
-        return getAll().orElseGet(() -> Collections.emptyList());
+        return getAll().orElseGet(ImmutableList::of);
     }
 
     default Optional<Collection<T>> getAll(){

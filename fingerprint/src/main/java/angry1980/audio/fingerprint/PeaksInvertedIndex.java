@@ -32,7 +32,6 @@ public class PeaksInvertedIndex implements InvertedIndex<PeaksFingerprint>, Calc
                             )
                     )
                 ).entrySet().stream()
-                    //.peek(System.out::println)
                     //calculate sum of offsets counts for each track
                     .map(entry -> entry.getValue().entrySet().stream()
                                         .filter(entry1 -> entry1.getValue() > 10)

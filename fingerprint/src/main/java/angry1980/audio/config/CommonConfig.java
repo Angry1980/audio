@@ -1,5 +1,7 @@
 package angry1980.audio.config;
 
+import angry1980.audio.dao.TrackDAO;
+import angry1980.audio.dao.TrackSimilarityDAO;
 import angry1980.audio.service.TrackSimilarityService;
 import angry1980.audio.service.TrackSimilarityServiceImpl;
 import angry1980.audio.similarity.FindSimilarTracks;
@@ -15,6 +17,10 @@ public class CommonConfig {
 
     @Autowired
     private List<FindSimilarTracks> findSimilarTracksList;
+    @Autowired
+    private TrackDAO trackDAO;
+    @Autowired
+    private TrackSimilarityDAO trackSimilarityDAO;
 
     @Bean
     public FindSimilarTracks fakeFindSimilarTracks(){
@@ -23,6 +29,6 @@ public class CommonConfig {
 
     @Bean
     public TrackSimilarityService trackSimilarityService(){
-        return new TrackSimilarityServiceImpl(findSimilarTracksList);
+        return new TrackSimilarityServiceImpl(trackDAO, trackSimilarityDAO, findSimilarTracksList);
     }
 }

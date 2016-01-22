@@ -7,11 +7,15 @@ import com.netflix.nfgraph.NFGraph;
 import com.netflix.nfgraph.OrdinalIterator;
 import com.netflix.nfgraph.compressed.NFCompressedGraph;
 import com.netflix.nfgraph.util.OrdinalMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.io.*;
 
 public class NetflixDataProvider implements InitializingBean {
+
+    private static Logger LOG = LoggerFactory.getLogger(NetflixDataProvider.class);
 
     private File source;
     private NetflixData data;
@@ -53,7 +57,7 @@ public class NetflixDataProvider implements InitializingBean {
             copyConnections(graph, data.getTracks(), NetflixNodeType.TRACK, NetflixRelationType.SITUATED);
         } catch(Exception e){
             //todo: clean data
-            System.out.print(e);
+            LOG.error("Error while trying to restore data", e);
         }
     }
 
@@ -75,7 +79,7 @@ public class NetflixDataProvider implements InitializingBean {
             try {
                 source.createNewFile();
             } catch (IOException e) {
-                e.printStackTrace();
+                LOG.error("Error while trying to create file to save data", e);
                 return;
             }
         }
@@ -87,7 +91,7 @@ public class NetflixDataProvider implements InitializingBean {
             typeVocabulary.write(out, data.getTypes());
             data.getGraph().compress().writeTo(out);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("Error while saving data", e);
         }
     }
 

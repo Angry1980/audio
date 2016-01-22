@@ -4,14 +4,16 @@ import angry1980.audio.Adapter;
 import angry1980.audio.model.Fingerprint;
 import angry1980.audio.model.Track;
 import angry1980.utils.ProcessWaiter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
 public abstract class ProcessCalculator<F extends Fingerprint> implements Calculator<F>{
+
+    private static Logger LOG = LoggerFactory.getLogger(ProcessCalculator.class);
 
     public interface ProcessCreator{
 
@@ -48,14 +50,12 @@ public abstract class ProcessCalculator<F extends Fingerprint> implements Calcul
 
             if (hasherResult.isTimeout()) {
             } else if (hasherResult.getCode() != 0) {
-                System.err.println(new String(hasherResult.getErrorStream().toByteArray()));
+                LOG.error("Calculation of audio hash finished with errors: {}", new String(hasherResult.getErrorStream().toByteArray()));
             } else {
                 hashBuffer = hasherResult.getOutputStream().toByteArray();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOG.error("Error while calculating audio hash for file {}", file.getAbsolutePath());
         }
         return hashBuffer;
 

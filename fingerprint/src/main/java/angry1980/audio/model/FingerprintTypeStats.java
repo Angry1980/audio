@@ -3,7 +3,7 @@ package angry1980.audio.model;
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface TrackSimilarityStats {
+public interface FingerprintTypeStats {
 
     FingerprintType getType();
     int getTruthPositive();

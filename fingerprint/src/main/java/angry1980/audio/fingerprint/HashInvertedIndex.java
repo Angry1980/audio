@@ -33,13 +33,7 @@ public class HashInvertedIndex implements InvertedIndex<HashFingerprint>, Calcul
                 .collect(
                         Collectors.groupingBy(TrackHash::getTrackId)
                 ).entrySet().stream()
-                .map(entry -> entry.getValue().stream()
-                    .reduce(
-                        TrackSimilarity.create(fingerprint, entry.getKey()),
-                        (ts, th) -> ts.add(1),
-                        TrackSimilarity::add
-                    )
-                )
+                .map(entry -> InvertedIndex.reduceTrackSimilarity(fingerprint, entry.getKey(), entry.getValue().stream()))
                 .filter(ts -> ts.getValue() > 0)
                 .collect(Collectors.toList());
     }

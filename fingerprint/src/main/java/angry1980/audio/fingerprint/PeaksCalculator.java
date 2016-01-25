@@ -1,9 +1,6 @@
 package angry1980.audio.fingerprint;
 
-import angry1980.audio.model.Peak;
-import angry1980.audio.model.PeaksFingerprint;
-import angry1980.audio.model.Spectrum;
-import angry1980.audio.model.Track;
+import angry1980.audio.model.*;
 import angry1980.audio.utils.Complex;
 import angry1980.audio.utils.SpectrumBuilder;
 import angry1980.audio.Adapter;
@@ -34,16 +31,32 @@ public class PeaksCalculator implements Calculator<PeaksFingerprint>{
     public Optional<PeaksFingerprint> calculate(Track track) {
         return builder.build(track)
                 .map(this::determineKeyPoints)
-                .map(points -> PeaksFingerprint.build(track.getId(), points))
+                .map(points -> build(track.getId(), points))
         ;
     }
+    private PeaksFingerprint build(long trackId, List<Peak> peaks){
+        return ImmutablePeaksFingerprint.builder()
+                .trackId(trackId)
+                .points(peaks)
+                .build();
+    }
+
 
     private List<Peak> determineKeyPoints(Spectrum spectrum) {
         return IntStream.range(0, spectrum.getData().length)
                 .mapToObj(t -> new Numbered<>(t, hash(spectrum.getData()[t])))
-                .map(t -> Peak.build(spectrum.getTrackId(), t.getNumberAsInt(), t.getValue()))
+                .map(t -> build(spectrum.getTrackId(), t.getNumberAsInt(), t.getValue()))
                 .collect(Collectors.toList());
     }
+
+    private Peak build(long trackId, int time, long hash){
+        return ImmutablePeak.builder()
+                .trackId(trackId)
+                .time(time)
+                .hash(hash)
+                .build();
+    }
+
 
     private long hash(Complex[] data){
         return hash(ranges.stream()

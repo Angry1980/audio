@@ -1,5 +1,7 @@
 package angry1980.audio.config;
 
+import angry1980.audio.service.TrackSimilarityStatsService;
+import angry1980.audio.service.TrackSimilarityStatsServiceNeo4jImpl;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
@@ -26,5 +28,10 @@ public class Neo4jConfig implements InitializingBean{
     @Override
     public void afterPropertiesSet() throws Exception {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> graphDatabaseService().shutdown()));
+    }
+
+    @Bean
+    public TrackSimilarityStatsService trackSimilarityStatsService(){
+        return new TrackSimilarityStatsServiceNeo4jImpl(graphDatabaseService());
     }
 }

@@ -1,10 +1,9 @@
 package angry1980.audio.service;
 
 import angry1980.audio.model.FingerprintTypeStats;
-
-import java.util.List;
+import rx.Observable;
 
 public interface TrackSimilarityStatsService {
 
-    List<FingerprintTypeStats> getFingerprintTypeStats();
+    Observable<FingerprintTypeStats> getFingerprintTypeStats();
 }

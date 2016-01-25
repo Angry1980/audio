@@ -34,13 +34,10 @@ public class PeaksInvertedIndex implements InvertedIndex<PeaksFingerprint>, Calc
                     )
                 ).entrySet().stream()
                     //calculate sum of offsets counts for each track
-                    .map(entry -> entry.getValue().entrySet().stream()
-                                        .filter(entry1 -> entry1.getValue() > 10)
-                                        .map(entry1 -> entry1.getValue())
-                                        .reduce(
-                                                TrackSimilarity.create(fingerprint, entry.getKey()),
-                                                TrackSimilarity::add,
-                                                TrackSimilarity::add
+                    .map(entry -> InvertedIndex.reduceTrackSimilarity(fingerprint, entry.getKey(),
+                                        entry.getValue().entrySet().stream()
+                                            .filter(entry1 -> entry1.getValue() > 10)
+                                            .map(entry1 -> entry1.getValue())
                                         )
                     ).filter(ts -> ts.getValue() > 0)
                     .collect(Collectors.toList());

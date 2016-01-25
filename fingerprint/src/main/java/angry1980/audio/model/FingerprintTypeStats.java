@@ -6,13 +6,10 @@ import org.immutables.value.Value;
 public interface FingerprintTypeStats {
 
     FingerprintType getType();
-    int getTruthPositive();
-    int getTruthNegative();
     int getFalsePositive();
     int getFalseNegative();
+    int getTruthPositive();
     int getTracksCount();
     int getClustersCount();
-    long getBestCluster();
-    long getBestTrack();
 
 }

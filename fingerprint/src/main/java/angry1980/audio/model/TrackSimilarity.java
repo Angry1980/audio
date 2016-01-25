@@ -7,20 +7,14 @@ import java.util.Objects;
 @Value.Immutable
 public abstract class TrackSimilarity {
 
-    public static TrackSimilarity create(Fingerprint f, long track2){
-        return ImmutableTrackSimilarity.builder()
-                .track1(f.getTrackId())
-                .track2(track2)
-                .value(0)
-                .fingerprintType(f.getType())
-                .build();
-    }
-
     public abstract long getTrack1();
 
     public abstract long getTrack2();
 
-    public abstract int getValue();
+    @Value.Default
+    public int getValue(){
+        return 0;
+    }
 
     public abstract FingerprintType getFingerprintType();
 

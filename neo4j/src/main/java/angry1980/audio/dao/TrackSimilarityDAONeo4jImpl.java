@@ -58,6 +58,7 @@ public class TrackSimilarityDAONeo4jImpl extends Neo4jRelation implements TrackS
                 .filter(rl -> s.getFingerprintType().name().equals(rl.getProperty("type")))
                 .findAny()
                 .orElseGet(() -> from.createRelationshipTo(to, Neo4jRelationType.SIMILAR));
+        r.setProperty(ID_PROPERTY_NAME, s.getTrack1() + "-" + s.getTrack2() + "-" + s.getFingerprintType());
         r.setProperty("weight", s.getValue());
         r.setProperty("type", s.getFingerprintType().name());
     }

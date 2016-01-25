@@ -51,9 +51,17 @@ public class SpectrumBuilder {
                 .flatMap(AudioUtils::convertToPCM_SIGNED)
                 .flatMap(AudioUtils::createByteArray)
                 .map(this::calculateSpectrum)
-                .map(c -> Spectrum.build(track.getId(), c))
+                .map(c -> build(track.getId(), c))
                 ;
     }
+
+    private Spectrum build(long trackId, Complex[][] data){
+        return ImmutableSpectrum.builder()
+                .trackId(trackId)
+                .data(data)
+                .build();
+    }
+
 
     private Complex[][] calculateSpectrum(byte[] audio) {
         final int overlap = this.overlap > 0 ? this.overlap : this.windowSize;

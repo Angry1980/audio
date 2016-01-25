@@ -3,6 +3,7 @@ package angry1980.audio.dao;
 import angry1980.audio.model.Neo4jNodeType;
 import angry1980.audio.model.Neo4jRelationType;
 import org.neo4j.graphdb.*;
+import org.neo4j.helpers.collection.IteratorUtil;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -55,8 +56,7 @@ public abstract class Neo4j {
     }
 
     protected Stream<Node> getAllNodes(GraphDatabaseService graphDB, Neo4jNodeType type) {
-        Iterable<Node> iterable = () -> graphDB.findNodes(type);
-        return StreamSupport.stream(iterable.spliterator(), false);
+        return StreamSupport.stream(IteratorUtil.asIterable(graphDB.findNodes(type)).spliterator(), false);
     }
 
     protected Stream<Relationship> getConnections(Node node, Neo4jRelationType type){

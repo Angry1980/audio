@@ -8,13 +8,6 @@ import java.util.Objects;
 @Value.Immutable
 public interface Spectrum {
 
-    static Spectrum build(long trackId, Complex[][] data){
-        return ImmutableSpectrum.builder()
-                .trackId(trackId)
-                .data(data)
-                .build();
-    }
-
     long getTrackId();
     Complex[][] getData();
 }

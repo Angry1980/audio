@@ -1,25 +1,17 @@
 package angry1980.audio.model;
 
-import java.util.Collections;
+import org.immutables.value.Value;
+
 import java.util.List;
 
-public class PeaksFingerprint implements Fingerprint {
+@Value.Immutable
+public abstract class PeaksFingerprint implements Fingerprint {
 
-    private final long trackId;
-    private List<Peak> points;
-
-    public PeaksFingerprint(long trackId) {
-        this(trackId, Collections.emptyList());
-    }
-
-    public PeaksFingerprint(long trackId, List<Peak> points) {
-        this.trackId = trackId;
-        this.points = points;
-    }
-
-    @Override
-    public long getTrackId() {
-        return trackId;
+    public static PeaksFingerprint build(long trackId, List<Peak> peaks){
+        return ImmutablePeaksFingerprint.builder()
+                    .trackId(trackId)
+                    .points(peaks)
+                        .build();
     }
 
     @Override
@@ -27,23 +19,5 @@ public class PeaksFingerprint implements Fingerprint {
         return FingerprintType.PEAKS;
     }
 
-    public List<Peak> getPoints() {
-        return points;
-    }
-
-    public void setPoints(List<Peak> points) {
-        if(points == null){
-            return;
-        }
-        this.points = points;
-    }
-
-    @Override
-    public String toString() {
-        return "PeaksFingerprint{" +
-                "trackId=" + trackId +
-                ", type="+ getType() +
-                '}';
-    }
-
+    public abstract List<Peak> getPoints();
 }

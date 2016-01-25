@@ -1,6 +1,7 @@
 package angry1980.audio;
 
 import angry1980.audio.dao.TrackDAO;
+import angry1980.audio.model.ImmutableTrack;
 import angry1980.audio.model.Track;
 import angry1980.utils.FileUtils;
 import org.springframework.beans.factory.InitializingBean;
@@ -37,7 +38,12 @@ public class FileTracksProvider implements InitializingBean{
         }
         files.entrySet().stream()
                 .flatMap(entry -> entry.getValue().entrySet().stream()
-                        .map(file -> new Track(file.getKey(), file.getValue().toString(), entry.getKey()))
+                        .map(file -> ImmutableTrack.builder()
+                                        .id(file.getKey())
+                                        .path(file.getValue().toString())
+                                        .cluster(entry.getKey())
+                                        .build()
+                        )
                 ).forEach(trackDAO::create)
         ;
 

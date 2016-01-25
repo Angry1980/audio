@@ -1,9 +1,6 @@
 package angry1980.audio.dao;
 
-import angry1980.audio.model.FingerprintType;
-import angry1980.audio.model.Neo4jNodeType;
-import angry1980.audio.model.Neo4jRelationType;
-import angry1980.audio.model.TrackSimilarity;
+import angry1980.audio.model.*;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -66,11 +63,11 @@ public class TrackSimilarityDAONeo4jImpl extends Neo4jRelation implements TrackS
     }
 
     private TrackSimilarity fromRelationToTrackSimilarity(Relationship r){
-        return new TrackSimilarity(
-                getId(r.getStartNode()),
-                getId(r.getEndNode()),
-                (Integer)r.getProperty("weight"),
-                FingerprintType.valueOf((String) r.getProperty("type"))
-        );
+        return ImmutableTrackSimilarity.builder()
+                .track1(getId(r.getStartNode()))
+                .track2(getId(r.getEndNode()))
+                .value((Integer) r.getProperty("weight"))
+                .fingerprintType(FingerprintType.valueOf((String) r.getProperty("type")))
+                    .build();
     }
 }

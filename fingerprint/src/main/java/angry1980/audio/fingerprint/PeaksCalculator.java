@@ -34,14 +34,14 @@ public class PeaksCalculator implements Calculator<PeaksFingerprint>{
     public Optional<PeaksFingerprint> calculate(Track track) {
         return builder.build(track)
                 .map(this::determineKeyPoints)
-                .map(points -> new PeaksFingerprint(track.getId(), points))
+                .map(points -> PeaksFingerprint.build(track.getId(), points))
         ;
     }
 
     private List<Peak> determineKeyPoints(Spectrum spectrum) {
         return IntStream.range(0, spectrum.getData().length)
                 .mapToObj(t -> new Numbered<>(t, hash(spectrum.getData()[t])))
-                .map(t -> new Peak(spectrum.getTrackId(), t.getNumberAsInt(), t.getValue()))
+                .map(t -> Peak.build(spectrum.getTrackId(), t.getNumberAsInt(), t.getValue()))
                 .collect(Collectors.toList());
     }
 

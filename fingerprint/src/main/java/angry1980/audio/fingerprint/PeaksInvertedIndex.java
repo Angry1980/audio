@@ -1,6 +1,7 @@
 package angry1980.audio.fingerprint;
 
 import angry1980.audio.dao.PeakDAO;
+import angry1980.audio.model.ImmutableTrackSimilarity;
 import angry1980.audio.model.PeaksFingerprint;
 import angry1980.audio.model.TrackSimilarity;
 import angry1980.audio.similarity.Calculator;
@@ -37,7 +38,7 @@ public class PeaksInvertedIndex implements InvertedIndex<PeaksFingerprint>, Calc
                                         .filter(entry1 -> entry1.getValue() > 10)
                                         .map(entry1 -> entry1.getValue())
                                         .reduce(
-                                                new TrackSimilarity(fingerprint.getTrackId(), entry.getKey(), 0, fingerprint.getType()),
+                                                TrackSimilarity.create(fingerprint, entry.getKey()),
                                                 TrackSimilarity::add,
                                                 TrackSimilarity::add
                                         )

@@ -1,36 +1,21 @@
 package angry1980.audio.model;
 
-public class Peak {
+import org.immutables.value.Value;
 
-    private long trackId;
-    private final int time;
-    private final long hash;
+@Value.Immutable
+public interface Peak {
 
-    public Peak(long trackId, int time, long hash) {
-        this.trackId = trackId;
-        this.time = time;
-        this.hash = hash;
+    static Peak build(long trackId, int time, long hash){
+        return ImmutablePeak.builder()
+                .trackId(trackId)
+                .time(time)
+                .hash(hash)
+                .build();
     }
 
-    public long getTrackId() {
-        return trackId;
-    }
+    long getTrackId();
+    int getTime();
+    long getHash();
 
-    public int getTime() {
-        return time;
-    }
-
-    public long getHash() {
-        return hash;
-    }
-
-    @Override
-    public String toString() {
-        return "Peak{" +
-                "time=" + time +
-                ", trackId=" + trackId +
-                ", hash=" + hash +
-                '}';
-    }
 }
 

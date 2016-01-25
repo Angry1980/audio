@@ -1,6 +1,7 @@
 package angry1980.audio.utils;
 
 import angry1980.audio.Adapter;
+import angry1980.audio.model.ImmutableSpectrum;
 import angry1980.audio.model.Spectrum;
 import angry1980.audio.model.Track;
 
@@ -50,7 +51,7 @@ public class SpectrumBuilder {
                 .flatMap(AudioUtils::convertToPCM_SIGNED)
                 .flatMap(AudioUtils::createByteArray)
                 .map(this::calculateSpectrum)
-                .map(c -> new Spectrum(track.getId(), c))
+                .map(c -> Spectrum.build(track.getId(), c))
                 ;
     }
 

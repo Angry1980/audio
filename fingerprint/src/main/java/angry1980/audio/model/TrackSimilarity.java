@@ -1,50 +1,42 @@
 package angry1980.audio.model;
 
+import org.immutables.value.Value;
+
 import java.util.Objects;
 
-public class TrackSimilarity {
+@Value.Immutable
+public abstract class TrackSimilarity {
 
-    private final long track1;
-    private final long track2;
-    private final int value;
-    private final FingerprintType fingerprintType;
-
-    public TrackSimilarity(long track1, long track2, int value, FingerprintType fingerprintType) {
-        this.track1 = track1;
-        this.track2 = track2;
-        this.value = value;
-        this.fingerprintType = fingerprintType;
+    public static TrackSimilarity create(Fingerprint f, long track2){
+        return ImmutableTrackSimilarity.builder()
+                .track1(f.getTrackId())
+                .track2(track2)
+                .value(0)
+                .fingerprintType(f.getType())
+                .build();
     }
 
-    public long getTrack1() {
-        return track1;
-    }
+    public abstract long getTrack1();
 
-    public long getTrack2() {
-        return track2;
-    }
+    public abstract long getTrack2();
 
-    public int getValue() {
-        return value;
-    }
+    public abstract int getValue();
 
-    public FingerprintType getFingerprintType() {
-        return fingerprintType;
-    }
+    public abstract FingerprintType getFingerprintType();
 
     public TrackSimilarity add(int value){
-        return new TrackSimilarity(this.track1, this.track2, this.value + value, this.fingerprintType);
+        return ImmutableTrackSimilarity.builder().from(this).value(getValue() + value).build();
     }
 
     public TrackSimilarity add(TrackSimilarity other){
         if(!this.equals(other)){
             return this;
         }
-        return this.add(other.value);
+        return this.add(other.getValue());
     }
 
     public TrackSimilarity reverse(){
-        return new TrackSimilarity(this.track2, this.track1, this.value, this.fingerprintType);
+        return ImmutableTrackSimilarity.builder().from(this).track1(getTrack2()).track2(getTrack1()).build();
     }
 
     @Override
@@ -52,23 +44,14 @@ public class TrackSimilarity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TrackSimilarity that = (TrackSimilarity) o;
-        return track1 == that.track1 &&
-                track2 == that.track2 &&
-                fingerprintType == that.fingerprintType;
+        return getTrack1() == that.getTrack1() &&
+                getTrack2() == that.getTrack2() &&
+                getFingerprintType().equals(that.getFingerprintType());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(track1, track2, fingerprintType);
+        return Objects.hash(getTrack1(), getTrack2(), getFingerprintType());
     }
 
-    @Override
-    public String toString() {
-        return "TrackSimilarity{" +
-                "track1=" + track1 +
-                ", track2=" + track2 +
-                ", value=" + value +
-                ", fingerprintType=" + fingerprintType +
-                '}';
-    }
 }

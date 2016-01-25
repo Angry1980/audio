@@ -4,6 +4,7 @@ import angry1980.audio.dao.FingerprintDAO;
 import angry1980.audio.dao.TrackDAO;
 import angry1980.audio.model.HashFingerprint;
 import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ImmutableTrackSimilarity;
 import angry1980.audio.model.TrackSimilarity;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -41,11 +42,11 @@ public class HashErrorRatesCalculator implements Calculator<HashFingerprint> {
                 .map(fingerprintDAO::findByTrackIds)
                 .map(list -> list.stream()
                     .filter(fp -> fp.getTrackId() != fingerprint.getTrackId())
-                    .map(fp -> new TrackSimilarity(
-                            fingerprint.getTrackId(),
-                            fp.getTrackId(),
-                            calculate(fingerprint.getHashes(), fp.getHashes()),
-                            type)
+                    .map(fp -> (TrackSimilarity)ImmutableTrackSimilarity.builder()
+                            .track1(fingerprint.getTrackId())
+                            .track2(fp.getTrackId())
+                            .value(calculate(fingerprint.getHashes(), fp.getHashes()))
+                            .fingerprintType(type).build()
                     ).filter(ts -> ts.getValue() > 20)
                     .collect(Collectors.toList())
                 ).orElseGet(() -> Collections.emptyList())

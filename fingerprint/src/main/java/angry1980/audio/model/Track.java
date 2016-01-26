@@ -1,34 +1,20 @@
 package angry1980.audio.model;
 
+import org.immutables.value.Value;
+
 import java.util.Objects;
 
-public class Track {
+@Value.Immutable
+public abstract class Track {
 
-    private final long id;
-    private final String path;
+    public abstract String getPath();
+
+    public abstract long getId();
+
     //for test purpose only
-    private final long cluster;
-
-    public Track(long id, String path) {
-        this(id, path, -1);
-    }
-
-    public Track(long id, String path, long cluster) {
-        this.id = id;
-        this.path = path;
-        this.cluster = cluster;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public long getId() {
-        return id;
-    }
-
+    @Value.Default
     public long getCluster() {
-        return cluster;
+        return -1;
     }
 
     @Override
@@ -36,20 +22,12 @@ public class Track {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Track track = (Track) o;
-        return id == track.id;
+        return getId() == track.getId();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(getId());
     }
 
-    @Override
-    public String toString() {
-        return "Track{" +
-                "id=" + id +
-                ", path='" + path + '\'' +
-                ", cluster='" + cluster + '\'' +
-                '}';
-    }
 }

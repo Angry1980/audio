@@ -1,9 +1,6 @@
 package angry1980.audio.dao;
 
-import angry1980.audio.model.FingerprintType;
-import angry1980.audio.model.NetflixNodeType;
-import angry1980.audio.model.NetflixRelationType;
-import angry1980.audio.model.TrackSimilarity;
+import angry1980.audio.model.*;
 import com.netflix.nfgraph.OrdinalIterator;
 import com.netflix.nfgraph.util.OrdinalMap;
 
@@ -85,16 +82,19 @@ public class TrackSimilarityDAONetflixImpl extends Netflix<String> implements Tr
             return Optional.empty();
         }
         try{
-            return Optional.of(new TrackSimilarity(
-                    Long.decode(r[0]),
-                    Long.decode(r[1]),
-                    Integer.decode(r[2]),
-                    type
-            ));
+            return Optional.of(similarity(r, type));
         } catch(NumberFormatException e){
             return Optional.empty();
         }
 
     }
 
+    private TrackSimilarity similarity(String[] r, FingerprintType type){
+        return ImmutableTrackSimilarity.builder()
+                .track1(Long.decode(r[0]))
+                .track2(Long.decode(r[1]))
+                .value(Integer.decode(r[2]))
+                .fingerprintType(type)
+                    .build();
+    }
 }

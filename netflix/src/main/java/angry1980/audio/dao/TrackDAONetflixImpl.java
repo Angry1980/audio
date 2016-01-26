@@ -1,5 +1,6 @@
 package angry1980.audio.dao;
 
+import angry1980.audio.model.ImmutableTrack;
 import angry1980.audio.model.NetflixNodeType;
 import angry1980.audio.model.NetflixRelationType;
 import angry1980.audio.model.Track;
@@ -48,7 +49,7 @@ public class TrackDAONetflixImpl extends Netflix<Long> implements TrackDAO{
     }
 
     private Track track(long id){
-        return new Track(id, trackPath(id), trackCluster(id));
+        return ImmutableTrack.builder().id(id).path(trackPath(id)).cluster(trackCluster(id)).build();
     }
 
     private String trackPath(long id){

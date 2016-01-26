@@ -1,28 +1,11 @@
 package angry1980.audio.model;
 
-public class TrackHash {
+import org.immutables.value.Value;
 
-    private final long trackId;
-    private final int hash;
+@Value.Immutable
+public interface TrackHash {
 
-    public TrackHash(long trackId, int hash) {
-        this.trackId = trackId;
-        this.hash = hash;
-    }
+    long getTrackId();
 
-    public long getTrackId() {
-        return trackId;
-    }
-
-    public int getHash() {
-        return hash;
-    }
-
-    @Override
-    public String toString() {
-        return "TrackHash{" +
-                "trackId=" + trackId +
-                ", hash=" + hash +
-                '}';
-    }
+    int getHash();
 }

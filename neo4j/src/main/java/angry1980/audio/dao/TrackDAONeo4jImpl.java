@@ -1,5 +1,6 @@
 package angry1980.audio.dao;
 
+import angry1980.audio.model.ImmutableTrack;
 import angry1980.audio.model.Neo4jNodeType;
 import angry1980.audio.model.Neo4jRelationType;
 import angry1980.audio.model.Track;
@@ -59,6 +60,10 @@ public class TrackDAONeo4jImpl extends Neo4jNode implements TrackDAO{
     }
 
     private Track fromNodeToTrack(Node node){
-        return new Track(getId(node), (String) node.getProperty(PATH_PROPERTY_NAME));
+        return ImmutableTrack.builder()
+                .id(getId(node))
+                .path((String) node.getProperty(PATH_PROPERTY_NAME))
+                //todo: cluster()
+                .build();
     }
 }

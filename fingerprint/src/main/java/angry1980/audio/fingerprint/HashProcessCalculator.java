@@ -3,9 +3,9 @@ package angry1980.audio.fingerprint;
 import angry1980.audio.Adapter;
 import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.HashFingerprint;
+import angry1980.audio.model.ImmutableHashFingerprint;
 import angry1980.audio.model.Track;
 
-import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.Objects;
@@ -30,7 +30,11 @@ public class HashProcessCalculator extends ProcessCalculator<HashFingerprint>{
 
     @Override
     protected HashFingerprint create(Track track, byte[] hash) {
-        return new HashFingerprint(track.getId(), convertToInt(hash), type);
+        return ImmutableHashFingerprint.builder()
+                    .trackId(track.getId())
+                    .hashes(convertToInt(hash))
+                    .type(type)
+                .build();
     }
 
 }

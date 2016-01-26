@@ -1,24 +1,13 @@
 package angry1980.audio.model;
 
 import angry1980.audio.utils.Complex;
+import org.immutables.value.Value;
 
 import java.util.Objects;
 
-public class Spectrum {
+@Value.Immutable
+public interface Spectrum {
 
-    private final long trackId;
-    private final Complex[][] data;
-
-    public Spectrum(long trackId, Complex[][] results) {
-        this.trackId = trackId;
-        this.data = Objects.requireNonNull(results);
-    }
-
-    public long getTrackId() {
-        return trackId;
-    }
-
-    public Complex[][] getData() {
-        return data;
-    }
+    long getTrackId();
+    Complex[][] getData();
 }

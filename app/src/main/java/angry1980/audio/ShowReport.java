@@ -1,7 +1,7 @@
 package angry1980.audio;
 
 import angry1980.audio.model.FingerprintType;
-import angry1980.audio.service.TrackSimilarityService;
+import angry1980.audio.service.TrackSimilarityStatsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +21,9 @@ public class ShowReport {
     @Autowired
     private DataImporter.TrackDataEnvironment sourceEnvironment;
     @Autowired
-    private TrackSimilarityService trackSimilarityService;
+    private TrackSimilarityStatsService trackSimilarityStatsService;
 
+    //todo: import as separate command
     public static void main(String[] args){
         SpringApplication sa = new SpringApplication(ShowReport.class);
         sa.setAdditionalProfiles(
@@ -43,13 +44,8 @@ public class ShowReport {
     }
 
     public void print(){
-        trackSimilarityService.getReport()
-                .subscribe(ts -> {
-                    LOG.info("{} looks like", ts.getTrack());
-                    ts.groupByTrack().entrySet().stream()
-                        .map(Object::toString)
-                        .forEach(LOG::info);
-                });
+        trackSimilarityStatsService.getFingerprintTypeStats()
+                .subscribe(stats -> LOG.info(stats.toString()));
     }
 
 }

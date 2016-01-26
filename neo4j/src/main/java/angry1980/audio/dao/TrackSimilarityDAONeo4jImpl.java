@@ -1,9 +1,6 @@
 package angry1980.audio.dao;
 
-import angry1980.audio.model.FingerprintType;
-import angry1980.audio.model.Neo4jNodeType;
-import angry1980.audio.model.Neo4jRelationType;
-import angry1980.audio.model.TrackSimilarity;
+import angry1980.audio.model.*;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -61,16 +58,17 @@ public class TrackSimilarityDAONeo4jImpl extends Neo4jRelation implements TrackS
                 .filter(rl -> s.getFingerprintType().name().equals(rl.getProperty("type")))
                 .findAny()
                 .orElseGet(() -> from.createRelationshipTo(to, Neo4jRelationType.SIMILAR));
+        r.setProperty(ID_PROPERTY_NAME, s.getTrack1() + "-" + s.getTrack2() + "-" + s.getFingerprintType());
         r.setProperty("weight", s.getValue());
         r.setProperty("type", s.getFingerprintType().name());
     }
 
     private TrackSimilarity fromRelationToTrackSimilarity(Relationship r){
-        return new TrackSimilarity(
-                getId(r.getStartNode()),
-                getId(r.getEndNode()),
-                (Integer)r.getProperty("weight"),
-                FingerprintType.valueOf((String) r.getProperty("type"))
-        );
+        return ImmutableTrackSimilarity.builder()
+                .track1(getId(r.getStartNode()))
+                .track2(getId(r.getEndNode()))
+                .value((Integer) r.getProperty("weight"))
+                .fingerprintType(FingerprintType.valueOf((String) r.getProperty("type")))
+                    .build();
     }
 }

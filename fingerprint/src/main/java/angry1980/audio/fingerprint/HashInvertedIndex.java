@@ -1,10 +1,7 @@
 package angry1980.audio.fingerprint;
 
 import angry1980.audio.dao.TrackHashDAO;
-import angry1980.audio.model.HashFingerprint;
-import angry1980.audio.model.TrackHash;
-import angry1980.audio.model.FingerprintType;
-import angry1980.audio.model.TrackSimilarity;
+import angry1980.audio.model.*;
 import angry1980.audio.similarity.Calculator;
 
 import java.util.*;
@@ -21,7 +18,7 @@ public class HashInvertedIndex implements InvertedIndex<HashFingerprint>, Calcul
     @Override
     public HashFingerprint save(HashFingerprint fingerprint) {
         Arrays.stream(fingerprint.getHashes())
-                .mapToObj(hash -> new TrackHash(fingerprint.getTrackId(), hash))
+                .mapToObj(hash -> ImmutableTrackHash.builder().trackId(fingerprint.getTrackId()).hash(hash).build())
                 .forEach(hashDAO::create)
         ;
         return fingerprint;
@@ -36,13 +33,7 @@ public class HashInvertedIndex implements InvertedIndex<HashFingerprint>, Calcul
                 .collect(
                         Collectors.groupingBy(TrackHash::getTrackId)
                 ).entrySet().stream()
-                .map(entry -> entry.getValue().stream()
-                    .reduce(
-                        new TrackSimilarity(fingerprint.getTrackId(), entry.getKey(), 0, fingerprint.getType()),
-                        (ts, th) -> ts.add(1),
-                        TrackSimilarity::add
-                    )
-                )
+                .map(entry -> InvertedIndex.reduceTrackSimilarity(fingerprint, entry.getKey(), entry.getValue().stream()))
                 .filter(ts -> ts.getValue() > 0)
                 .collect(Collectors.toList());
     }

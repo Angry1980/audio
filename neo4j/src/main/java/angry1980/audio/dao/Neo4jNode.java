@@ -38,16 +38,16 @@ public abstract class Neo4jNode extends Neo4j {
         return getOrCreateNode(graphDB, type, id, Function.identity());
     }
 
-    protected Stream<Node> getAllNodes(GraphDatabaseService graphDB) {
-        return getAllNodes(graphDB, getType());
+    protected Stream<Node> getNodesAsStream(GraphDatabaseService graphDB) {
+        return getNodesAsStream(graphDB, getType());
     }
 
     protected <T> Collection<T> getAllEntities(GraphDatabaseService graphDB, Function<Node, T> f) {
-        return getAllNodes(graphDB).map(f).collect(Collectors.toList());
+        return getNodesAsStream(graphDB).map(f).collect(Collectors.toList());
     }
 
     protected Stream<Node> getConnectedNodes(Node node, Neo4jRelationType type){
-        return getConnections(node, type).map(r -> r.getEndNode());
+        return getNodeConnectionsAsStream(node, type).map(r -> r.getEndNode());
     }
 
     protected <T> Collection<T> getConnectedEntities(Node node, Neo4jRelationType type, Function<Node, T> f) {

@@ -19,7 +19,7 @@ public class Neo4jRelation extends Neo4j {
     }
 
     protected <T> List<T> getConnections(Node node, Neo4jRelationType type, Function<Relationship, T> f) {
-        return getConnections(node, type).map(f).collect(ImmutableCollectors.toList());
+        return getNodeConnectionsAsStream(node, type).map(f).collect(ImmutableCollectors.toList());
     }
 
     protected <T> Collection<T> getEntities(GraphDatabaseService graphDB, Neo4jNodeType nodeType, long nodeId, Neo4jRelationType type, Function<Relationship, T> f) {

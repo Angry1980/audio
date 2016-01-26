@@ -18,7 +18,7 @@ public class TrackSimilarityDAONeo4jImpl extends Neo4jRelation implements TrackS
 
     @Override
     public List<TrackSimilarity> tryToFindByTrackId(long trackId) {
-        return template(graphDB -> {
+        return getTemplate().execute(graphDB -> {
             //return getEntities(graphDB, Neo4jNodeType.TRACK, trackId, Neo4jRelationType.SIMILAR, this::fromRelationToTrackSimilarity);
             return getNode(graphDB, Neo4jNodeType.TRACK, trackId)
                     .map(node -> getConnections(node, Neo4jRelationType.SIMILAR, this::fromRelationToTrackSimilarity))
@@ -28,8 +28,8 @@ public class TrackSimilarityDAONeo4jImpl extends Neo4jRelation implements TrackS
 
     @Override
     public Collection<TrackSimilarity> tryToGetAll() {
-        return template(graphDB -> {
-            return getAllNodes(graphDB, Neo4jNodeType.TRACK)
+        return getTemplate().execute(graphDB -> {
+            return getNodesAsStream(graphDB, Neo4jNodeType.TRACK)
                     .map(this::getId)
                     .flatMap(nodeId -> tryToFindByTrackId(nodeId).stream())
                     .collect(Collectors.toSet());
@@ -38,7 +38,7 @@ public class TrackSimilarityDAONeo4jImpl extends Neo4jRelation implements TrackS
 
     @Override
     public TrackSimilarity tryToCreate(TrackSimilarity entity) {
-        template(graphDB -> {
+        getTemplate().execute(graphDB -> {
             getNode(graphDB, Neo4jNodeType.TRACK, entity.getTrack1())
                 .ifPresent(node1 -> {
                     getNode(graphDB, Neo4jNodeType.TRACK, entity.getTrack2())
@@ -53,7 +53,7 @@ public class TrackSimilarityDAONeo4jImpl extends Neo4jRelation implements TrackS
     }
 
     private void getOrCreateRelation(Node from, Node to, TrackSimilarity s){
-        Relationship r = getConnections(from, Neo4jRelationType.SIMILAR)
+        Relationship r = getNodeConnectionsAsStream(from, Neo4jRelationType.SIMILAR)
                 .filter(rl -> rl.getEndNode().getId() == to.getId())
                 .filter(rl -> s.getFingerprintType().name().equals(rl.getProperty("type")))
                 .findAny()

@@ -4,37 +4,62 @@ import angry1980.audio.model.*;
 import angry1980.audio.neo4j.FingerprintTypeFalseNegativeQuery;
 import angry1980.audio.neo4j.FingerprintTypePositiveQuery;
 import angry1980.audio.neo4j.FingerprintTypeQuery;
+import angry1980.audio.neo4j.QueryImpl;
 import angry1980.audio.stats.FingerprintTypeComparing;
 import angry1980.audio.stats.FingerprintTypeResult;
+import angry1980.audio.stats.ImmutableFingerprintTypeComparing;
 import angry1980.audio.stats.ImmutableFingerprintTypeResult;
 import angry1980.neo4j.NodeCountQuery;
 import angry1980.neo4j.QueryHandler;
 import angry1980.neo4j.Template;
+import com.google.common.collect.ImmutableMap;
 import org.neo4j.graphdb.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rx.Observable;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStatsService{
 
-    private static Logger LOG = LoggerFactory.getLogger(TrackSimilarityStatsServiceNeo4jImpl.class);
-
-
-    private GraphDatabaseService graphDB;
     private QueryHandler queryHandler;
     private Template template;
 
     public TrackSimilarityStatsServiceNeo4jImpl(GraphDatabaseService graphDB) {
-        this.graphDB = graphDB;
         this.queryHandler = new QueryHandler(graphDB);
         this.template = new Template(graphDB);
     }
 
     @Override
     public Observable<FingerprintTypeComparing> compareFingerprintTypes() {
-        return null;
+        return Observable.create(subscriber -> {
+            getCombinations().entrySet().stream()
+                    .flatMap(entry -> entry.getValue().stream()
+                                    .map(v -> this.compareFingerprintTypes(entry.getKey(), v))
+                    )
+                    .forEach(subscriber::onNext);
+            subscriber.onCompleted();
+        });
+    }
+
+    private Map<FingerprintType, List<FingerprintType>> getCombinations(){
+        return ImmutableMap.of(FingerprintType.CHROMAPRINT, Arrays.asList(FingerprintType.PEAKS, FingerprintType.LASTFM),
+                                FingerprintType.PEAKS, Arrays.asList(FingerprintType.LASTFM)
+        );
+    }
+
+    private FingerprintTypeComparing compareFingerprintTypes(FingerprintType type1, FingerprintType type2){
+        return template.execute(graphDB -> {
+            queryHandler.execute(new QueryImpl(type1.name(), type2.name()));
+            return ImmutableFingerprintTypeComparing.builder()
+                    .type1(type1)
+                    .type2(type2)
+                    .minWeightInCommon1(0)
+                    .minWeightInCommon2(0)
+                    .common(0)
+                    .all(0)
+                    .build();
+        });
     }
 
     @Override

@@ -45,6 +45,7 @@ public class ShowReport {
 
     public void print(){
         trackSimilarityStatsService.getResultDependsOnFingerprintType()
+        //trackSimilarityStatsService.compareFingerprintTypes()
                 .subscribe(stats -> LOG.info(stats.toString()));
     }
 

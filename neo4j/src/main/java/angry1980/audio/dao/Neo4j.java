@@ -2,6 +2,8 @@ package angry1980.audio.dao;
 
 import angry1980.audio.model.Neo4jNodeType;
 import angry1980.audio.model.Neo4jRelationType;
+import angry1980.neo4j.Query;
+import angry1980.neo4j.Template;
 import org.neo4j.graphdb.*;
 import org.neo4j.helpers.collection.IteratorUtil;
 
@@ -16,25 +18,14 @@ public abstract class Neo4j {
 
     public static final String ID_PROPERTY_NAME = "id";
 
-    private GraphDatabaseService graphDB;
+    private Template template;
 
     public Neo4j(GraphDatabaseService graphDB) {
-        this.graphDB = Objects.requireNonNull(graphDB);
+        this.template = new Template(graphDB);
     }
 
-    protected <T> T template(Function<GraphDatabaseService, T> f){
-        try(Transaction tx = graphDB.beginTx()){
-            T result = f.apply(graphDB);
-            tx.success();
-            return result;
-        }
-    }
-
-    protected void template(Consumer<GraphDatabaseService> c){
-        try(Transaction tx = graphDB.beginTx()){
-            c.accept(graphDB);
-            tx.success();
-        }
+    protected Template getTemplate() {
+        return template;
     }
 
     protected long getId(Node node){
@@ -55,11 +46,11 @@ public abstract class Neo4j {
         return node;
     }
 
-    protected Stream<Node> getAllNodes(GraphDatabaseService graphDB, Neo4jNodeType type) {
+    protected Stream<Node> getNodesAsStream(GraphDatabaseService graphDB, Neo4jNodeType type) {
         return StreamSupport.stream(IteratorUtil.asIterable(graphDB.findNodes(type)).spliterator(), false);
     }
 
-    protected Stream<Relationship> getConnections(Node node, Neo4jRelationType type){
+    protected Stream<Relationship> getNodeConnectionsAsStream(Node node, Neo4jRelationType type){
         return StreamSupport.stream(node.getRelationships(Direction.OUTGOING, type).spliterator(), false);
     }
 

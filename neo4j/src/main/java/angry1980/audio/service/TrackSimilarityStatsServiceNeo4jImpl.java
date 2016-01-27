@@ -1,116 +1,67 @@
 package angry1980.audio.service;
 
 import angry1980.audio.model.*;
+import angry1980.audio.neo4j.FingerprintTypeFalseNegativeQuery;
+import angry1980.audio.neo4j.FingerprintTypePositiveQuery;
+import angry1980.audio.neo4j.FingerprintTypeQuery;
+import angry1980.audio.neo4j.FingerprintTypeComparingQuery;
+import angry1980.audio.stats.FingerprintTypeComparing;
+import angry1980.audio.stats.FingerprintTypeResult;
+import angry1980.audio.stats.ImmutableFingerprintTypeResult;
+import angry1980.neo4j.NodeCountQuery;
+import angry1980.neo4j.Template;
 import org.neo4j.graphdb.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rx.Observable;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStatsService{
 
-    private static Logger LOG = LoggerFactory.getLogger(TrackSimilarityStatsServiceNeo4jImpl.class);
-
-    private static final String FALSE_NEGATIVE_QUERY = "match (track1:TRACK)-[:IS]->(cluster1)"
-            + " where not (track1)-[:SIMILAR{type:{fingerprintType}}]->(:TRACK)-[:IS]->(:CLUSTER{id:cluster1.id})"
-            //+ " return track1.id"
-            + " return count(DISTINCT(track1.id)) as result, false as r"
-
-            ;
-
-    private static final String POSITIVE_QUERY = "match (cluster1)<-[:IS]-(track1)-[similar:SIMILAR]->(track2)-[:IS]->(cluster2)"
-            + " where similar.type={fingerprintType}"
-            //+ " return track1.id, track2.id, similar.weight"
-            + " with cluster1.id=cluster2.id as r"
-            + " return count(r)/2 as result, r"
-            ;
-
-    private static final String COUNT_QUERY = "match (node)"
-            + " where {nodeType} in labels(node)"
-            + " return count(node) as result"
-            ;
-
-    private GraphDatabaseService graphDB;
+    private Template template;
 
     public TrackSimilarityStatsServiceNeo4jImpl(GraphDatabaseService graphDB) {
-        this.graphDB = graphDB;
+        this.template = new Template(graphDB);
     }
 
     @Override
-    public Observable<FingerprintTypeStats> getFingerprintTypeStats() {
+    public Observable<FingerprintTypeComparing> compareFingerprintTypes() {
+        return Observable.create(subscriber -> {
+            subscriber.onNext(compareFingerprintTypes(FingerprintType.CHROMAPRINT, FingerprintType.PEAKS));
+            subscriber.onNext(compareFingerprintTypes(FingerprintType.CHROMAPRINT, FingerprintType.LASTFM));
+            subscriber.onNext(compareFingerprintTypes(FingerprintType.LASTFM, FingerprintType.PEAKS));
+            subscriber.onCompleted();
+        });
+    }
+
+    private FingerprintTypeComparing compareFingerprintTypes(FingerprintType type1, FingerprintType type2){
+        return template.execute(graphDB -> {
+            return template.handle(new FingerprintTypeComparingQuery(type1, type2))
+                    .merge(template.handle(new FingerprintTypeComparingQuery(type2, type1)));
+        });
+    }
+
+    @Override
+    public Observable<FingerprintTypeResult> getResultDependsOnFingerprintType() {
         return Observable.from(FingerprintType.values())
                             .map(this::getFingerprintTypeStats)
         ;
     }
 
-    private FingerprintTypeStats getFingerprintTypeStats(FingerprintType type){
-        Map<String, Object> params = new HashMap<>();
-        params.put("fingerprintType", type.name());
-        try(Transaction tx = graphDB.beginTx()){
-            Map<Boolean, Integer> positive = getValues(POSITIVE_QUERY, params);
-            FingerprintTypeStats stats = ImmutableFingerprintTypeStats.builder()
-                        .type(type)
-                        .clustersCount(getNodesCount(Neo4jNodeType.CLUSTER))
-                        .tracksCount(getNodesCount(Neo4jNodeType.TRACK))
-                        .falseNegative(getValue(getValues(FALSE_NEGATIVE_QUERY, params), false))
-                        .falsePositive(getValue(positive, false))
-                        .truthPositive(getValue(positive, true))
+    private FingerprintTypeResult getFingerprintTypeStats(FingerprintType type){
+        return template.execute(graphDB -> {
+            FingerprintTypeQuery positive = template.handle(new FingerprintTypePositiveQuery(type));
+            return ImmutableFingerprintTypeResult.builder()
+                    .type(type)
+                    .clustersCount(getNodesCount(Neo4jNodeType.CLUSTER))
+                    .tracksCount(getNodesCount(Neo4jNodeType.TRACK))
+                    .falseNegative(template.handle(new FingerprintTypeFalseNegativeQuery(type)).getValue(false))
+                    .falsePositive(positive.getValue(false))
+                    .truthPositive(positive.getValue(true))
                     .build();
-            tx.success();
-            return stats;
-        }
+
+        });
     }
 
     private int getNodesCount(Neo4jNodeType type){
-        Map<String, Object> params = new HashMap<>();
-        params.put("nodeType", type.name());
-        try(Result result = graphDB.execute(COUNT_QUERY, params)){
-            return asStream(result)
-                    .map(data -> data.getOrDefault("result", "0"))
-                    .map(Object::toString)
-                    .map(Integer::decode)
-                    .findAny().orElse(0);
-        }
+        return template.handle(new NodeCountQuery(type.name())).getResult();
     }
 
-    private int getValue(Map<Boolean, Integer> values, boolean key){
-        return values.getOrDefault(key, 0);
-    }
-
-    private Map<Boolean, Integer> getValues(String query, Map<String, Object> params){
-        try(Result result = graphDB.execute(query, params)){
-            return asStream(result).map(data -> new Record(
-                            Boolean.parseBoolean(data.getOrDefault("r", "true").toString()),
-                            Integer.decode(data.getOrDefault("result", "0").toString()))
-                    ).collect(Collectors.toMap(Record::isTruth, Record::getValue));
-        }
-    }
-
-    private Stream<Map<String, Object>> asStream(Result result){
-        Iterable<Map<String, Object>> iterable = () -> result;
-        return StreamSupport.stream(iterable.spliterator(), false);
-    }
-
-    private class Record{
-        private boolean truth;
-        private int value;
-
-        public Record(boolean truth, int value) {
-            this.truth = truth;
-            this.value = value;
-        }
-
-        public boolean isTruth() {
-            return truth;
-        }
-
-        public int getValue() {
-            return value;
-        }
-    }
 }

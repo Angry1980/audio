@@ -24,21 +24,21 @@ public class TrackDAONeo4jImpl extends Neo4jNode implements TrackDAO{
 
     @Override
     public Collection<Track> findByCluster(long cluster) {
-        return template(graphDB -> {
+        return getTemplate().execute(graphDB -> {
             return getConnectedEntities(graphDB, Neo4jNodeType.CLUSTER, cluster, Neo4jRelationType.IS, this::fromNodeToTrack);
         });
     }
 
     @Override
     public Track tryToGet(long id) {
-        return template(graphDB -> {
+        return getTemplate().execute(graphDB -> {
             return getEntity(graphDB, id, this::fromNodeToTrack);
         });
     }
 
     @Override
     public Collection<Track> tryToGetAll() {
-        return template(graphDB -> {
+        return getTemplate().execute(graphDB -> {
             return getAllEntities(graphDB, this::fromNodeToTrack);
         });
     }
@@ -46,7 +46,7 @@ public class TrackDAONeo4jImpl extends Neo4jNode implements TrackDAO{
 
     @Override
     public Track tryToCreate(Track entity) {
-        template(graphDB -> {
+        getTemplate().execute(graphDB -> {
             getOrCreateNode(graphDB, entity.getId(), createdNode -> {
                 createdNode.setProperty(PATH_PROPERTY_NAME, entity.getPath());
                 createdNode.createRelationshipTo(

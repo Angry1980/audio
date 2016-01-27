@@ -1,6 +1,7 @@
 package angry1980.neo4j;
 
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 
 import java.util.Objects;
@@ -23,6 +24,12 @@ public class Template {
         }
     }
 
+    public <T> T execute(Query<T> query){
+        return execute(graphDB -> {
+            return this.handle(graphDB, query);
+        });
+    }
+
     public void execute(Consumer<GraphDatabaseService> c){
         try(Transaction tx = graphDB.beginTx()){
             c.accept(graphDB);
@@ -30,4 +37,13 @@ public class Template {
         }
     }
 
+    public <T> T handle(Query<T> query) {
+        return handle(graphDB, query);
+    }
+
+    private <T> T handle(GraphDatabaseService graphDB, Query<T> query){
+        try (Result result = graphDB.execute(query.getQuery(), query.getParams())) {
+            return query.handle(result);
+        }
+    }
 }

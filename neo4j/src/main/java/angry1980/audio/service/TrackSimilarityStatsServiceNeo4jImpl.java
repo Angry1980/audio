@@ -10,7 +10,6 @@ import angry1980.audio.stats.FingerprintTypeResult;
 import angry1980.audio.stats.ImmutableFingerprintTypeComparing;
 import angry1980.audio.stats.ImmutableFingerprintTypeResult;
 import angry1980.neo4j.NodeCountQuery;
-import angry1980.neo4j.QueryHandler;
 import angry1980.neo4j.Template;
 import com.google.common.collect.ImmutableMap;
 import org.neo4j.graphdb.*;
@@ -22,11 +21,9 @@ import java.util.Map;
 
 public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStatsService{
 
-    private QueryHandler queryHandler;
     private Template template;
 
     public TrackSimilarityStatsServiceNeo4jImpl(GraphDatabaseService graphDB) {
-        this.queryHandler = new QueryHandler(graphDB);
         this.template = new Template(graphDB);
     }
 
@@ -50,7 +47,7 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
 
     private FingerprintTypeComparing compareFingerprintTypes(FingerprintType type1, FingerprintType type2){
         return template.execute(graphDB -> {
-            queryHandler.execute(new QueryImpl(type1.name(), type2.name()));
+            template.handle(new QueryImpl(type1.name(), type2.name()));
             return ImmutableFingerprintTypeComparing.builder()
                     .type1(type1)
                     .type2(type2)
@@ -85,11 +82,11 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
     }
 
     private int getNodesCount(Neo4jNodeType type){
-        return queryHandler.execute(new NodeCountQuery(type.name()));
+        return template.handle(new NodeCountQuery(type.name()));
     }
 
     private Map<Boolean, Integer> getValues(FingerprintTypeQuery query){
-        return queryHandler.execute(query);
+        return template.handle(query);
     }
 
     private int getValue(Map<Boolean, Integer> values, boolean key){

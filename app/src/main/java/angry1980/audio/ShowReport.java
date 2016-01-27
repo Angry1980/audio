@@ -9,6 +9,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Import;
+import rx.Subscriber;
 
 @SpringBootApplication
 @Import(ShowReportConfig.class)
@@ -44,8 +45,24 @@ public class ShowReport {
     }
 
     public void print(){
-        trackSimilarityStatsService.getResultDependsOnFingerprintType().subscribe(stats -> LOG.info(stats.toString()), er -> LOG.error("", er));
-        trackSimilarityStatsService.compareFingerprintTypes().subscribe(stats -> LOG.info(stats.toString()), er -> LOG.error("", er));
+        Subscriber printer = new Subscriber() {
+            @Override
+            public void onCompleted() {
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                LOG.error("", e);
+            }
+
+            @Override
+            public void onNext(Object o) {
+                LOG.info(o.toString());
+            }
+        };
+        trackSimilarityStatsService.getResultDependsOnFingerprintType().subscribe(printer);
+        trackSimilarityStatsService.compareFingerprintTypes().subscribe(printer);
     }
+
 
 }

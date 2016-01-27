@@ -44,6 +44,7 @@ public class Calculate{
         ConfigurableApplicationContext context = sa.run(args);
         context.registerShutdownHook();
         CountDownLatch latch = new CountDownLatch(1);
+        LOG.info("Starting application");
         context.getBean(Calculate.class).run(latch);
         try {
             latch.await();
@@ -56,7 +57,7 @@ public class Calculate{
     public void run(CountDownLatch latch){
         trackSimilarityService.getTracksToCalculateSimilarity()
                 .doOnNext(track -> LOG.info("Similarity calculation for {}", track))
-                .observeOn(Schedulers.from(executor))
+                //.observeOn(Schedulers.from(executor))
                 .flatMap(trackSimilarityService::findOrCalculateSimilarities)
                 .subscribeOn(Schedulers.from(executor))
                 .subscribe(new SubscriberImpl(latch));

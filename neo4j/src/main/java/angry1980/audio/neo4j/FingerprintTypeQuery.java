@@ -9,9 +9,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public abstract class FingerprintTypeQuery implements Query<Map<Boolean, Integer>>{
+public abstract class FingerprintTypeQuery implements Query<FingerprintTypeQuery>{
 
-    private FingerprintType type;
+    private final FingerprintType type;
+    private Map<Boolean, Integer> result;
 
     public FingerprintTypeQuery(FingerprintType type) {
         this.type = Objects.requireNonNull(type);
@@ -23,12 +24,21 @@ public abstract class FingerprintTypeQuery implements Query<Map<Boolean, Integer
     }
 
     @Override
-    public Map<Boolean, Integer> handle(Result result) {
-        return Query.asStream(result).map(data -> new Record(
+    public FingerprintTypeQuery handle(Result result) {
+        this.result = Query.asStream(result).map(data -> new Record(
                         Boolean.parseBoolean(data.getOrDefault("r", "true").toString()),
                         Integer.decode(data.getOrDefault("result", "0").toString()))
         ).collect(Collectors.toMap(Record::isTruth, Record::getValue));
+        return this;
 
+    }
+
+    public Map<Boolean, Integer> getValues() {
+        return result;
+    }
+
+    public int getValue(boolean key){
+        return result.getOrDefault(key, 0);
     }
 
     private class Record{

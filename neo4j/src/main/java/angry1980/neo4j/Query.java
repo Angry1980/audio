@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public interface Query<T> {
+public interface Query<K extends Query<K>> {
 
     static Stream<Map<String, Object>> asStream(Result result){
         Iterable<Map<String, Object>> iterable = () -> result;
@@ -17,5 +17,5 @@ public interface Query<T> {
 
     Map<String, Object> getParams();
 
-    T handle(Result result);
+    K handle(Result result);
 }

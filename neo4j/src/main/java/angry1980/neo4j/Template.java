@@ -24,12 +24,6 @@ public class Template {
         }
     }
 
-    public <T> T execute(Query<T> query){
-        return execute(graphDB -> {
-            return this.handle(graphDB, query);
-        });
-    }
-
     public void execute(Consumer<GraphDatabaseService> c){
         try(Transaction tx = graphDB.beginTx()){
             c.accept(graphDB);
@@ -37,11 +31,17 @@ public class Template {
         }
     }
 
-    public <T> T handle(Query<T> query) {
+    public <K extends Query<K>> K executeQuery(K query){
+        return execute(graphDB -> {
+            return this.handle(graphDB, query);
+        });
+    }
+
+    public <K extends Query<K>> K handle(K query) {
         return handle(graphDB, query);
     }
 
-    private <T> T handle(GraphDatabaseService graphDB, Query<T> query){
+    private <K extends Query<K>> K handle(GraphDatabaseService graphDB, K query){
         try (Result result = graphDB.execute(query.getQuery(), query.getParams())) {
             return query.handle(result);
         }

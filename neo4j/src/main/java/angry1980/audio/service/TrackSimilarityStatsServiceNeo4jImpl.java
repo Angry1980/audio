@@ -10,13 +10,8 @@ import angry1980.audio.stats.FingerprintTypeResult;
 import angry1980.audio.stats.ImmutableFingerprintTypeResult;
 import angry1980.neo4j.NodeCountQuery;
 import angry1980.neo4j.Template;
-import com.google.common.collect.ImmutableMap;
 import org.neo4j.graphdb.*;
 import rx.Observable;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStatsService{
 
@@ -29,19 +24,11 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
     @Override
     public Observable<FingerprintTypeComparing> compareFingerprintTypes() {
         return Observable.create(subscriber -> {
-            getTypePairs().entrySet().stream()
-                    .flatMap(entry -> entry.getValue().stream()
-                                    .map(v -> this.compareFingerprintTypes(entry.getKey(), v))
-                    )
-                    .forEach(subscriber::onNext);
+            subscriber.onNext(compareFingerprintTypes(FingerprintType.CHROMAPRINT, FingerprintType.PEAKS));
+            subscriber.onNext(compareFingerprintTypes(FingerprintType.CHROMAPRINT, FingerprintType.LASTFM));
+            subscriber.onNext(compareFingerprintTypes(FingerprintType.LASTFM, FingerprintType.PEAKS));
             subscriber.onCompleted();
         });
-    }
-
-    private Map<FingerprintType, List<FingerprintType>> getTypePairs(){
-        return ImmutableMap.of(FingerprintType.CHROMAPRINT, Arrays.asList(FingerprintType.PEAKS, FingerprintType.LASTFM),
-                                FingerprintType.PEAKS, Arrays.asList(FingerprintType.LASTFM)
-        );
     }
 
     private FingerprintTypeComparing compareFingerprintTypes(FingerprintType type1, FingerprintType type2){

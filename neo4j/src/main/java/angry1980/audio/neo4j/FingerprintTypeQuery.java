@@ -26,9 +26,9 @@ public abstract class FingerprintTypeQuery implements Query<FingerprintTypeQuery
     @Override
     public FingerprintTypeQuery handle(Result result) {
         this.result = Query.asStream(result).map(data -> new Record(
-                        Boolean.parseBoolean(data.getOrDefault("r", "true").toString()),
-                        Integer.decode(data.getOrDefault("result", "0").toString()))
-        ).collect(Collectors.toMap(Record::isTruth, Record::getValue));
+                Query.getBooleanValue(data, "r").orElse(true),
+                Query.getIntValue(data, "result").orElse(0)
+        )).collect(Collectors.toMap(Record::isTruth, Record::getValue));
         return this;
 
     }

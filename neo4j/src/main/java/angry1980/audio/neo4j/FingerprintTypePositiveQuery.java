@@ -8,7 +8,7 @@ public class FingerprintTypePositiveQuery extends FingerprintTypeQuery {
             + " where similar.type={fingerprintType}"
             //+ " return track1.id, track2.id, similar.weight"
             + " with cluster1.id=cluster2.id as r"
-            + " return count(r)/2 as result, r"
+            + " return count(r) as result, r"
             ;
 
     public FingerprintTypePositiveQuery(FingerprintType type) {

@@ -5,6 +5,9 @@ import org.neo4j.graphdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Louvain {
 
     private final Logger LOG = LoggerFactory.getLogger(Louvain.class);
@@ -14,10 +17,8 @@ public class Louvain {
     private final double totalEdgeWeight;
     private final LouvainResult louvainResult;
     private int layerCount = 0;
-    private int macroNodeCount = 0;
     private TaskAdapter adapter;
     private Long2ObjectMap<Node> nodes = new Long2ObjectArrayMap<>();
-
     private Long2LongMap communities = new Long2LongArrayMap();
 
     public Louvain(GraphDatabaseService g){
@@ -49,17 +50,21 @@ public class Louvain {
     private long getCommunity(Node node){
         return communities.get(adapter.getId(node));
     }
+
     public void execute() {
+        //clean prev attempts
+
+        int macroNodeCount = 0;
         do {
             LOG.info("Layer count: " + layerCount);
-            macroNodeCount = this.pass();
+            macroNodeCount = this.pass(macroNodeCount);
         } while (macroNodeCount != 0);
     }
 
-    public int pass() {
+    public int pass(int macroNodeCount) {
         this.firstPhase();
         LOG.info("Starting modularity...");
-        int totMacroNodes = this.secondPhase();
+        int totMacroNodes = this.secondPhase(macroNodeCount);
         LOG.info("Created " + totMacroNodes);
 
         layerCount++;
@@ -68,7 +73,6 @@ public class Louvain {
 
     public void firstPhase() {
         int movements;
-        int counterOps = 0;
 
         Transaction tx = g.beginTx();
 
@@ -126,13 +130,11 @@ public class Louvain {
         double weight = 0.0;
         for (Relationship r : adapter.getRelationships(n)) {
             Node other = r.getOtherNode(n);
-            if (other.equals(n)){
+            if (other.equals(n) || getCommunity(other) != cId){
                 continue;
             }
-            if (getCommunity(other) == cId){
-                weight += this.weight(r);
-            }
-        }
+            weight += this.weight(r);
+         }
         return weight;
     }
 
@@ -141,8 +143,9 @@ public class Louvain {
         for (Relationship r : adapter.getRelationships(n)) {
             vol += this.weight(r);   // put here the edge weight
 
-            if (r.getOtherNode(n).equals(n))
+            if (r.getOtherNode(n).equals(n)) {
                 vol += this.weight(r);
+            }
         }
         return vol;
     }
@@ -155,35 +158,27 @@ public class Louvain {
                 .reduce(0.0, (vol, member) -> vol + nodeVolume(member) , (v1, v2) -> v1 + v2);
     }
 
-    public int secondPhase() {
+    public int secondPhase(int macroNodeCount) {
         int totMacroNodes = 0;
-        long counterOps = 0;
         Long2ObjectMap<Node> macros = new Long2ObjectArrayMap<>();
+        Map<Node, Node> originalToMacro = new HashMap<>();
         Transaction tx = g.beginTx();
-
-        // Check if a new layer must be created
         LongSet macroNodesCommunities = new LongOpenHashSet();
+        LouvainLayer louvainLayer = louvainResult.layer(layerCount);
         for(Node n : nodes.values()){
             macroNodesCommunities.add(getCommunity(n));
+            louvainLayer.add(adapter.getId(n), getCommunity(n));
         }
 
+        // Check if a new layer must be created
         if (macroNodesCommunities.size() == macroNodeCount) {
             // Nothing to move: save to layer object and exit
-            LouvainLayer louvainLayer = louvainResult.layer(layerCount);
-            for(Node activeNode : nodes.values()){
-                louvainLayer.add(adapter.getId(activeNode), getCommunity(activeNode));
-            }
-
             return totMacroNodes;
         }
 
-        LouvainLayer louvainLayer = louvainResult.layer(layerCount);
         // Get all nodes of current layer
         for(Node activeNode : nodes.values()){
-            long activeNodeId = adapter.getId(activeNode);
             long cId = getCommunity(activeNode);
-
-            louvainLayer.add(activeNodeId, cId);
 
             // Prendi il macronode associato a questa community
             Node macroNode = macros.get(cId);
@@ -195,33 +190,27 @@ public class Louvain {
             }
 
             // Create a relationship to the original node
-            activeNode.createRelationshipTo(macroNode, LouvainRels.Layer);
+            //activeNode.createRelationshipTo(macroNode, LouvainRels.Layer);
+            originalToMacro.put(activeNode, macroNode);
         }
         nodes.clear();
         tx.success();
         tx.close();
         tx = g.beginTx();
-
-        for(Node macroNode : macros.values()){
-            for (Relationship layer : macroNode.getRelationships(Direction.INCOMING, LouvainRels.Layer)) {
-                Node originalNode = layer.getOtherNode(macroNode);
-
-                for (Relationship r : adapter.getRelationships(originalNode)) {
-                    if (!r.isType(LouvainRels.Layer)) {
-                        Node neigh = r.getOtherNode(originalNode);
-                        Node otherMacroNode = neigh.getSingleRelationship(LouvainRels.Layer, Direction.OUTGOING).getOtherNode(neigh);
-
-                        Relationship macroRel = getRelationshipBetween(macroNode, otherMacroNode, Direction.BOTH, LouvainRels.NewEdges);
-                        if (macroRel == null) {
-                            macroRel = macroNode.createRelationshipTo(otherMacroNode, LouvainRels.NewEdges);
-                            macroRel.setProperty(weightProperty, 0.0);
-                        }
-                        double w = (double) macroRel.getProperty(weightProperty);
-                        macroRel.setProperty(weightProperty, w + 1.0);
-                    }
+        for(Map.Entry<Node, Node> entry : originalToMacro.entrySet()){
+            Node macroNode = entry.getValue();
+            Node originalNode = entry.getKey();
+            for (Relationship r : adapter.getRelationships(originalNode)) {
+                Node neigh = r.getOtherNode(originalNode);
+                Node otherMacroNode = originalToMacro.get(neigh);
+                Relationship macroRel = getRelationshipBetween(macroNode, otherMacroNode, Direction.BOTH, LouvainRels.NewEdges);
+                if (macroRel == null) {
+                    macroRel = macroNode.createRelationshipTo(otherMacroNode, LouvainRels.NewEdges);
+                    macroRel.setProperty(weightProperty, 0.0);
                 }
+                double w = (double) macroRel.getProperty(weightProperty);
+                macroRel.setProperty(weightProperty, w + 1.0);
             }
-
         }
         nodes = macros;
         tx.success();
@@ -242,6 +231,6 @@ public class Louvain {
     }
 
     enum LouvainRels implements RelationshipType {
-        Layer, NewEdges
+        NewEdges
     }
 }

@@ -6,6 +6,8 @@ import org.neo4j.tooling.GlobalGraphOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+
 /**
  * was ported from here https://github.com/besil/Neo4jSNA
  */
@@ -18,7 +20,7 @@ public class Louvain {
     private final double totalEdgeWeight;
     private final LouvainResult louvainResult;
     private final int batchSize = 100_000;
-    private Label layerLabel, newLayerLabel;
+    private Label layerLabel;
     private int layerCount = 0;
     private int macroNodeCount = 0;
     private TaskAdapter adapter;
@@ -35,13 +37,10 @@ public class Louvain {
         this.g = g;
         this.adapter = adapter;
         this.layerLabel = DynamicLabel.label("layerLabel");
-        this.newLayerLabel = DynamicLabel.label("newLayerLabel");
         try (Transaction tx = g.beginTx()) {
             for (Node n : adapter.getNodes(g)) {
                 n.addLabel(this.layerLabel);
                 n.setProperty(layerProperty, layerCount);
-                //n.addLabel(this.communityLabel);
-                //n.setProperty(communityProperty, n.getId());
                 nodes.put((long)n.getProperty(idProperty), n);
                 communities.put((long)n.getProperty(idProperty), (long)n.getProperty(idProperty));
             }
@@ -214,7 +213,7 @@ public class Louvain {
             Node macroNode = macros.get(cId);
             if (macroNode == null) {    // Se non esiste, crealo
                 totMacroNodes++;
-                macroNode = g.createNode(newLayerLabel);
+                macroNode = g.createNode();
                 macroNode.setProperty(idProperty, cId);
                 macros.put(cId, macroNode);
                 macroNode.setProperty(layerProperty, layerCount + 1); // e' il nuovo layer
@@ -230,11 +229,7 @@ public class Louvain {
         tx.close();
         tx = g.beginTx();
 
-
-        ResourceIterator<Node> macroNodes = g.findNodes(newLayerLabel);
-        while (macroNodes.hasNext()) {
-            Node macroNode = macroNodes.next();
-
+        for(Node macroNode : macros.values()){
             for (Relationship layer : macroNode.getRelationships(Direction.INCOMING, LouvainRels.Layer)) {
                 Node originalNode = layer.getOtherNode(macroNode);
 
@@ -256,17 +251,14 @@ public class Louvain {
                     }
                 }
             }
+
         }
 
-        ResourceIterator<Node> macros = g.findNodes(newLayerLabel);
-        while (macros.hasNext()) {
-            Node next = macros.next();
-            next.removeLabel(newLayerLabel);
-            tx = this.batchCommit(++counterOps, tx, g);
+        for(Node next : macros.values()){
             next.addLabel(layerLabel);
             tx = this.batchCommit(++counterOps, tx, g);
         }
-
+        macros.clear();
         tx.success();
         tx.close();
 

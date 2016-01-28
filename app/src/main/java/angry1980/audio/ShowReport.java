@@ -45,6 +45,7 @@ public class ShowReport {
     }
 
     public void print(){
+        /*
         Subscriber printer = new Subscriber() {
             @Override
             public void onCompleted() {
@@ -62,6 +63,8 @@ public class ShowReport {
         };
         trackSimilarityStatsService.getResultDependsOnFingerprintType().subscribe(printer);
         trackSimilarityStatsService.compareFingerprintTypes().subscribe(printer);
+        */
+        trackSimilarityStatsService.generateClusters();
     }
 
 

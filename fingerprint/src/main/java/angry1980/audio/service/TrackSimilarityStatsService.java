@@ -9,4 +9,6 @@ public interface TrackSimilarityStatsService {
     Observable<FingerprintTypeResult> getResultDependsOnFingerprintType();
 
     Observable<FingerprintTypeComparing> compareFingerprintTypes();
+
+    void generateClusters();
 }

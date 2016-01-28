@@ -10,6 +10,7 @@ public interface FingerprintTypeResult {
     int getFalsePositive();
     int getFalseNegative();
     int getTruthPositive();
+    int getUniqueSimilarityCount();
     int getTracksCount();
     int getClustersCount();
 

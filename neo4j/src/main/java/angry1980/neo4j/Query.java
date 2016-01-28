@@ -15,6 +15,15 @@ public interface Query<K extends Query<K>> {
         return StreamSupport.stream(iterable.spliterator(), false);
     }
 
+    static int getIntResult(Result result, String name){
+        return asStream(result)
+                .map(data -> data.getOrDefault(name, "0"))
+                .map(Object::toString)
+                .map(Integer::decode)
+                .findAny()
+                .orElse(0);
+    }
+
     static Optional<Integer> getIntValue(Map<String, Object> data, String name){
         return Optional.ofNullable(data.get(name))
                 .map(Object::toString)

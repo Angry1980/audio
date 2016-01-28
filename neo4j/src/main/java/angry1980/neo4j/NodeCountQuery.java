@@ -33,12 +33,7 @@ public class NodeCountQuery implements Query<NodeCountQuery> {
 
     @Override
     public NodeCountQuery handle(Result result) {
-        this.result = Query.asStream(result)
-                .map(data -> data.getOrDefault("result", "0"))
-                .map(Object::toString)
-                .map(Integer::decode)
-                .findAny()
-                .orElse(0);
+        this.result = Query.getIntResult(result, "result");
         return this;
     }
 

@@ -1,10 +1,7 @@
 package angry1980.audio.service;
 
 import angry1980.audio.model.*;
-import angry1980.audio.neo4j.FingerprintTypeFalseNegativeQuery;
-import angry1980.audio.neo4j.FingerprintTypePositiveQuery;
-import angry1980.audio.neo4j.FingerprintTypeQuery;
-import angry1980.audio.neo4j.FingerprintTypeComparingQuery;
+import angry1980.audio.neo4j.*;
 import angry1980.audio.stats.FingerprintTypeComparing;
 import angry1980.audio.stats.FingerprintTypeResult;
 import angry1980.audio.stats.ImmutableFingerprintTypeResult;
@@ -55,6 +52,7 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
                     .falseNegative(template.handle(new FingerprintTypeFalseNegativeQuery(type)).getValue(false))
                     .falsePositive(positive.getValue(false))
                     .truthPositive(positive.getValue(true))
+                    .uniqueSimilarityCount(template.handle(new UniqueSimilarityQuery(type)).getResult())
                     .build();
 
         });

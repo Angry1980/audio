@@ -2,30 +2,22 @@ package angry1980.neo4j.louvain;
 
 import it.unimi.dsi.fastutil.longs.*;
 import org.neo4j.graphdb.*;
-import org.neo4j.tooling.GlobalGraphOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-
-/**
- * was ported from here https://github.com/besil/Neo4jSNA
- */
 public class Louvain {
 
     private final Logger LOG = LoggerFactory.getLogger(Louvain.class);
 
-    private final String layerProperty = "layer", weightProperty = "clusterWeight", idProperty= "id";
+    private final String weightProperty = "clusterWeight";
     private final GraphDatabaseService g;
     private final double totalEdgeWeight;
     private final LouvainResult louvainResult;
-    private final int batchSize = 100_000;
-    private Label layerLabel;
     private int layerCount = 0;
     private int macroNodeCount = 0;
     private TaskAdapter adapter;
     private Long2ObjectMap<Node> nodes = new Long2ObjectArrayMap<>();
-    private Long2ObjectMap<Node> macros = new Long2ObjectArrayMap<>();
+
     private Long2LongMap communities = new Long2LongArrayMap();
 
     public Louvain(GraphDatabaseService g){
@@ -36,13 +28,10 @@ public class Louvain {
         this.louvainResult = new LouvainResult();
         this.g = g;
         this.adapter = adapter;
-        this.layerLabel = DynamicLabel.label("layerLabel");
         try (Transaction tx = g.beginTx()) {
             for (Node n : adapter.getNodes(g)) {
-                n.addLabel(this.layerLabel);
-                n.setProperty(layerProperty, layerCount);
-                nodes.put((long)n.getProperty(idProperty), n);
-                communities.put((long)n.getProperty(idProperty), (long)n.getProperty(idProperty));
+                nodes.put(adapter.getId(n), n);
+                communities.put(adapter.getId(n), adapter.getId(n));
             }
             tx.success();
         }
@@ -57,6 +46,9 @@ public class Louvain {
         totalEdgeWeight = edgeWeight;
     }
 
+    private long getCommunity(Node node){
+        return communities.get(adapter.getId(node));
+    }
     public void execute() {
         do {
             LOG.info("Layer count: " + layerCount);
@@ -82,11 +74,8 @@ public class Louvain {
 
         do {
             movements = 0;
-            // itera solo per i nodi del livello corrente
-            ResourceIterator<Node> nodes = g.findNodes(layerLabel, layerProperty, layerCount);
-            while (nodes.hasNext()) {
-                Node src = nodes.next();
-                long srcCommunity = communities.get((long)src.getProperty(idProperty));
+            for(Node src : nodes.values()){
+                long srcCommunity = getCommunity(src);
                 long bestCommunity = srcCommunity;
                 double bestDelta = 0.0;
 
@@ -96,7 +85,7 @@ public class Louvain {
                     if (src.equals(neigh)) {
                         continue;
                     }
-                    long neighCommunity = communities.get((long)neigh.getProperty(idProperty));
+                    long neighCommunity = getCommunity(neigh);
 
                     double delta = this.calculateDelta(src, srcCommunity, neighCommunity);
                     if (delta > bestDelta) {
@@ -106,8 +95,7 @@ public class Louvain {
                 }
 
                 if (srcCommunity != bestCommunity) {
-                    communities.put((long)src.getProperty(idProperty), bestCommunity);
-                    tx = this.batchCommit(++counterOps, tx, g);
+                    communities.put(adapter.getId(src), bestCommunity);
                     movements++;
                 }
             }
@@ -141,7 +129,7 @@ public class Louvain {
             if (other.equals(n)){
                 continue;
             }
-            if (communities.get((long)other.getProperty(idProperty)) == cId){
+            if (getCommunity(other) == cId){
                 weight += this.weight(r);
             }
         }
@@ -170,42 +158,30 @@ public class Louvain {
     public int secondPhase() {
         int totMacroNodes = 0;
         long counterOps = 0;
-
+        Long2ObjectMap<Node> macros = new Long2ObjectArrayMap<>();
         Transaction tx = g.beginTx();
 
         // Check if a new layer must be created
         LongSet macroNodesCommunities = new LongOpenHashSet();
-        ResourceIterator<Node> checkNodes = g.findNodes(layerLabel, layerProperty, layerCount);
-        while (checkNodes.hasNext()) {
-            Node n = checkNodes.next();
-            macroNodesCommunities.add(communities.get((long)n.getProperty(idProperty)));
+        for(Node n : nodes.values()){
+            macroNodesCommunities.add(getCommunity(n));
         }
 
         if (macroNodesCommunities.size() == macroNodeCount) {
             // Nothing to move: save to layer object and exit
             LouvainLayer louvainLayer = louvainResult.layer(layerCount);
-            ResourceIterator<Node> activeNodes = g.findNodes(layerLabel, layerProperty, layerCount);
-            while (activeNodes.hasNext()) {
-                Node activeNode = activeNodes.next();
-                long activeNodeId = activeNode.hasProperty(idProperty) ? (long) activeNode.getProperty(idProperty) : activeNode.getId();
-                long cId = communities.get((long)activeNode.getProperty(idProperty));
-
-                louvainLayer.add(activeNodeId, cId);
+            for(Node activeNode : nodes.values()){
+                louvainLayer.add(adapter.getId(activeNode), getCommunity(activeNode));
             }
 
             return totMacroNodes;
         }
 
-        int count = 0;
         LouvainLayer louvainLayer = louvainResult.layer(layerCount);
         // Get all nodes of current layer
-        ResourceIterator<Node> activeNodes = g.findNodes(layerLabel, layerProperty, layerCount);
-        while (activeNodes.hasNext()) {
-            if (++count % 1000 == 0)
-                LOG.info("Computed " + count + " nodes");
-            Node activeNode = activeNodes.next();
-            long activeNodeId = activeNode.hasProperty(idProperty) ? (long)activeNode.getProperty(idProperty) : activeNode.getId();
-            long cId = communities.get((long)activeNode.getProperty(idProperty));
+        for(Node activeNode : nodes.values()){
+            long activeNodeId = adapter.getId(activeNode);
+            long cId = getCommunity(activeNode);
 
             louvainLayer.add(activeNodeId, cId);
 
@@ -214,17 +190,14 @@ public class Louvain {
             if (macroNode == null) {    // Se non esiste, crealo
                 totMacroNodes++;
                 macroNode = g.createNode();
-                macroNode.setProperty(idProperty, cId);
+                adapter.setId(macroNode, cId);
                 macros.put(cId, macroNode);
-                macroNode.setProperty(layerProperty, layerCount + 1); // e' il nuovo layer
-
             }
 
             // Create a relationship to the original node
             activeNode.createRelationshipTo(macroNode, LouvainRels.Layer);
-            activeNode.removeLabel(layerLabel);
         }
-
+        nodes.clear();
         tx.success();
         tx.close();
         tx = g.beginTx();
@@ -241,38 +214,20 @@ public class Louvain {
                         Relationship macroRel = getRelationshipBetween(macroNode, otherMacroNode, Direction.BOTH, LouvainRels.NewEdges);
                         if (macroRel == null) {
                             macroRel = macroNode.createRelationshipTo(otherMacroNode, LouvainRels.NewEdges);
-                            tx = this.batchCommit(++counterOps, tx, g);
                             macroRel.setProperty(weightProperty, 0.0);
-                            tx = this.batchCommit(++counterOps, tx, g);
                         }
                         double w = (double) macroRel.getProperty(weightProperty);
                         macroRel.setProperty(weightProperty, w + 1.0);
-                        tx = this.batchCommit(++counterOps, tx, g);
                     }
                 }
             }
 
         }
-
-        for(Node next : macros.values()){
-            next.addLabel(layerLabel);
-            tx = this.batchCommit(++counterOps, tx, g);
-        }
-        macros.clear();
+        nodes = macros;
         tx.success();
         tx.close();
 
         return totMacroNodes;
-    }
-
-    private Transaction batchCommit(long counterOps, Transaction tx, GraphDatabaseService g) {
-        if (++counterOps % batchSize == 0) {
-            LOG.info("Committing...");
-            tx.success();
-            tx.close();
-            tx = g.beginTx();
-        }
-        return tx;
     }
 
     private Relationship getRelationshipBetween(Node n1, Node n2, Direction dir, RelationshipType... relTypes) {

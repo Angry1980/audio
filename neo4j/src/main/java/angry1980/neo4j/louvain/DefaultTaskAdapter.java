@@ -24,4 +24,14 @@ public class DefaultTaskAdapter implements TaskAdapter{
     public double getInitWeight(Relationship r) {
         return 1.0;
     }
+
+    @Override
+    public long getId(Node node) {
+        return node.getId();
+    }
+
+    @Override
+    public void setId(Node node, long id) {
+
+    }
 }

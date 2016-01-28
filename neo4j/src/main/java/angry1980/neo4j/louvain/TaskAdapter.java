@@ -11,4 +11,6 @@ public interface TaskAdapter {
     Iterable<Relationship> getRelationships(GraphDatabaseService g);
     Iterable<Relationship> getRelationships(Node node);
     double getInitWeight(Relationship r);
+    long getId(Node node);
+    void setId(Node node, long id);
 }

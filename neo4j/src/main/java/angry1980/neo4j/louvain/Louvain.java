@@ -40,16 +40,16 @@ public class Louvain {
     public void execute() {
         int macroNodeCount = 0;
         do {
-            LOG.info("Layer count: " + layerCount);
+            LOG.debug("Layer count: " + layerCount);
             macroNodeCount = this.pass(macroNodeCount);
         } while (macroNodeCount != 0);
     }
 
     public int pass(int macroNodeCount) {
         this.firstPhase();
-        LOG.info("Starting modularity...");
+        LOG.debug("Starting modularity...");
         int totMacroNodes = this.secondPhase(macroNodeCount);
-        LOG.info("Created " + totMacroNodes);
+        LOG.debug("Created " + totMacroNodes);
 
         layerCount++;
         return totMacroNodes;
@@ -78,7 +78,7 @@ public class Louvain {
                     movements++;
                 }
             }
-            LOG.info("Movements so far: " + movements);
+            LOG.debug("Movements so far: " + movements);
         } while (movements != 0);
     }
 

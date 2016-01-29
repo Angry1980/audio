@@ -11,11 +11,6 @@ public class DefaultTaskAdapter implements TaskAdapter{
     }
 
     @Override
-    public Iterable<Relationship> getRelationships(GraphDatabaseService g) {
-        return GlobalGraphOperations.at(g).getAllRelationships();
-    }
-
-    @Override
     public Iterable<Relationship> getRelationships(Node node) {
         return node.getRelationships(Direction.BOTH);
     }
@@ -28,10 +23,5 @@ public class DefaultTaskAdapter implements TaskAdapter{
     @Override
     public long getId(Node node) {
         return node.getId();
-    }
-
-    @Override
-    public void setId(Node node, long id) {
-
     }
 }

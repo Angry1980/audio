@@ -8,9 +8,7 @@ import org.neo4j.graphdb.ResourceIterable;
 public interface TaskAdapter {
 
     ResourceIterable<Node> getNodes(GraphDatabaseService g);
-    Iterable<Relationship> getRelationships(GraphDatabaseService g);
     Iterable<Relationship> getRelationships(Node node);
     double getInitWeight(Relationship r);
     long getId(Node node);
-    void setId(Node node, long id);
 }

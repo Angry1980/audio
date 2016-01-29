@@ -47,8 +47,7 @@ public class ShowReport {
     public void print(){
         Subscriber printer = new Subscriber() {
             @Override
-            public void onCompleted() {
-            }
+            public void onCompleted() {}
 
             @Override
             public void onError(Throwable e) {

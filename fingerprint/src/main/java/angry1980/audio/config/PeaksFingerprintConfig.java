@@ -47,10 +47,15 @@ public class PeaksFingerprintConfig {
     @Bean
     public GetOrCreateFingerprint peaksGetOrCreateFingerprint(){
         return new GetOrCreateFingerprint(
-                new FingerprintDAOFakeImpl(),
+                peaksFingerprintDAO(),
                 trackDAO,
                 new PeaksCalculator(adapter),
                 peaksInvertedIndex()
         );
+    }
+
+    @Bean
+    public FingerprintDAO peaksFingerprintDAO(){
+        return new FingerprintDAOFakeImpl();
     }
 }

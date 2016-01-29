@@ -10,17 +10,14 @@ import angry1980.neo4j.Template;
 import angry1980.neo4j.louvain.Louvain;
 import angry1980.neo4j.louvain.LouvainResult;
 import org.neo4j.graphdb.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rx.Observable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStatsService{
-
-    private static Logger LOG = LoggerFactory.getLogger(TrackSimilarityStatsServiceNeo4jImpl.class);
 
     private GraphDatabaseService graphDB;
     private Template template;
@@ -55,19 +52,12 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
     }
 
     @Override
-    public void generateClusters() {
+    public Map<Long, List<Long>> generateClusters() {
         Louvain louvain = new Louvain(graphDB, new LouvainTaskAdapter());
         louvain.execute();
         LouvainResult result = louvain.getResult();
-        for (int layer : result.layers()) {
-            LOG.info("Layer {}: {} nodes", layer, result.layer(layer).size());
-            result.layer(layer).getNode2CommunityMap().entrySet().stream()
-                    .collect(Collectors.groupingBy(Map.Entry::getValue))
-                    .entrySet().stream()
-                    .map(Object::toString)
-                    .forEach(LOG::info);
-            ;
-        }
+        return result.layer(0).getNode2CommunityMap().entrySet().stream()
+                .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
     }
 
     private FingerprintTypeResult getFingerprintTypeStats(FingerprintType type){

@@ -16,6 +16,7 @@ public class Louvain {
     private int layerCount = 0;
     private Long2ObjectMap<LNode> nodes = new Long2ObjectArrayMap<>();
 
+    //todo: use LNode list as constructor argument
     public Louvain(GraphDatabaseService g){
         this(g, new DefaultTaskAdapter());
     }

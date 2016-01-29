@@ -7,14 +7,23 @@ import angry1980.audio.stats.FingerprintTypeResult;
 import angry1980.audio.stats.ImmutableFingerprintTypeResult;
 import angry1980.neo4j.NodeCountQuery;
 import angry1980.neo4j.Template;
+import angry1980.neo4j.louvain.Louvain;
+import angry1980.neo4j.louvain.LouvainResult;
 import org.neo4j.graphdb.*;
 import rx.Observable;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStatsService{
 
+    private GraphDatabaseService graphDB;
     private Template template;
 
     public TrackSimilarityStatsServiceNeo4jImpl(GraphDatabaseService graphDB) {
+        this.graphDB = Objects.requireNonNull(graphDB);
         this.template = new Template(graphDB);
     }
 
@@ -40,6 +49,15 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
         return Observable.from(FingerprintType.values())
                             .map(this::getFingerprintTypeStats)
         ;
+    }
+
+    @Override
+    public Map<Long, List<Long>> generateClusters() {
+        Louvain louvain = new Louvain(graphDB, new LouvainTaskAdapter());
+        louvain.execute();
+        LouvainResult result = louvain.getResult();
+        return result.layer(0).getNode2CommunityMap().entrySet().stream()
+                .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
     }
 
     private FingerprintTypeResult getFingerprintTypeStats(FingerprintType type){

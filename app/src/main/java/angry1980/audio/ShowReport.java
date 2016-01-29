@@ -47,8 +47,7 @@ public class ShowReport {
     public void print(){
         Subscriber printer = new Subscriber() {
             @Override
-            public void onCompleted() {
-            }
+            public void onCompleted() {}
 
             @Override
             public void onError(Throwable e) {
@@ -62,6 +61,12 @@ public class ShowReport {
         };
         trackSimilarityStatsService.getResultDependsOnFingerprintType().subscribe(printer);
         trackSimilarityStatsService.compareFingerprintTypes().subscribe(printer);
+        trackSimilarityStatsService.generateClusters().entrySet().stream()
+                .peek(entry -> LOG.info("Cluster {} contains", entry.getKey()))
+                .forEach(entry -> entry.getValue().stream()
+                                    .map(Object::toString)
+                                    .forEach(LOG::info)
+                );
     }
 
 

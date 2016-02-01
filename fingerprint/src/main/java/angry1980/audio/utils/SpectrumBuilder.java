@@ -3,6 +3,8 @@ package angry1980.audio.utils;
 import angry1980.audio.Adapter;
 import angry1980.audio.model.Spectrum;
 import angry1980.audio.model.Track;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -10,6 +12,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class SpectrumBuilder {
+
+    private static Logger LOG = LoggerFactory.getLogger(SpectrumBuilder.class);
 
     public static SpectrumBuilder create(Adapter adapter){
         return new SpectrumBuilder(adapter);
@@ -44,6 +48,7 @@ public class SpectrumBuilder {
     }
 
     public Optional<Spectrum> build(Track track) {
+        LOG.debug("Spectrum calculation for track {}" , track.getId());
         return Optional.of(track)
                 .flatMap(adapter::getContent)
                 .flatMap(AudioUtils::createAudioInputStream)

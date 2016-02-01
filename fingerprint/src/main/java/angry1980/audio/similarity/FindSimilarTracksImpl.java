@@ -4,6 +4,8 @@ import angry1980.audio.dao.TrackSimilarityDAO;
 import angry1980.audio.model.Fingerprint;
 import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.TrackSimilarity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +15,8 @@ import java.util.function.LongFunction;
 import java.util.stream.Collectors;
 
 public class FindSimilarTracksImpl implements FindSimilarTracks {
+
+    private static Logger LOG = LoggerFactory.getLogger(FindSimilarTracksImpl.class);
 
     private TrackSimilarityDAO trackSimilarityDAO;
     private LongFunction<Fingerprint> fingerprintHandler;
@@ -45,6 +49,7 @@ public class FindSimilarTracksImpl implements FindSimilarTracks {
     }
 
     private List<TrackSimilarity> calculate(long trackId){
+        LOG.debug("Start calculation of similarities for track {}", trackId);
         return Optional.of(trackId)
                 .map(fingerprintHandler::apply)
                 .map(fingerprint -> calculator.calculate(fingerprint))

@@ -2,6 +2,7 @@ package angry1980.audio.fingerprint;
 
 import angry1980.audio.Adapter;
 import angry1980.audio.model.Fingerprint;
+import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.Track;
 import angry1980.utils.ProcessWaiter;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ public abstract class ProcessCalculator<F extends Fingerprint> implements Calcul
 
         ProcessBuilder create(File file);
 
+        FingerprintType getType();
     }
 
     private Adapter adapter;
@@ -31,6 +33,7 @@ public abstract class ProcessCalculator<F extends Fingerprint> implements Calcul
 
     @Override
     public Optional<F> calculate(Track track) {
+        LOG.debug("Start of {} fingerprint calculation for track {}", processCreator.getType(), track.getId());
         return Optional.of(track)
                 .flatMap(adapter::getContent)
                 .map(this::calculateAudioHash)
@@ -41,14 +44,16 @@ public abstract class ProcessCalculator<F extends Fingerprint> implements Calcul
     protected abstract F create(Track track, byte[] hash);
 
     private byte[] calculateAudioHash(File file){
+        LOG.debug("Start of {} fingerprint calculation for file {}", processCreator.getType(), file.getAbsolutePath());
         byte[] hashBuffer = null;
         try {
 
             Process hasher = createProcess(file).start();
             //hasher.waitFor(4, TimeUnit.SECONDS);
-            ProcessWaiter.Result hasherResult = ProcessWaiter.waitFor(hasher, 5000);
+            ProcessWaiter.Result hasherResult = ProcessWaiter.waitFor(hasher, 15000);
 
             if (hasherResult.isTimeout()) {
+                LOG.error("Timeout error while trying to calculate {} fingerprint for file {}", processCreator.getType(), file.getAbsolutePath());
             } else if (hasherResult.getCode() != 0) {
                 LOG.error("Calculation of audio hash finished with errors: {}", new String(hasherResult.getErrorStream().toByteArray()));
             } else {

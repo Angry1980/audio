@@ -4,6 +4,8 @@ import angry1980.audio.Adapter;
 import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.HashFingerprint;
 import angry1980.audio.model.Track;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -12,7 +14,9 @@ import java.util.Objects;
 
 public class HashProcessCalculator extends ProcessCalculator<HashFingerprint>{
 
-    private FingerprintType type;
+    private static Logger LOG = LoggerFactory.getLogger(HashProcessCalculator.class);
+
+    private final FingerprintType type;
 
     public HashProcessCalculator(ProcessCreator creator, Adapter adapter, FingerprintType type) {
         super(creator, adapter);
@@ -30,7 +34,10 @@ public class HashProcessCalculator extends ProcessCalculator<HashFingerprint>{
 
     @Override
     protected HashFingerprint create(Track track, byte[] hash) {
-        return new HashFingerprint(track.getId(), convertToInt(hash), type);
+        LOG.debug("Creation of fingerprint entity for {}", track.getId());
+        HashFingerprint f = new HashFingerprint(track.getId(), convertToInt(hash), type);
+        LOG.debug("{} was created", f);
+        return f;
     }
 
 }

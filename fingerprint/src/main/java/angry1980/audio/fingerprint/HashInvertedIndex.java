@@ -6,11 +6,15 @@ import angry1980.audio.model.TrackHash;
 import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.TrackSimilarity;
 import angry1980.audio.similarity.Calculator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class HashInvertedIndex implements InvertedIndex<HashFingerprint>, Calculator<HashFingerprint> {
+
+    private static Logger LOG = LoggerFactory.getLogger(HashInvertedIndex.class);
 
     private TrackHashDAO hashDAO;
 
@@ -20,6 +24,7 @@ public class HashInvertedIndex implements InvertedIndex<HashFingerprint>, Calcul
 
     @Override
     public HashFingerprint save(HashFingerprint fingerprint) {
+        LOG.debug("Creation of inverted index for {}", fingerprint);
         Arrays.stream(fingerprint.getHashes())
                 .mapToObj(hash -> new TrackHash(fingerprint.getTrackId(), hash))
                 .forEach(hashDAO::create)
@@ -29,6 +34,7 @@ public class HashInvertedIndex implements InvertedIndex<HashFingerprint>, Calcul
 
     @Override
     public List<TrackSimilarity> calculate(HashFingerprint fingerprint) {
+        LOG.debug("Similarity calculation for", fingerprint);
         return Arrays.stream(fingerprint.getHashes())
                 .mapToObj(hashDAO::findByHash)
                 .flatMap(list -> list.stream())

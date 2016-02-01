@@ -6,6 +6,8 @@ import angry1980.audio.model.NetflixRelationType;
 import angry1980.audio.model.TrackSimilarity;
 import com.netflix.nfgraph.OrdinalIterator;
 import com.netflix.nfgraph.util.OrdinalMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,12 +18,15 @@ import java.util.stream.StreamSupport;
 
 public class TrackSimilarityDAONetflixImpl extends Netflix<String> implements TrackSimilarityDAO {
 
+    private static Logger LOG = LoggerFactory.getLogger(TrackSimilarityDAONetflixImpl.class);
+
     public TrackSimilarityDAONetflixImpl(NetflixData data) {
         super(data);
     }
 
     @Override
     public List<TrackSimilarity> tryToFindByTrackId(long trackId) {
+        LOG.debug("Try to find similarities for track {}", trackId);
         List<TrackSimilarity> tss = new ArrayList<>();
         OrdinalIterator it = data.getGraph().getConnectionIterator(NetflixNodeType.TRACK.name(), data.getTracks().get(trackId), NetflixRelationType.HAS.name());
         int s;
@@ -33,6 +38,7 @@ public class TrackSimilarityDAONetflixImpl extends Netflix<String> implements Tr
             ).map(ts -> (ts.getTrack1() == trackId ? ts : ts.reverse()))
             .ifPresent(tss::add);
         }
+        LOG.debug("There are {} existed similarities for track {}", tss.size(), trackId);
         return tss;
 
     }
@@ -47,6 +53,7 @@ public class TrackSimilarityDAONetflixImpl extends Netflix<String> implements Tr
 
     @Override
     public TrackSimilarity tryToCreate(TrackSimilarity entity) {
+        LOG.debug("Try to save {}", entity);
         String value = value(entity);
         addConnection(value, NetflixRelationType.TYPE_OF, data.getTypes().add(entity.getFingerprintType()));
         int ordinal = data.getSimilarities().get(value);
@@ -56,12 +63,14 @@ public class TrackSimilarityDAONetflixImpl extends Netflix<String> implements Tr
                 NetflixRelationType.HAS.name(),
                 ordinal
         );
+        LOG.debug("Connection from {} to similarity node {} was added", entity.getTrack1(), value);
         data.getGraph().addConnection(
                 NetflixNodeType.TRACK.name(),
                 data.getTracks().get(entity.getTrack2()),
                 NetflixRelationType.HAS.name(),
                 ordinal
         );
+        LOG.debug("Connection from {} to similarity node {} was added", entity.getTrack2(), value);
         return entity;
     }
 

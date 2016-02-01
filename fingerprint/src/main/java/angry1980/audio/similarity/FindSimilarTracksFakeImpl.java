@@ -17,4 +17,9 @@ public class FindSimilarTracksFakeImpl implements FindSimilarTracks {
     public List<TrackSimilarity> apply(long value) {
         return Collections.emptyList();
     }
+
+    @Override
+    public String toString() {
+        return "FindSimilarTracksFakeImpl{}";
+    }
 }

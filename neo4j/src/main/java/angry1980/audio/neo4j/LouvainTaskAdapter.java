@@ -1,11 +1,23 @@
 package angry1980.audio.neo4j;
 
+import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.Neo4jNodeType;
 import angry1980.audio.model.Neo4jRelationType;
 import angry1980.neo4j.louvain.TaskAdapter;
 import org.neo4j.graphdb.*;
 
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 public class LouvainTaskAdapter implements TaskAdapter{
+
+    private Map<FingerprintType, Integer> minWeights;
+
+    public LouvainTaskAdapter(Map<FingerprintType, Integer> minWeights) {
+        this.minWeights = Objects.requireNonNull(minWeights);
+    }
 
     @Override
     public ResourceIterable<Node> getNodes(GraphDatabaseService g) {
@@ -14,7 +26,12 @@ public class LouvainTaskAdapter implements TaskAdapter{
 
     @Override
     public Iterable<Relationship> getRelationships(Node node) {
-        return node.getRelationships(Neo4jRelationType.SIMILAR, Direction.OUTGOING);
+        return StreamSupport.stream(node.getRelationships(Neo4jRelationType.SIMILAR, Direction.OUTGOING).spliterator(), false)
+                .filter(r -> {
+                    int weight = minWeights.getOrDefault(FingerprintType.valueOf((String) r.getProperty("type")), 0);
+                    return Integer.compare((Integer)r.getProperty("weight"), weight) > 0;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override

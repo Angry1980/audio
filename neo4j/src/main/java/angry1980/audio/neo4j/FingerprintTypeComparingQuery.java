@@ -7,6 +7,7 @@ import angry1980.neo4j.Query;
 import com.google.common.collect.ImmutableMap;
 import org.neo4j.graphdb.Result;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -16,17 +17,20 @@ public class FingerprintTypeComparingQuery implements Query<FingerprintTypeCompa
 
     private static final String QUERY = "match (cluster1)<-[:IS]-(track1:TRACK)-[similar1:SIMILAR{type:{type1}}]->(track2:TRACK)-[:IS]->(cluster1)"
             + " optional match (track1)-[similar2:SIMILAR{type:{type2}}]->(track2)"
+            + " where similar1.weight > {minWeight1} and similar2.weight > {minWeight2}"
             + " with similar1.weight as weight, not(similar2.id is null) as notempty"
             + " return count(weight) as result, min(weight) as minValue, notempty as common "
             ;
 
     private final FingerprintType type1;
     private final FingerprintType type2;
+    private Map<FingerprintType, Integer> minWeights;
     private int minValue;
     private int allCount;
     private int commonCount;
 
-    public FingerprintTypeComparingQuery(FingerprintType type1, FingerprintType type2) {
+    public FingerprintTypeComparingQuery(Map<FingerprintType, Integer> minWeights, FingerprintType type1, FingerprintType type2) {
+        this.minWeights = Objects.requireNonNull(minWeights);
         this.type1 = Objects.requireNonNull(type1);
         this.type2 = Objects.requireNonNull(type2);
     }
@@ -38,7 +42,8 @@ public class FingerprintTypeComparingQuery implements Query<FingerprintTypeCompa
 
     @Override
     public Map<String, Object> getParams() {
-        return ImmutableMap.of("type1", type1.name(), "type2", type2.name());
+        return ImmutableMap.of("type1", type1.name(), "type2", type2.name(),
+                        "minWeight1", minWeights.get(type1), "minWeight2", minWeights.get(type2));
     }
 
     @Override

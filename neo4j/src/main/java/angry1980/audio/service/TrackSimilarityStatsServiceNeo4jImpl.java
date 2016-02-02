@@ -9,7 +9,6 @@ import angry1980.neo4j.NodeCountQuery;
 import angry1980.neo4j.Template;
 import angry1980.neo4j.louvain.Louvain;
 import angry1980.neo4j.louvain.LouvainResult;
-import com.google.common.collect.ImmutableMap;
 import org.neo4j.graphdb.*;
 import rx.Observable;
 
@@ -24,13 +23,10 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
     private Template template;
     private Map<FingerprintType, Integer> minWeights;
 
-    public TrackSimilarityStatsServiceNeo4jImpl(GraphDatabaseService graphDB) {
+    public TrackSimilarityStatsServiceNeo4jImpl(GraphDatabaseService graphDB, Map<FingerprintType, Integer> minWeights) {
         this.graphDB = Objects.requireNonNull(graphDB);
         this.template = new Template(graphDB);
-        this.minWeights = ImmutableMap.of(FingerprintType.CHROMAPRINT, 20,
-                FingerprintType.LASTFM, 100,
-                FingerprintType.PEAKS, 1000
-        );
+        this.minWeights = Objects.requireNonNull(minWeights);
     }
 
     @Override
@@ -43,10 +39,17 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
         });
     }
 
+    @Override
+    public int getCommonCount() {
+        return template.execute(graphDB -> {
+            return template.handle(new FingerprintTypeComparingAllQuery(minWeights)).getValue();
+        });
+    }
+
     private FingerprintTypeComparing compareFingerprintTypes(FingerprintType type1, FingerprintType type2){
         return template.execute(graphDB -> {
-            return template.handle(new FingerprintTypeComparingQuery(type1, type2))
-                    .merge(template.handle(new FingerprintTypeComparingQuery(type2, type1)));
+            return template.handle(new FingerprintTypeComparingQuery(minWeights, type1, type2))
+                    .merge(template.handle(new FingerprintTypeComparingQuery(minWeights, type2, type1)));
         });
     }
 

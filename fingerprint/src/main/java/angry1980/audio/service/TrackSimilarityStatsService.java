@@ -13,5 +13,7 @@ public interface TrackSimilarityStatsService {
 
     Observable<FingerprintTypeComparing> compareFingerprintTypes();
 
+    int getCommonCount();
+
     Map<Long, List<Long>> generateClusters();
 }

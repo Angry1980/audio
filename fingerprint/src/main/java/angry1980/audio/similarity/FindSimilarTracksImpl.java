@@ -49,7 +49,7 @@ public class FindSimilarTracksImpl implements FindSimilarTracks {
     }
 
     private List<TrackSimilarity> calculate(long trackId){
-        LOG.debug("Start calculation of similarities for track {}", trackId);
+        LOG.debug("Start calculation of {} similarities for track {}", fingerprintType, trackId);
         return Optional.of(trackId)
                 .map(fingerprintHandler::apply)
                 .map(fingerprint -> calculator.calculate(fingerprint))

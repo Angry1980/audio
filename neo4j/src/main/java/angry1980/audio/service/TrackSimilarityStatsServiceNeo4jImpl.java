@@ -28,7 +28,7 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
         this.graphDB = Objects.requireNonNull(graphDB);
         this.template = new Template(graphDB);
         this.minWeights = ImmutableMap.of(FingerprintType.CHROMAPRINT, 20,
-                FingerprintType.LASTFM, 400,
+                FingerprintType.LASTFM, 100,
                 FingerprintType.PEAKS, 1000
         );
     }

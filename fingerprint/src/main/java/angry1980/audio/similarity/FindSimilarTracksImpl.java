@@ -53,8 +53,10 @@ public class FindSimilarTracksImpl implements FindSimilarTracks {
         return Optional.of(trackId)
                 .map(fingerprintHandler::apply)
                 .map(fingerprint -> calculator.calculate(fingerprint))
-                .orElseGet(() -> Collections.<TrackSimilarity>emptyList())
-        ;
+                .orElseGet(() -> {
+                    LOG.debug("It's not possible to calculate {} similarities for track {}", fingerprintType, trackId);
+                    return Collections.<TrackSimilarity>emptyList();
+                });
     }
 
     @Override

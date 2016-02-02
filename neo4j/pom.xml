@@ -6,7 +6,7 @@
     <parent>
         <artifactId>audio</artifactId>
         <groupId>com.github.angry1980</groupId>
-        <version>0.0.2.1</version>
+        <version>0.0.2.2</version>
     </parent>
     <artifactId>audio-neo4j</artifactId>
 

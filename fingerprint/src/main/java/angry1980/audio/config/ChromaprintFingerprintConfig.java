@@ -50,8 +50,13 @@ public class ChromaprintFingerprintConfig {
                 chromaprintFingerprintDAO(),
                 trackDAO,
                 chromaprintCalculator(),
-                new HashInvertedIndex(new TrackHashDAOInMemoryImpl())
+                new HashInvertedIndex(chromaprintTrackHashDAO())
         );
+    }
+
+    @Bean
+    public TrackHashDAO chromaprintTrackHashDAO(){
+        return new TrackHashDAOInMemoryImpl();
     }
 
 }

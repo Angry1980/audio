@@ -34,9 +34,10 @@ public class HashProcessCalculator extends ProcessCalculator<HashFingerprint>{
 
     @Override
     protected HashFingerprint create(Track track, byte[] hash) {
-        LOG.debug("Creation of fingerprint entity for {}", track.getId());
+        LOG.debug("Creation of fingerprint entity for track {}", track.getId());
         HashFingerprint f = new HashFingerprint(track.getId(), convertToInt(hash), type);
-        LOG.debug("{} was created", f);
+        LOG.debug("{} was created for track {}", f, track.getId());
+        LOG.debug("There ars {} hash values in fingerprint for track {} ", f, track.getId());
         return f;
     }
 

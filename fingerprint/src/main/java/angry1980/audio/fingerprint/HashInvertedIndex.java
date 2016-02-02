@@ -27,14 +27,21 @@ public class HashInvertedIndex implements InvertedIndex<HashFingerprint>, Calcul
         LOG.debug("Creation of inverted index for {}", fingerprint);
         Arrays.stream(fingerprint.getHashes())
                 .mapToObj(hash -> new TrackHash(fingerprint.getTrackId(), hash))
-                .forEach(hashDAO::create)
-        ;
+                .forEach(hash -> {
+                    try{
+                        hashDAO.create(hash);
+                    }catch(Exception e){
+                        LOG.error("Error while trying to save {} ", hash);
+                        LOG.error("", e);
+                    }
+
+                });
         return fingerprint;
     }
 
     @Override
     public List<TrackSimilarity> calculate(HashFingerprint fingerprint) {
-        LOG.debug("Similarity calculation for", fingerprint);
+        LOG.debug("Similarity calculation for {}", fingerprint);
         return Arrays.stream(fingerprint.getHashes())
                 .mapToObj(hashDAO::findByHash)
                 .flatMap(list -> list.stream())

@@ -50,8 +50,12 @@ public class LastFMFingerprintConfig {
                 lastFMFingerprintDAO(),
                 trackDAO,
                 lastFMCalculator(),
-                new HashInvertedIndex(new TrackHashDAOInMemoryImpl())
+                new HashInvertedIndex(lastFMTrackHashDAO())
         );
     }
 
+    @Bean
+    public TrackHashDAO lastFMTrackHashDAO(){
+        return new TrackHashDAOInMemoryImpl();
+    }
 }

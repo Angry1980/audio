@@ -23,7 +23,7 @@ public class PeaksInvertedIndex implements InvertedIndex<PeaksFingerprint>, Calc
 
     @Override
     public List<TrackSimilarity> calculate(PeaksFingerprint fingerprint) {
-        LOG.debug("Similarity calculation for", fingerprint);
+        LOG.debug("Similarity calculation for {}", fingerprint);
         return fingerprint.getPoints().stream()
                 //for each data point calculate time difference between points with the same hash
                 .flatMap(dp1 -> dataPointDAO.findByHash(dp1.getHash()).stream()

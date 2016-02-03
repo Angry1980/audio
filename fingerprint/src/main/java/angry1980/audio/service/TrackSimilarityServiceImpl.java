@@ -4,6 +4,7 @@ import angry1980.audio.dao.TrackDAO;
 import angry1980.audio.dao.TrackSimilarityDAO;
 import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.Track;
+import angry1980.audio.model.TrackSimilarity;
 import angry1980.audio.similarity.FindSimilarTracks;
 import angry1980.audio.similarity.TrackSimilarities;
 import angry1980.audio.similarity.TracksToCalculate;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,8 +46,14 @@ public class TrackSimilarityServiceImpl implements TrackSimilarityService {
         return Observable.just(
                     findSimilarTracks.stream()
                         .peek(handler -> LOG.debug("{} is getting ready to handle by {}", track.getId(), handler))
-                        .flatMap(handler -> handler.apply(track.getId()).stream())
-                        .collect(ImmutableCollectors.toSet())
+                        .flatMap(handler -> {
+                            try{
+                                return handler.apply(track.getId()).stream();
+                            } catch(Exception e){
+                                LOG.error("Error while trying to handle {} by {}", track.getId(), handler);
+                            }
+                            return Collections.<TrackSimilarity>emptyList().stream();
+                        }).collect(ImmutableCollectors.toSet())
                 ).map(s -> {
                         LOG.debug("{} was handled. There are {} similarities. ", track.getId(), s.size());
                         return new TrackSimilarities(track, s);

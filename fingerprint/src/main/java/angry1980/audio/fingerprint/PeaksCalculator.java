@@ -6,6 +6,8 @@ import angry1980.audio.utils.SpectrumBuilder;
 import angry1980.audio.Adapter;
 import angry1980.utils.Numbered;
 import angry1980.utils.Ranges;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -15,6 +17,8 @@ import java.util.stream.IntStream;
  * ported from https://github.com/wsieroci/audiorecognizer
  */
 public class PeaksCalculator implements Calculator<PeaksFingerprint>{
+
+    private static Logger LOG = LoggerFactory.getLogger(PeaksCalculator.class);
 
     private static final int FUZ_FACTOR = 2;
 
@@ -29,6 +33,7 @@ public class PeaksCalculator implements Calculator<PeaksFingerprint>{
 
     @Override
     public Optional<PeaksFingerprint> calculate(Track track) {
+        LOG.debug("Start of peaks fingerprint calculation for track {}", track.getId());
         return builder.build(track)
                 .map(this::determineKeyPoints)
                 .map(points -> build(track.getId(), points))
@@ -43,6 +48,7 @@ public class PeaksCalculator implements Calculator<PeaksFingerprint>{
 
 
     private List<Peak> determineKeyPoints(Spectrum spectrum) {
+        LOG.debug("Spectrum key points determination for track {}", spectrum.getTrackId());
         return IntStream.range(0, spectrum.getData().length)
                 .mapToObj(t -> new Numbered<>(t, hash(spectrum.getData()[t])))
                 .map(t -> build(spectrum.getTrackId(), t.getNumberAsInt(), t.getValue()))

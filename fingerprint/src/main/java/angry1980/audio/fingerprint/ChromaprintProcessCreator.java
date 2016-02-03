@@ -1,5 +1,7 @@
 package angry1980.audio.fingerprint;
 
+import angry1980.audio.model.FingerprintType;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,11 @@ public class ChromaprintProcessCreator implements ProcessCalculator.ProcessCreat
         params.add("-length");
         params.add("1024");
         return new ProcessBuilder().command(params).directory(new File("C:\\utils\\chromaprint"));
+    }
+
+    @Override
+    public FingerprintType getType() {
+        return FingerprintType.CHROMAPRINT;
     }
 
 }

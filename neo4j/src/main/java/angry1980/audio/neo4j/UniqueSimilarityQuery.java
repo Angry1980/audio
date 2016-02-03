@@ -11,15 +11,22 @@ import java.util.Objects;
 public class UniqueSimilarityQuery implements Query<UniqueSimilarityQuery> {
 
     private static final String QUERY = "match (cluster1)<-[:IS]-(track1:TRACK)-[similar:SIMILAR]->(track2:TRACK)-[:IS]->(cluster1)"
+            + " where similar.weight > {minWeight}"
             + " with track1.id as t1, track2.id as t2, count(similar) as sc, collect(similar.type) as types"
             + " where sc = 1 and {type} in types"
             + " return count(sc) as result"
             ;
 
+    private final int minWeight;
     private final FingerprintType type;
     private int result;
 
     public UniqueSimilarityQuery(FingerprintType type) {
+        this(type, 0);
+    }
+
+    public UniqueSimilarityQuery(FingerprintType type, int minWeight) {
+        this.minWeight = minWeight;
         this.type = Objects.requireNonNull(type);
     }
 
@@ -34,7 +41,7 @@ public class UniqueSimilarityQuery implements Query<UniqueSimilarityQuery> {
 
     @Override
     public Map<String, Object> getParams() {
-        return ImmutableMap.of("type", type.name());
+        return ImmutableMap.of("type", type.name(), "minWeight", minWeight);
     }
 
     @Override

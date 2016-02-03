@@ -2,19 +2,25 @@ package angry1980.audio.config;
 
 import angry1980.audio.service.TrackSimilarityStatsService;
 import angry1980.audio.service.TrackSimilarityStatsServiceNeo4jImpl;
+import angry1980.utils.SpringMapWrapper;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import java.io.File;
+import java.util.Map;
 
 @Configuration
 @Profile("NEO4J")
 public class Neo4jConfig implements InitializingBean{
+
+    @Autowired
+    private SpringMapWrapper fingerprintTypeMinWeights;
 
     @Bean
     public GraphDatabaseService graphDatabaseService() {
@@ -32,6 +38,6 @@ public class Neo4jConfig implements InitializingBean{
 
     @Bean
     public TrackSimilarityStatsService trackSimilarityStatsService(){
-        return new TrackSimilarityStatsServiceNeo4jImpl(graphDatabaseService());
+        return new TrackSimilarityStatsServiceNeo4jImpl(graphDatabaseService(), fingerprintTypeMinWeights.getMap());
     }
 }

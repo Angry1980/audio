@@ -12,15 +12,21 @@ import java.util.stream.Collectors;
 public abstract class FingerprintTypeQuery implements Query<FingerprintTypeQuery>{
 
     private final FingerprintType type;
+    private final int minWeight;
     private Map<Boolean, Integer> result;
 
     public FingerprintTypeQuery(FingerprintType type) {
+        this(type, 1);
+    }
+
+    public FingerprintTypeQuery(FingerprintType type, int minWeight) {
+        this.minWeight = minWeight;
         this.type = Objects.requireNonNull(type);
     }
 
     @Override
     public Map<String, Object> getParams() {
-        return ImmutableMap.of("fingerprintType", type.name());
+        return ImmutableMap.of("fingerprintType", type.name(), "minWeight", minWeight);
     }
 
     @Override

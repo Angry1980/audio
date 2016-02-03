@@ -75,7 +75,7 @@ public class NetflixDataProvider implements InitializingBean {
     }
 
     public void save(){
-        if(source.exists()) {
+        if(!source.exists()) {
             try {
                 source.createNewFile();
             } catch (IOException e) {

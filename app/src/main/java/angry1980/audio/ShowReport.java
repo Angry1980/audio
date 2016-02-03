@@ -2,6 +2,7 @@ package angry1980.audio;
 
 import angry1980.audio.model.FingerprintType;
 import angry1980.audio.service.TrackSimilarityStatsService;
+import angry1980.utils.SpringMapWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Import;
 import rx.Subscriber;
+
+import java.util.Map;
 
 @SpringBootApplication
 @Import(ShowReportConfig.class)
@@ -23,6 +26,8 @@ public class ShowReport {
     private DataImporter.TrackDataEnvironment sourceEnvironment;
     @Autowired
     private TrackSimilarityStatsService trackSimilarityStatsService;
+    @Autowired
+    private SpringMapWrapper<FingerprintType, Integer> fingerprintTypeMinWeights;
 
     //todo: import as separate command
     public static void main(String[] args){
@@ -61,6 +66,7 @@ public class ShowReport {
         };
         trackSimilarityStatsService.getResultDependsOnFingerprintType().subscribe(printer);
         trackSimilarityStatsService.compareFingerprintTypes().subscribe(printer);
+        LOG.info("There are {} common similarities with min weights {}", trackSimilarityStatsService.getCommonCount(), fingerprintTypeMinWeights.getMap());
         trackSimilarityStatsService.generateClusters().entrySet().stream()
                 .peek(entry -> LOG.info("Cluster {} contains", entry.getKey()))
                 .forEach(entry -> entry.getValue().stream()

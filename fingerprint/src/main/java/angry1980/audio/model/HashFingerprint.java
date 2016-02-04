@@ -2,8 +2,10 @@ package angry1980.audio.model;
 
 import org.immutables.value.Value;
 
+import java.util.List;
+
 @Value.Immutable
 public interface HashFingerprint extends Fingerprint {
 
-    int[] getHashes();
+    List<TrackHash> getHashes();
 }

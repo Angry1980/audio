@@ -2,10 +2,7 @@ package angry1980.audio.similarity;
 
 import angry1980.audio.dao.FingerprintDAO;
 import angry1980.audio.dao.TrackDAO;
-import angry1980.audio.model.HashFingerprint;
-import angry1980.audio.model.FingerprintType;
-import angry1980.audio.model.ImmutableTrackSimilarity;
-import angry1980.audio.model.TrackSimilarity;
+import angry1980.audio.model.*;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.Collections;
@@ -53,20 +50,20 @@ public class HashErrorRatesCalculator implements Calculator<HashFingerprint> {
         ;
     }
 
-    private int calculate(int[] source, int[] other) {
+    private int calculate(List<TrackHash> source, List<TrackHash> other) {
         int counter = 0;
         if(other == null || source == null){
             return counter;
         }
-        int batchSize = Math.min(this.batchSize, other.length - 1);
-        for (int begin = 0; begin < source.length; begin += batchSize){
-            int end = Math.min(begin + batchSize, source.length);
-            int[] batch = ArrayUtils.subarray(source, begin, end);
-            int limit = (int) (batch.length * positiveLimit);
+        int batchSize = Math.min(this.batchSize, other.size() - 1);
+        for (int begin = 0; begin < source.size(); begin += batchSize){
+            int end = Math.min(begin + batchSize, source.size());
+            List<TrackHash> batch = source.subList(begin, end);
+            int limit = (int) (batch.size() * positiveLimit);
             int s = 0;
-            for(int i = 0; i < other.length - batch.length; i++){
-                s = Math.max(s, check(batch, ArrayUtils.subarray(other, i, i + batch.length)));
-                if(s == batch.length){
+            for(int i = 0; i < other.size() - batch.size(); i++){
+                s = Math.max(s, check(batch, other.subList(i, i + batch.size())));
+                if(s == batch.size()){
                     break;
                 }
             }
@@ -78,10 +75,10 @@ public class HashErrorRatesCalculator implements Calculator<HashFingerprint> {
     }
 
 
-    private int check(int[] source, int[] other){
+    private int check(List<TrackHash> source, List<TrackHash> other){
         int counter = 0;
-        for(int i = 0; i < source.length && i < other.length; i++){
-            int errors = Integer.bitCount(source[i] ^ other[i]);
+        for(int i = 0; i < source.size() && i < other.size(); i++){
+            int errors = Integer.bitCount(source.get(i).getHash() ^ other.get(i).getHash());
             if(errors <= errorLimit){
                 counter++;
             }

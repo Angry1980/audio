@@ -6,6 +6,6 @@ import org.immutables.value.Value;
 public interface TrackHash {
 
     long getTrackId();
-
+    int getTime();
     int getHash();
 }

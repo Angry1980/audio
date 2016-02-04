@@ -39,7 +39,7 @@ public class ChromaprintFingerprintConfig {
         return new FindSimilarTracksImpl(
                 trackSimilarityDAO,
                 chromaprintGetOrCreateFingerprint(),
-                new HashErrorRatesCalculator(FingerprintType.CHROMAPRINT, trackDAO, chromaprintFingerprintDAO()),
+                chromaprintInvertedIndex(),
                 FingerprintType.CHROMAPRINT
         );
     }
@@ -50,8 +50,13 @@ public class ChromaprintFingerprintConfig {
                 chromaprintFingerprintDAO(),
                 trackDAO,
                 chromaprintCalculator(),
-                new HashInvertedIndex(chromaprintTrackHashDAO())
+                chromaprintInvertedIndex()
         );
+    }
+
+    @Bean
+    public HashInvertedIndex chromaprintInvertedIndex(){
+        return new HashInvertedIndex(chromaprintTrackHashDAO());
     }
 
     @Bean

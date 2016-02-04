@@ -39,7 +39,7 @@ public class LastFMFingerprintConfig {
         return new FindSimilarTracksImpl(
                 trackSimilarityDAO,
                 lastFMGetOrCreateFingerprint(),
-                new HashErrorRatesCalculator(FingerprintType.LASTFM, trackDAO, lastFMFingerprintDAO()),
+                lastFMInvertedIndex(),
                 FingerprintType.LASTFM
         );
     }
@@ -50,8 +50,13 @@ public class LastFMFingerprintConfig {
                 lastFMFingerprintDAO(),
                 trackDAO,
                 lastFMCalculator(),
-                new HashInvertedIndex(lastFMTrackHashDAO())
+                lastFMInvertedIndex()
         );
+    }
+
+    @Bean
+    public HashInvertedIndex lastFMInvertedIndex(){
+        return new HashInvertedIndex(lastFMTrackHashDAO());
     }
 
     @Bean

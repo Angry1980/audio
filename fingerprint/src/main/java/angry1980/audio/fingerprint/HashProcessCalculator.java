@@ -23,9 +23,10 @@ public class HashProcessCalculator extends ProcessCalculator<HashFingerprint>{
     }
 
     private List<TrackHash> convert(long trackId, byte[] data){
-        List<TrackHash> hashes = new ArrayList<>(data.length/4);
+        int size = data.length/4;
+        List<TrackHash> hashes = new ArrayList<>(size);
         IntBuffer buff = ByteBuffer.wrap(data).asIntBuffer();
-        for (int i = 0; i < hashes.size(); i ++){
+        for (int i = 0; i < size; i ++){
             hashes.add(ImmutableTrackHash.builder().hash(buff.get()).time(i).trackId(trackId).build());
         }
         return hashes;
@@ -39,7 +40,7 @@ public class HashProcessCalculator extends ProcessCalculator<HashFingerprint>{
                 .hashes(convert(track.getId(), hash))
                 .type(type)
                 .build();
-        LOG.debug("{} was created for track {}", f, track.getId());
+        LOG.debug("Fingerprint was created for track {}", track.getId());
         LOG.debug("There are {} hash values in fingerprint for track {} ", f.getHashes().size(), track.getId());
         return f;
     }

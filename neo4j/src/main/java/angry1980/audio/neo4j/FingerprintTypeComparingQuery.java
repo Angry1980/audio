@@ -16,17 +16,17 @@ import java.util.stream.Collectors;
 public class FingerprintTypeComparingQuery implements Query<FingerprintTypeComparingQuery>{
 
     private static final String QUERY = "match (cluster1)<-[:IS]-(track1:TRACK)-[similar1:SIMILAR{type:{type1}}]->(track2:TRACK)-[:IS]->(cluster1)"
-            + " optional match (track1)-[similar2:SIMILAR{type:{type2}}]->(track2)"
-            + " where similar1.weight > {minWeight1} and similar2.weight > {minWeight2}"
-            + " with similar1.weight as weight, not(similar2.id is null) as notempty"
-            + " return count(weight) as result, min(weight) as minValue, notempty as common "
-            ;
+        + " where similar1.weight > {minWeight1}"
+        + " optional match (track1)-[similar2:SIMILAR{type:{type2}}]->(track2)"
+        + " where similar2.weight > {minWeight2}"
+        + " with similar1.weight as weight, (similar2 is null) as empty, track1 as track"
+        + " return count(distinct(track)) as result, min(weight) as minValue, not(empty) as common "
+        ;
 
     private final FingerprintType type1;
     private final FingerprintType type2;
     private Map<FingerprintType, Integer> minWeights;
     private int minValue;
-    private int allCount;
     private int commonCount;
 
     public FingerprintTypeComparingQuery(Map<FingerprintType, Integer> minWeights, FingerprintType type1, FingerprintType type2) {
@@ -54,18 +54,11 @@ public class FingerprintTypeComparingQuery implements Query<FingerprintTypeCompa
                                     Query.getIntValue(data, "result").orElse(0),
                                     Query.getIntValue(data, "minValue").orElse(0)
                 )).collect(Collectors.toMap(Record::isCommon, Function.identity()));
-        int all = 0;
         Record r = map.get(true);
         if(r != null){
-            all += r.getCount();
             this.minValue = r.getMin();
             this.commonCount = r.getCount();
         }
-        r = map.get(false);
-        if(r != null){
-            all += r.getCount();
-        }
-        this.allCount = all;
         return this;
     }
 
@@ -81,7 +74,6 @@ public class FingerprintTypeComparingQuery implements Query<FingerprintTypeCompa
                 .minWeightInCommon1(minValue)
                 .minWeightInCommon2(other.minValue)
                 .common(this.commonCount)
-                .all(Math.max(this.allCount, other.allCount))
                 .build();
     }
 

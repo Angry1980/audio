@@ -9,7 +9,6 @@ public interface FingerprintTypeComparing {
     FingerprintType getType1();
     FingerprintType getType2();
     int getCommon();
-    int getAll();
     int getMinWeightInCommon1();
     int getMinWeightInCommon2();
 

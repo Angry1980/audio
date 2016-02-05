@@ -8,24 +8,24 @@ import org.neo4j.graphdb.Result;
 import java.util.Map;
 import java.util.Objects;
 
-public class UniqueSimilarityQuery implements Query<UniqueSimilarityQuery> {
+public class UniqueCountQuery implements Query<UniqueCountQuery> {
 
-    private static final String QUERY = "match (cluster1)<-[:IS]-(track1:TRACK)-[similar:SIMILAR]->(track2:TRACK)-[:IS]->(cluster1)"
-            + " where similar.weight > {minWeight}"
-            + " with track1.id as t1, track2.id as t2, count(similar) as sc, collect(similar.type) as types"
-            + " where sc = 1 and {type} in types"
-            + " return count(sc) as result"
-            ;
+    private static final String QUERY = "match (cluster1)<-[:IS]-(track1)-[similar:SIMILAR]->(:TRACK)-[:IS]->(cluster1)"
+        + " where similar.type <> {type} or similar.weight > {minWeight}"
+        + " with track1.id as t1, collect(distinct(similar.type)) as types"
+        + " where length(types) = 1 and {type} in types"
+        + " return count(distinct(t1)) as result"
+        ;
 
     private final int minWeight;
     private final FingerprintType type;
     private int result;
 
-    public UniqueSimilarityQuery(FingerprintType type) {
+    public UniqueCountQuery(FingerprintType type) {
         this(type, 0);
     }
 
-    public UniqueSimilarityQuery(FingerprintType type, int minWeight) {
+    public UniqueCountQuery(FingerprintType type, int minWeight) {
         this.minWeight = minWeight;
         this.type = Objects.requireNonNull(type);
     }
@@ -45,7 +45,7 @@ public class UniqueSimilarityQuery implements Query<UniqueSimilarityQuery> {
     }
 
     @Override
-    public UniqueSimilarityQuery handle(Result result) {
+    public UniqueCountQuery handle(Result result) {
         this.result = Query.getIntResult(result, "result");
         return this;
     }

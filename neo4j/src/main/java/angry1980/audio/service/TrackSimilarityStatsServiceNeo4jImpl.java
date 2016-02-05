@@ -76,10 +76,10 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
                     .type(type)
                     .clustersCount(getNodesCount(Neo4jNodeType.CLUSTER))
                     .tracksCount(getNodesCount(Neo4jNodeType.TRACK))
-                    .falseNegative(template.handle(new FingerprintTypeFalseNegativeQuery(type)).getValue(false))
+                    .falseNegative(template.handle(new FingerprintTypeNegativeQuery(type, minWeights.get(type))).getValue(false))
                     .falsePositive(positive.getValue(false))
                     .truthPositive(positive.getValue(true))
-                    .uniqueSimilarityCount(template.handle(new UniqueSimilarityQuery(type, minWeights.get(type))).getResult())
+                    .uniqueCount(template.handle(new UniqueCountQuery(type, minWeights.get(type))).getResult())
                     .build();
 
         });

@@ -11,11 +11,11 @@ import java.util.Objects;
 public class FingerprintTypeComparingAllQuery implements Query<FingerprintTypeComparingAllQuery>{
 
     private static final String QUERY = "match (cluster1)<-[:IS]-(track1:TRACK)-[similar1:SIMILAR{type:{type1}}]->(track2:TRACK)-[:IS]->(cluster1)"
-            + " optional match (track1)-[similar2:SIMILAR{type:{type2}}]->(track2)"
-            + " optional match (track1)-[similar3:SIMILAR{type:{type3}}]->(track2)"
-            + " where similar1.weight > {minWeight1} and similar2.weight > {minWeight2} and similar3.weight > {minWeight3}"
-            + " with similar1.weight as weight, not((similar2.id is null) or (similar3.id is null)) as notempty"
-            + " return count(weight) as result, notempty as common "
+            + " where similar1.weight > {minWeight1}"
+            + " optional match (track1)-[similar2:SIMILAR{type:{type2}}]->(track2) where similar2.weight > {minWeight2}"
+            + " optional match (track1)-[similar3:SIMILAR{type:{type3}}]->(track2) where similar3.weight > {minWeight3}"
+            + " with track1 as track, ((similar2 is null) or (similar3 is null)) as empty"
+            + " return count(distinct(track)) as result, not(empty) as common "
             ;
 
     private Map<FingerprintType, Integer> minWeights;

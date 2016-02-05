@@ -4,11 +4,11 @@ import angry1980.audio.model.FingerprintType;
 
 public class FingerprintTypePositiveQuery extends FingerprintTypeQuery {
 
-    private static final String QUERY = "match (cluster1)<-[:IS]-(track1)-[similar:SIMILAR]->(track2)-[:IS]->(cluster2)"
+    private static final String QUERY = "match (cluster1)<-[:IS]-(track1)-[similar:SIMILAR]->(:TRACK)-[:IS]->(cluster2)"
             + " where similar.type={fingerprintType} and similar.weight > {minWeight}"
             //+ " return track1.id, track2.id, similar.weight"
-            + " with cluster1.id=cluster2.id as r"
-            + " return count(r) as result, r"
+            + " with cluster1=cluster2 as r, track1 as track"
+            + " return count(distinct(track)) as result, r"
             ;
 
 

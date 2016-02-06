@@ -14,10 +14,16 @@ public class HashInvertedIndex implements InvertedIndex<HashFingerprint>, Calcul
 
     private static Logger LOG = LoggerFactory.getLogger(HashInvertedIndex.class);
 
+    private int minWeight;
     private TrackHashDAO hashDAO;
 
     public HashInvertedIndex(TrackHashDAO hashDAO) {
+        this(hashDAO, 10);
+    }
+
+    public HashInvertedIndex(TrackHashDAO hashDAO, int minWeight) {
         this.hashDAO = Objects.requireNonNull(hashDAO);
+        this.minWeight = minWeight;
     }
 
     @Override
@@ -59,17 +65,16 @@ public class HashInvertedIndex implements InvertedIndex<HashFingerprint>, Calcul
                         .map(dp2 -> new Numbered<Integer>(dp2.getTrackId(), Math.abs(dp1.getTime() - dp2.getTime())))
                 ).collect(
                         //for each track calculate count of same offsets
-                        Collectors.groupingBy(Numbered::getNumber,
-                                Collectors.groupingBy(Numbered::getValue,
-                                        Collectors.reducing(0, e -> 1, Integer::sum)
-                                )
+                        Collectors.groupingBy(
+                                Numbered::getNumber,
+                                Collectors.groupingBy(Numbered::getValue, Collectors.counting())
                         )
                 ).entrySet().stream()
                 //calculate sum of offsets counts for each track
                 .map(entry -> InvertedIndex.reduceTrackSimilarity(fingerprint, entry.getKey(),
                         entry.getValue().entrySet().stream()
-                                .filter(entry1 -> entry1.getValue() > 10)
-                                .map(entry1 -> entry1.getValue())
+                                .filter(entry1 -> entry1.getValue() > minWeight)
+                                .map(Map.Entry::getValue)
                         )
                 ).filter(ts -> ts.getValue() > 0)
                 .collect(Collectors.toList());

@@ -1,5 +1,6 @@
 package angry1980.audio.dao;
 
+import angry1980.audio.dao.TrackHashDAOInMemoryImpl;
 import angry1980.audio.model.ImmutableTrackHash;
 import angry1980.audio.model.TrackHash;
 import org.junit.Before;

@@ -37,8 +37,8 @@ public class Calculate{
     public static void main(String[] args){
         SpringApplication sa = new SpringApplication(Calculate.class);
         sa.setAdditionalProfiles(
-                FingerprintType.CHROMAPRINT.name(),
-                FingerprintType.PEAKS.name()//,
+                FingerprintType.CHROMAPRINT.name()//,
+                //FingerprintType.PEAKS.name()//,
                 //FingerprintType.LASTFM.name()
         );
         ConfigurableApplicationContext context = sa.run(args);

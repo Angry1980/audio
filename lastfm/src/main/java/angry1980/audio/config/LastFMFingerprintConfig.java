@@ -39,7 +39,7 @@ public class LastFMFingerprintConfig {
         return new FindSimilarTracksImpl(
                 trackSimilarityDAO,
                 lastFMGetOrCreateFingerprint(),
-                lastFMInvertedIndex(),
+                lastFMFingerprintCalculator(),
                 FingerprintType.LASTFM
         );
     }
@@ -52,6 +52,11 @@ public class LastFMFingerprintConfig {
                 lastFMCalculator(),
                 lastFMInvertedIndex()
         );
+    }
+
+    @Bean
+    public angry1980.audio.similarity.Calculator<HashFingerprint> lastFMFingerprintCalculator(){
+        return lastFMInvertedIndex();
     }
 
     @Bean

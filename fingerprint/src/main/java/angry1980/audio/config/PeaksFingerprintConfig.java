@@ -6,6 +6,8 @@ import angry1980.audio.fingerprint.GetOrCreateFingerprint;
 import angry1980.audio.fingerprint.PeaksCalculator;
 import angry1980.audio.fingerprint.PeaksInvertedIndex;
 import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.PeaksFingerprint;
+import angry1980.audio.similarity.Calculator;
 import angry1980.audio.similarity.FindSimilarTracks;
 import angry1980.audio.similarity.FindSimilarTracksImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +41,7 @@ public class PeaksFingerprintConfig {
         return new FindSimilarTracksImpl(
                 trackSimilarityDAO,
                 peaksGetOrCreateFingerprint(),
-                peaksInvertedIndex(),
+                peaksFingerprintCalculator(),
                 FingerprintType.PEAKS
         );
     }
@@ -52,6 +54,11 @@ public class PeaksFingerprintConfig {
                 new PeaksCalculator(adapter),
                 peaksInvertedIndex()
         );
+    }
+
+    @Bean
+    public Calculator<PeaksFingerprint> peaksFingerprintCalculator(){
+        return peaksInvertedIndex();
     }
 
     @Bean

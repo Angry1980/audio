@@ -8,14 +8,14 @@ import java.util.stream.Stream;
 
 public interface InvertedIndex<F extends Fingerprint> {
 
-    static TrackSimilarity reduceTrackSimilarity(Fingerprint f, long track2, Stream<?> data){
+    static TrackSimilarity reduceTrackSimilarity(Fingerprint f, long track2, Stream<Long> data){
         return data.reduce(
                 (TrackSimilarity) ImmutableTrackSimilarity.builder()
                         .track1(f.getTrackId())
                         .track2(track2)
                         .fingerprintType(f.getType())
                         .build(),
-                (ts, th) -> ts.add(1),
+                (ts, th) -> ts.add(th.intValue()),
                 TrackSimilarity::add
         );
     }

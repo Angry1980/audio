@@ -29,13 +29,11 @@ public class PeaksInvertedIndex implements InvertedIndex<PeaksFingerprint>, Calc
                 //for each data point calculate time difference between points with the same hash
                 .flatMap(dp1 -> dataPointDAO.findByHash(dp1.getHash()).stream()
                                     .filter(dp2 -> dp1.getTrackId() != dp2.getTrackId())
-                                    .map(dp2 -> new Numbered<>(dp2.getTrackId(), Math.abs(dp1.getTime() - dp2.getTime())))
+                                    .map(dp2 -> new Numbered<Integer>(dp2.getTrackId(), Math.abs(dp1.getTime() - dp2.getTime())))
                 ).collect(
                     //for each track calculate count of same offsets
                     Collectors.groupingBy(Numbered::getNumber,
-                            Collectors.groupingBy(Numbered::getValue,
-                                    Collectors.reducing(0, e -> 1, Integer::sum)
-                            )
+                            Collectors.groupingBy(Numbered::getValue, Collectors.counting())
                     )
                 ).entrySet().stream()
                     //calculate sum of offsets counts for each track

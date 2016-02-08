@@ -9,5 +9,6 @@ public interface TrackHashDAO {
 
     Optional<TrackHash> create(TrackHash hash);
 
-    List<TrackHash> findByHash(int hash);
+    List<TrackHash> findByHash(long hash);
+
 }

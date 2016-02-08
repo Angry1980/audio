@@ -3,8 +3,8 @@ package angry1980.audio.config;
 import angry1980.audio.Adapter;
 import angry1980.audio.dao.*;
 import angry1980.audio.fingerprint.*;
+import angry1980.audio.model.Fingerprint;
 import angry1980.audio.model.FingerprintType;
-import angry1980.audio.model.HashFingerprint;
 import angry1980.audio.similarity.FindSimilarTracksImpl;
 
 import angry1980.audio.similarity.FindSimilarTracks;
@@ -30,7 +30,7 @@ public class ChromaprintFingerprintConfig {
     }
 
     @Bean
-    public Calculator<HashFingerprint> chromaprintCalculator(){
+    public Calculator<Fingerprint> chromaprintCalculator(){
         return new HashProcessCalculator(new ChromaprintProcessCreator(), adapter, FingerprintType.CHROMAPRINT);
     }
 
@@ -55,13 +55,13 @@ public class ChromaprintFingerprintConfig {
     }
 
     @Bean
-    public angry1980.audio.similarity.Calculator<HashFingerprint> chromaprintSimilarityCalculator(){
+    public angry1980.audio.similarity.Calculator<Fingerprint> chromaprintSimilarityCalculator(){
         return chromaprintInvertedIndex();
     }
 
     @Bean
     public HashInvertedIndex chromaprintInvertedIndex(){
-        return new HashInvertedIndex(chromaprintTrackHashDAO());
+        return new HashInvertedIndex(10, 10, chromaprintTrackHashDAO());
     }
 
     @Bean

@@ -16,7 +16,7 @@ import java.util.stream.IntStream;
 /**
  * ported from https://github.com/wsieroci/audiorecognizer
  */
-public class PeaksCalculator implements Calculator<PeaksFingerprint>{
+public class PeaksCalculator implements Calculator<Fingerprint>{
 
     private static Logger LOG = LoggerFactory.getLogger(PeaksCalculator.class);
 
@@ -32,22 +32,23 @@ public class PeaksCalculator implements Calculator<PeaksFingerprint>{
     }
 
     @Override
-    public Optional<PeaksFingerprint> calculate(Track track) {
+    public Optional<Fingerprint> calculate(Track track) {
         LOG.debug("Start of peaks fingerprint calculation for track {}", track.getId());
         return builder.build(track)
                 .map(this::determineKeyPoints)
                 .map(points -> build(track.getId(), points))
         ;
     }
-    private PeaksFingerprint build(long trackId, List<Peak> peaks){
-        return ImmutablePeaksFingerprint.builder()
+    private Fingerprint build(long trackId, List<TrackHash> peaks){
+        return ImmutableFingerprint.builder()
                 .trackId(trackId)
-                .points(peaks)
+                .hashes(peaks)
+                .type(FingerprintType.PEAKS)
                 .build();
     }
 
 
-    private List<Peak> determineKeyPoints(Spectrum spectrum) {
+    private List<TrackHash> determineKeyPoints(Spectrum spectrum) {
         LOG.debug("Spectrum key points determination for track {}", spectrum.getTrackId());
         return IntStream.range(0, spectrum.getData().length)
                 .mapToObj(t -> new Numbered<>(t, hash(spectrum.getData()[t])))
@@ -55,8 +56,8 @@ public class PeaksCalculator implements Calculator<PeaksFingerprint>{
                 .collect(Collectors.toList());
     }
 
-    private Peak build(long trackId, int time, long hash){
-        return ImmutablePeak.builder()
+    private TrackHash build(long trackId, int time, long hash){
+        return ImmutableTrackHash.builder()
                 .trackId(trackId)
                 .time(time)
                 .hash(hash)

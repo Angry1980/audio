@@ -1,16 +1,19 @@
 package angry1980.audio.fingerprint;
 
 import angry1980.audio.dao.TrackHashDAO;
-import angry1980.audio.model.*;
-import angry1980.audio.similarity.Calculator;
+import angry1980.audio.model.Fingerprint;
+import angry1980.audio.model.ImmutableTrackSimilarity;
+import angry1980.audio.model.TrackHash;
+import angry1980.audio.model.TrackSimilarity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class HashInvertedIndex implements InvertedIndex<HashFingerprint>, Calculator<HashFingerprint> {
+public class HashInvertedIndex implements InvertedIndex<Fingerprint>, angry1980.audio.similarity.Calculator<Fingerprint>{
 
     private static Logger LOG = LoggerFactory.getLogger(HashInvertedIndex.class);
 
@@ -18,19 +21,15 @@ public class HashInvertedIndex implements InvertedIndex<HashFingerprint>, Calcul
     private int minWeight;
     private TrackHashDAO hashDAO;
 
-    public HashInvertedIndex(TrackHashDAO hashDAO) {
-        this(hashDAO, 10, 10);
-    }
-
-    public HashInvertedIndex(TrackHashDAO hashDAO, int minWeight, int filterWeight) {
-        this.hashDAO = Objects.requireNonNull(hashDAO);
-        this.minWeight = minWeight;
+    public HashInvertedIndex(int filterWeight, int minWeight, TrackHashDAO hashDAO) {
         this.filterWeight = filterWeight;
+        this.minWeight = minWeight;
+        this.hashDAO = Objects.requireNonNull(hashDAO);
     }
 
     @Override
-    public HashFingerprint save(HashFingerprint fingerprint) {
-        LOG.debug("Creation of inverted index for {}", fingerprint.getTrackId());
+    public Fingerprint save(Fingerprint fingerprint) {
+        LOG.debug("Creation of inverted index for {} of type {}", fingerprint.getTrackId(), fingerprint.getType());
         fingerprint.getHashes().stream()
                 .forEach(hash -> {
                     try{
@@ -42,13 +41,13 @@ public class HashInvertedIndex implements InvertedIndex<HashFingerprint>, Calcul
 
                 });
         return fingerprint;
+
     }
 
     @Override
-    public List<TrackSimilarity> calculate(HashFingerprint fingerprint) {
-        //todo: refactor, same code as in PeaksInvertedIndex
-        LOG.debug("Similarity calculation for {}", fingerprint.getTrackId());
-        Supplier<Set<TrackHash>> supplier = () -> new TreeSet<>(Comparator.comparingInt(TrackHash::getTime));
+    public List<TrackSimilarity> calculate(Fingerprint fingerprint) {
+        LOG.debug("Similarity calculation for {} of type {}", fingerprint.getTrackId(), fingerprint.getType());
+        Supplier<Set<TrackHash>> supplier = () -> new TreeSet<TrackHash>(Comparator.comparingInt(TrackHash::getTime));
         Map<Long, Set<TrackHash>> temp = fingerprint.getHashes().stream()
                 //.peek(h -> LOG.debug("Check hashes for {}", h))
                 .map(hash -> hashDAO.findByHash(hash.getHash()))
@@ -59,17 +58,29 @@ public class HashInvertedIndex implements InvertedIndex<HashFingerprint>, Calcul
                 );
         return temp.entrySet().stream()
                 //.peek(entry -> LOG.debug("Results by track {}", entry))
-                .map(entry -> InvertedIndex.reduceTrackSimilarity(
-                                    fingerprint,
-                                    entry.getKey(),
-                                    this.split(entry.getValue()).stream()
-                                        .filter(set -> set.size() > filterWeight)
-                                        //.peek(set -> LOG.debug("{} was passed by filterWeight {}", set))
-                                        .map(set -> (long)set.size())
-                                    )
+                .map(entry -> reduceTrackSimilarity(
+                        fingerprint,
+                        entry.getKey(),
+                        this.split(entry.getValue()).stream()
+                                .filter(set -> set.size() > filterWeight)
+                                //.peek(set -> LOG.debug("{} was passed by filterWeight {}", set))
+                                .map(set -> (long)set.size())
+                        )
                 )
                 .filter(ts -> ts.getValue() > minWeight)
                 .collect(Collectors.toList());
+    }
+
+    private TrackSimilarity reduceTrackSimilarity(Fingerprint f, long track2, Stream<Long> data){
+        return data.reduce(
+                (TrackSimilarity) ImmutableTrackSimilarity.builder()
+                        .track1(f.getTrackId())
+                        .track2(track2)
+                        .fingerprintType(f.getType())
+                        .build(),
+                (ts, th) -> ts.add(th.intValue()),
+                TrackSimilarity::add
+        );
     }
 
     private List<Set<TrackHash>> split(Set<TrackHash> data){

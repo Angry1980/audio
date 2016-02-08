@@ -20,11 +20,11 @@ public class Entities {
         return ImmutableTrackSimilarity.builder().track1(track1).track2(track2).fingerprintType(type).value(value).build();
     }
 
-    public static HashFingerprint hashFingerprint(long trackId, TrackHash ... hashes){
+    public static Fingerprint hashFingerprint(long trackId, TrackHash ... hashes){
         return hashFingerprint(trackId, defaultFingerprintType, hashes);
     }
 
-    public static HashFingerprint hashFingerprint(long trackId, FingerprintType type, TrackHash ... hashes){
-        return ImmutableHashFingerprint.builder().trackId(trackId).type(type).addHashes(hashes).build();
+    public static Fingerprint hashFingerprint(long trackId, FingerprintType type, TrackHash ... hashes){
+        return ImmutableFingerprint.builder().trackId(trackId).type(type).addHashes(hashes).build();
     }
 }

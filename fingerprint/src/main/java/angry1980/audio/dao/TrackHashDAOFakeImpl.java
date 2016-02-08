@@ -13,7 +13,7 @@ public class TrackHashDAOFakeImpl implements TrackHashDAO {
     }
 
     @Override
-    public List<TrackHash> findByHash(int hash) {
+    public List<TrackHash> findByHash(long hash) {
         return Collections.emptyList();
     }
 }

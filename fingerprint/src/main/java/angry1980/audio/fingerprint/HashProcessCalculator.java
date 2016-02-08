@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class HashProcessCalculator extends ProcessCalculator<HashFingerprint>{
+public class HashProcessCalculator extends ProcessCalculator<Fingerprint>{
 
     private static Logger LOG = LoggerFactory.getLogger(HashProcessCalculator.class);
 
@@ -33,9 +33,9 @@ public class HashProcessCalculator extends ProcessCalculator<HashFingerprint>{
     }
 
     @Override
-    protected HashFingerprint create(Track track, byte[] hash) {
+    protected Fingerprint create(Track track, byte[] hash) {
         LOG.debug("Creation of fingerprint entity for track {}", track.getId());
-        HashFingerprint f = ImmutableHashFingerprint.builder()
+        Fingerprint f = ImmutableFingerprint.builder()
                 .trackId(track.getId())
                 .hashes(convert(track.getId(), hash))
                 .type(type)

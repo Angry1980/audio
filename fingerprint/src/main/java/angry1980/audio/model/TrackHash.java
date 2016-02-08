@@ -7,5 +7,5 @@ public interface TrackHash {
 
     long getTrackId();
     int getTime();
-    int getHash();
+    long getHash();
 }

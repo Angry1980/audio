@@ -6,14 +6,14 @@ import java.util.*;
 
 public class TrackHashDAOInMemoryImpl implements TrackHashDAO {
 
-    private int mask;
-    private Map<Integer, List<TrackHash>> index;
+    private long mask;
+    private Map<Long, List<TrackHash>> index;
 
     public TrackHashDAOInMemoryImpl(){
         this(-1);
     }
 
-    public TrackHashDAOInMemoryImpl(int mask){
+    public TrackHashDAOInMemoryImpl(long mask){
         this.index = new HashMap<>();
         this.mask = mask;
     }
@@ -27,7 +27,7 @@ public class TrackHashDAOInMemoryImpl implements TrackHashDAO {
     }
 
     @Override
-    public List<TrackHash> findByHash(int hash) {
+    public List<TrackHash> findByHash(long hash) {
         return index.getOrDefault(hash & mask, Collections.emptyList());
     }
 }

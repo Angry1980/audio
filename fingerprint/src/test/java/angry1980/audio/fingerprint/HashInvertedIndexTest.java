@@ -2,7 +2,7 @@ package angry1980.audio.fingerprint;
 
 import angry1980.audio.Entities;
 import angry1980.audio.dao.TrackHashDAO;
-import angry1980.audio.model.HashFingerprint;
+import angry1980.audio.model.Fingerprint;
 import angry1980.audio.model.TrackSimilarity;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +14,7 @@ import java.util.List;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -22,12 +22,12 @@ public class HashInvertedIndexTest {
 
     private TrackHashDAO dao;
     private HashInvertedIndex index;
-    private HashFingerprint fingerprint;
+    private Fingerprint fingerprint;
 
     @Before
     public void init(){
         dao = mock(TrackHashDAO.class);
-        index = new HashInvertedIndex(dao, 1, 1);
+        index = new HashInvertedIndex(1, 1, dao);
         fingerprint = Entities.hashFingerprint(1,
                 Entities.trackHash(1, 1, 1),
                 Entities.trackHash(1, 2, 1),
@@ -37,7 +37,7 @@ public class HashInvertedIndexTest {
 
     @Test
     public void testEmptyHashDAO(){
-        when(dao.findByHash(anyInt())).thenReturn(Collections.emptyList());
+        when(dao.findByHash(anyLong())).thenReturn(Collections.emptyList());
         List<TrackSimilarity> result = index.calculate(fingerprint);
         assertNotNull(result);
         assertTrue(result.size() == 0);
@@ -45,7 +45,7 @@ public class HashInvertedIndexTest {
 
     @Test
     public void testSourceTrack(){
-        when(dao.findByHash(anyInt())).thenReturn(Arrays.asList(
+        when(dao.findByHash(anyLong())).thenReturn(Arrays.asList(
                 Entities.trackHash(2, 1, 1),
                 Entities.trackHash(2, 2, 1)
         ));
@@ -94,4 +94,5 @@ public class HashInvertedIndexTest {
         assertTrue(result.get(index).getValue() == value);
 
     }
+
 }

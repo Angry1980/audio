@@ -10,21 +10,21 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class HashErrorRatesCalculator implements Calculator<HashFingerprint> {
+public class HashErrorRatesCalculator implements Calculator<Fingerprint> {
 
     private static final double positiveLimit = 0.8;
 
     private FingerprintType type;
     private TrackDAO trackDAO;
-    private FingerprintDAO<HashFingerprint> fingerprintDAO;
+    private FingerprintDAO<Fingerprint> fingerprintDAO;
     private int batchSize;
     private int errorLimit;
 
-    public HashErrorRatesCalculator(FingerprintType type, TrackDAO trackDAO, FingerprintDAO<HashFingerprint> fingerprintDAO){
+    public HashErrorRatesCalculator(FingerprintType type, TrackDAO trackDAO, FingerprintDAO<Fingerprint> fingerprintDAO){
         this(type, trackDAO, fingerprintDAO, 25, 8);
     }
 
-    public HashErrorRatesCalculator(FingerprintType type, TrackDAO trackDAO, FingerprintDAO<HashFingerprint> fingerprintDAO, int batchSize, int errorLimit) {
+    public HashErrorRatesCalculator(FingerprintType type, TrackDAO trackDAO, FingerprintDAO<Fingerprint> fingerprintDAO, int batchSize, int errorLimit) {
         this.type = type;
         this.trackDAO = Objects.requireNonNull(trackDAO);
         this.fingerprintDAO = Objects.requireNonNull(fingerprintDAO);
@@ -33,7 +33,7 @@ public class HashErrorRatesCalculator implements Calculator<HashFingerprint> {
     }
 
     @Override
-    public List<TrackSimilarity> calculate(HashFingerprint fingerprint) {
+    public List<TrackSimilarity> calculate(Fingerprint fingerprint) {
         return trackDAO.get(fingerprint.getTrackId())
                 .map(track -> trackDAO.findByCluster(track.getCluster()).stream().mapToLong(t -> t.getId()).toArray())
                 .map(fingerprintDAO::findByTrackIds)
@@ -78,7 +78,7 @@ public class HashErrorRatesCalculator implements Calculator<HashFingerprint> {
     private int check(List<TrackHash> source, List<TrackHash> other){
         int counter = 0;
         for(int i = 0; i < source.size() && i < other.size(); i++){
-            int errors = Integer.bitCount(source.get(i).getHash() ^ other.get(i).getHash());
+            int errors = Integer.bitCount(((int)source.get(i).getHash()) ^ ((int)other.get(i).getHash()));
             if(errors <= errorLimit){
                 counter++;
             }

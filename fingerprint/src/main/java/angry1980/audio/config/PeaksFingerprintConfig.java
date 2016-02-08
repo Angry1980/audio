@@ -2,11 +2,11 @@ package angry1980.audio.config;
 
 import angry1980.audio.Adapter;
 import angry1980.audio.dao.*;
+import angry1980.audio.fingerprint.HashInvertedIndex;
 import angry1980.audio.fingerprint.GetOrCreateFingerprint;
 import angry1980.audio.fingerprint.PeaksCalculator;
-import angry1980.audio.fingerprint.PeaksInvertedIndex;
+import angry1980.audio.model.Fingerprint;
 import angry1980.audio.model.FingerprintType;
-import angry1980.audio.model.PeaksFingerprint;
 import angry1980.audio.similarity.Calculator;
 import angry1980.audio.similarity.FindSimilarTracks;
 import angry1980.audio.similarity.FindSimilarTracksImpl;
@@ -27,13 +27,13 @@ public class PeaksFingerprintConfig {
     private Adapter adapter;
 
     @Bean
-    public PeaksInvertedIndex peaksInvertedIndex(){
-        return new PeaksInvertedIndex(peakDAO());
+    public HashInvertedIndex peaksInvertedIndex(){
+        return new HashInvertedIndex(10, 10, peakDAO());
     }
 
     @Bean
-    public PeakDAO peakDAO(){
-        return new PeakDAOInMemoryImpl();
+    public TrackHashDAO peakDAO(){
+        return new TrackHashDAOInMemoryImpl();
     }
 
     @Bean
@@ -57,7 +57,7 @@ public class PeaksFingerprintConfig {
     }
 
     @Bean
-    public Calculator<PeaksFingerprint> peaksFingerprintCalculator(){
+    public Calculator<Fingerprint> peaksFingerprintCalculator(){
         return peaksInvertedIndex();
     }
 

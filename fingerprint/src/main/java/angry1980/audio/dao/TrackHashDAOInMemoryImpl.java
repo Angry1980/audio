@@ -20,8 +20,10 @@ public class TrackHashDAOInMemoryImpl implements TrackHashDAO {
 
     @Override
     public Optional<TrackHash> create(TrackHash hash) {
-        index.computeIfAbsent(hash.getHash() & mask, l -> new ArrayList()).add(hash);
-        return Optional.of(hash);
+        if(hash != null){
+            index.computeIfAbsent(hash.getHash() & mask, l -> new ArrayList()).add(hash);
+        }
+        return Optional.ofNullable(hash);
     }
 
     @Override

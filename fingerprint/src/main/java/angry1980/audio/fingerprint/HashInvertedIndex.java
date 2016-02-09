@@ -56,8 +56,9 @@ public class HashInvertedIndex implements InvertedIndex<Fingerprint>, angry1980.
                 .collect(
                         Collectors.groupingBy(TrackHash::getTrackId, Collectors.toCollection(supplier))
                 );
+        LOG.debug("There are {} similarity candidates for {} of type {} ", new Object[]{temp.size(), fingerprint.getTrackId(), fingerprint.getType()});
         return temp.entrySet().stream()
-                //.peek(entry -> LOG.debug("Results by track {}", entry))
+                .peek(entry -> LOG.debug("Results by track {}", entry))
                 .map(entry -> reduceTrackSimilarity(
                         fingerprint,
                         entry.getKey(),
@@ -68,6 +69,7 @@ public class HashInvertedIndex implements InvertedIndex<Fingerprint>, angry1980.
                         )
                 )
                 .filter(ts -> ts.getValue() > minWeight)
+                .peek(ts -> LOG.debug("{} was created", ts))
                 .collect(Collectors.toList());
     }
 

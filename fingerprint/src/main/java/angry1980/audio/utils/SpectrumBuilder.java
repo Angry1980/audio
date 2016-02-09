@@ -52,7 +52,8 @@ public class SpectrumBuilder {
         return Optional.of(track)
                 .flatMap(adapter::getContent)
                 .flatMap(AudioUtils::createAudioInputStream)
-                .flatMap(AudioUtils::convertToPCM_SIGNED)
+                //todo: check
+                //.flatMap(AudioUtils::convertToPCM_SIGNED)
                 .flatMap(AudioUtils::createByteArray)
                 .map(this::calculateSpectrum)
                 .map(c -> create(track.getId(), c))

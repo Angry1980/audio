@@ -51,7 +51,10 @@ public class AudioUtils {
         return Optional.empty();
     }
 
-    public static Optional<AudioInputStream> convertToPCM_SIGNED(AudioInputStream in){
+    public static Optional<AudioInputStream> convertToPCM_SIGNED(AudioInputStream in, boolean doIt){
+        if(!doIt){
+            return Optional.of(in);
+        }
         LOG.debug("Trying to convert audio input stream to PCM signed format");
         PCM2PCMConversionProvider conversionProvider = new PCM2PCMConversionProvider();
         AudioFormat baseFormat = in.getFormat();

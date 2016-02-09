@@ -26,6 +26,7 @@ public class AudioUtils {
     );
 
     public static Optional<AudioInputStream> createAudioInputStream(File file){
+        LOG.debug("Trying to create audio input stream from {}", file.getAbsolutePath());
         try{
             return Optional.of(AudioSystem.getAudioInputStream(file));
         } catch (Exception e) {
@@ -35,6 +36,7 @@ public class AudioUtils {
     }
 
     public static Optional<byte[]> createByteArray(AudioInputStream in) {
+        LOG.debug("Trying to create byte array from audio input stream");
         try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             byte[] buffer = new byte[1024];
             int len = in.read(buffer, 0, 1024);
@@ -49,7 +51,11 @@ public class AudioUtils {
         return Optional.empty();
     }
 
-    public static Optional<AudioInputStream> convertToPCM_SIGNED(AudioInputStream in){
+    public static Optional<AudioInputStream> convertToPCM_SIGNED(AudioInputStream in, boolean doIt){
+        if(!doIt){
+            return Optional.of(in);
+        }
+        LOG.debug("Trying to convert audio input stream to PCM signed format");
         PCM2PCMConversionProvider conversionProvider = new PCM2PCMConversionProvider();
         AudioFormat baseFormat = in.getFormat();
         AudioFormat decodedFormat = new AudioFormat(

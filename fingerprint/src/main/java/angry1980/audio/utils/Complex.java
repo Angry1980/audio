@@ -1,5 +1,7 @@
 package angry1980.audio.utils;
 
+import java.util.Objects;
+
 /*************************************************************************
  * Compilation: javac Complex.java Execution: java Complex
  * 
@@ -141,7 +143,20 @@ public class Complex {
 		return sum;
 	}
 
-	// sample client for testing
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Complex complex = (Complex) o;
+		return Double.compare(complex.re, re) == 0 &&
+				Double.compare(complex.im, im) == 0;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(re, im);
+	}
+// sample client for testing
 	// public static void main(String[] args) {
 	// Complex a = new Complex(5.0, 6.0);
 	// Complex b = new Complex(-3.0, 4.0);

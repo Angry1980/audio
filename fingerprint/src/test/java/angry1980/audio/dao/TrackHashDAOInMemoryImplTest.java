@@ -5,10 +5,7 @@ import angry1980.audio.model.TrackHash;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -87,7 +84,7 @@ public class TrackHashDAOInMemoryImplTest {
         RND.ints(10).forEach(v -> assertTrue(dao.findByHash(v).size() == 10));
     }
 
-    private void checkSearchingResult(List<TrackHash> result, TrackHash ... hashes){
+    private void checkSearchingResult(Collection<TrackHash> result, TrackHash ... hashes){
         assertTrue(result.size() == hashes.length);
         Arrays.stream(hashes).forEach(hash -> assertTrue(result.contains(hash)));
     }

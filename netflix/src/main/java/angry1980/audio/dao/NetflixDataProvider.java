@@ -39,7 +39,12 @@ public class NetflixDataProvider implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
+        init();
+    }
+
+    public void init(){
         if(!source.exists()){
+            LOG.debug("Source file {} does not exist", source.getAbsolutePath());
             return;
         }
         try {
@@ -55,6 +60,7 @@ public class NetflixDataProvider implements InitializingBean {
             copyConnections(graph, data.getTracks(), NetflixNodeType.TRACK, NetflixRelationType.HAS);
             copyConnections(graph, data.getTracks(), NetflixNodeType.TRACK, NetflixRelationType.IS);
             copyConnections(graph, data.getTracks(), NetflixNodeType.TRACK, NetflixRelationType.SITUATED);
+            LOG.debug("Import of data from {} was successfully finished", source.getAbsolutePath());
         } catch(Exception e){
             //todo: clean data
             LOG.error("Error while trying to restore data", e);

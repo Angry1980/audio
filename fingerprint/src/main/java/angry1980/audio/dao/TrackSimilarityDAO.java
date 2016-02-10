@@ -38,6 +38,20 @@ public interface TrackSimilarityDAO extends DAO<TrackSimilarity> {
         return result;
     }
 
+    default Optional<List<TrackSimilarity>> findByFingerprintType(FingerprintType type){
+        Optional<List<TrackSimilarity>> result = Optional.of(
+                tryToGetAll().stream()
+                        .filter(ts -> ts.getFingerprintType().equals(type))
+                        .collect(Collectors.toList())
+        ).filter(list -> !list.isEmpty());
+        if(result.isPresent()){
+            LOG.debug("There are {} existed similarities of type {}", result.get().size(), type);
+        }else {
+            LOG.debug("There are not existed similarities of type {}", type);
+        }
+        return result;
+    }
+
     @Override
     default TrackSimilarity tryToGet(long id) {
         throw new UnsupportedOperationException();

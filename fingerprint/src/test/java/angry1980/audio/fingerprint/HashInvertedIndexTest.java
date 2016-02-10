@@ -2,7 +2,9 @@ package angry1980.audio.fingerprint;
 
 import angry1980.audio.Entities;
 import angry1980.audio.dao.TrackHashDAO;
+import angry1980.audio.dao.TrackHashDAOInMemoryImpl;
 import angry1980.audio.model.Fingerprint;
+import angry1980.audio.model.TrackHash;
 import angry1980.audio.model.TrackSimilarity;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +28,7 @@ public class HashInvertedIndexTest {
 
     @Before
     public void init(){
-        dao = mock(TrackHashDAO.class);
+        dao = new TrackHashDAOInMemoryImpl();
         index = new HashInvertedIndex(1, 1, dao);
         fingerprint = Entities.hashFingerprint(1,
                 Entities.trackHash(1, 1, 1),
@@ -37,7 +39,6 @@ public class HashInvertedIndexTest {
 
     @Test
     public void testEmptyHashDAO(){
-        when(dao.findByHash(anyLong())).thenReturn(Collections.emptyList());
         List<TrackSimilarity> result = index.calculate(fingerprint);
         assertNotNull(result);
         assertTrue(result.size() == 0);
@@ -45,10 +46,7 @@ public class HashInvertedIndexTest {
 
     @Test
     public void testSourceTrack(){
-        when(dao.findByHash(anyLong())).thenReturn(Arrays.asList(
-                Entities.trackHash(2, 1, 1),
-                Entities.trackHash(2, 2, 1)
-        ));
+        fillDAO(dao, Entities.trackHash(2, 1, 1), Entities.trackHash(2, 2, 1));
         index.calculate(fingerprint).stream()
                 .forEach(ts -> assertFalse(ts.getTrack2() == 1));
 
@@ -56,9 +54,7 @@ public class HashInvertedIndexTest {
 
     @Test
     public void testEmptyResult(){
-        when(dao.findByHash(1)).thenReturn(Arrays.asList(
-                Entities.trackHash(2, 1, 1)
-        ));
+        fillDAO(dao, Entities.trackHash(2, 1, 1));
         List<TrackSimilarity> result = index.calculate(fingerprint);
         assertNotNull(result);
         assertTrue(result.size() == 0);
@@ -66,10 +62,7 @@ public class HashInvertedIndexTest {
 
     @Test
     public void testResult1(){
-        when(dao.findByHash(1)).thenReturn(Arrays.asList(
-                Entities.trackHash(2, 1, 1),
-                Entities.trackHash(2, 2, 1)
-        ));
+        fillDAO(dao, Entities.trackHash(2, 1, 1), Entities.trackHash(2, 2, 1));
         checkResult(
                 index.calculate(fingerprint),
                 Entities.trackSimilarity(1, 2, 2),
@@ -79,10 +72,7 @@ public class HashInvertedIndexTest {
 
     @Test
     public void testResult2(){
-        when(dao.findByHash(1)).thenReturn(Arrays.asList(
-                Entities.trackHash(2, 1, 1),
-                Entities.trackHash(2, 3, 1)
-        ));
+        fillDAO(dao, Entities.trackHash(2, 1, 1), Entities.trackHash(2, 3, 1));
         List<TrackSimilarity> result = index.calculate(fingerprint);
         assertNotNull(result);
         assertTrue(result.size() == 0);
@@ -95,4 +85,7 @@ public class HashInvertedIndexTest {
 
     }
 
+    private void fillDAO(TrackHashDAO dao, TrackHash... hashes){
+        Arrays.stream(hashes).forEach(dao::create);
+    }
 }

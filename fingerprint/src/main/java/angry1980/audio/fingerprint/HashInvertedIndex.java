@@ -47,8 +47,8 @@ public class HashInvertedIndex implements InvertedIndex<Fingerprint>, angry1980.
     @Override
     public List<TrackSimilarity> calculate(Fingerprint fingerprint) {
         LOG.debug("Similarity calculation for {} of type {}", fingerprint.getTrackId(), fingerprint.getType());
-        Supplier<Set<TrackHash>> supplier = () -> new TreeSet<TrackHash>(Comparator.comparingInt(TrackHash::getTime));
-        Map<Long, Set<TrackHash>> temp = fingerprint.getHashes().stream()
+        Supplier<SortedSet<TrackHash>> supplier = () -> new TreeSet<TrackHash>(Comparator.comparingInt(TrackHash::getTime));
+        Map<Long, SortedSet<TrackHash>> temp = fingerprint.getHashes().stream()
                 //.peek(h -> LOG.debug("Check hashes for {}", h))
                 .map(hash -> hashDAO.findByHash(hash.getHash()))
                 .flatMap(list -> list.stream())

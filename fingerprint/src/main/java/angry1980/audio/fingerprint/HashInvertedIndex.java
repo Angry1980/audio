@@ -5,6 +5,9 @@ import angry1980.audio.model.Fingerprint;
 import angry1980.audio.model.ImmutableTrackSimilarity;
 import angry1980.audio.model.TrackHash;
 import angry1980.audio.model.TrackSimilarity;
+import angry1980.utils.Numbered;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,45 +62,33 @@ public class HashInvertedIndex implements InvertedIndex<Fingerprint>, angry1980.
         LOG.debug("There are {} similarity candidates for {} of type {} ", new Object[]{temp.size(), fingerprint.getTrackId(), fingerprint.getType()});
         return temp.entrySet().stream()
                 //.peek(entry -> LOG.debug("Results by track {}", entry))
-                .map(entry -> reduceTrackSimilarity(
-                        fingerprint,
-                        entry.getKey(),
-                        this.split(entry.getValue()).stream()
-                                .filter(set -> set.size() > filterWeight)
-                                //.peek(set -> LOG.debug("{} was passed by filterWeight {}", set))
-                                .map(set -> (long)set.size())
-                        )
-                )
-                .filter(ts -> ts.getValue() > minWeight)
-                .peek(ts -> LOG.debug("{} was created", ts))
+                .map(entry -> new Numbered<>(entry.getKey(), this.splitAndSum(entry.getValue(), filterWeight)))
+                .filter(n -> n.getValue() > minWeight)
+                .map(n -> ImmutableTrackSimilarity.builder()
+                        .track1(fingerprint.getTrackId())
+                        .track2(n.getNumber())
+                        .fingerprintType(fingerprint.getType())
+                        .value(n.getValue())
+                        .build()
+                ).peek(ts -> LOG.debug("{} was created", ts))
                 .collect(Collectors.toList());
     }
 
-    private TrackSimilarity reduceTrackSimilarity(Fingerprint f, long track2, Stream<Long> data){
-        return data.reduce(
-                (TrackSimilarity) ImmutableTrackSimilarity.builder()
-                        .track1(f.getTrackId())
-                        .track2(track2)
-                        .fingerprintType(f.getType())
-                        .build(),
-                (ts, th) -> ts.add(th.intValue()),
-                TrackSimilarity::add
-        );
-    }
-
-    private List<Set<TrackHash>> split(Set<TrackHash> data){
-        List<Set<TrackHash>> result = new ArrayList<>();
-        Set<TrackHash> current = new HashSet<>();
-        int prev = 0;
+    private int splitAndSum(Set<TrackHash> data, int filterWeight){
+        int result = 0;
+        int prevTime = 0;
+        int current = 0;
         for(TrackHash th : data){
-            if(th.getTime() != 0 && prev != th.getTime() - 1){
-                result.add(current);
-                current = new HashSet<>();
+            if(th.getTime() != 0 && prevTime != th.getTime() - 1){
+                if(current > filterWeight){
+                    result += current;
+                }
+                current = 0;
             }
-            prev = th.getTime();
-            current.add(th);
+            prevTime = th.getTime();
+            current++;
         }
-        result.add(current);
+        result += current;
         return result;
     }
 

@@ -9,7 +9,7 @@ import java.util.*;
 public class TrackHashDAOInMemoryImpl implements TrackHashDAO {
 
     private final long mask;
-    private final Long2ObjectMap<List<TrackHash>> index;
+    private final Long2ObjectMap<Collection<TrackHash>> index;
 
     public TrackHashDAOInMemoryImpl(){
         this(-1);
@@ -29,7 +29,7 @@ public class TrackHashDAOInMemoryImpl implements TrackHashDAO {
     }
 
     @Override
-    public List<TrackHash> findByHash(long hash) {
+    public Collection<TrackHash> findByHash(long hash) {
         return index.getOrDefault(getKey(hash), Collections.emptyList());
     }
 

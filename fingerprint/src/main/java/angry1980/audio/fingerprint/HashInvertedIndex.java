@@ -88,7 +88,9 @@ public class HashInvertedIndex implements InvertedIndex<Fingerprint>, angry1980.
             prevTime = th.getTime();
             current++;
         }
-        result += current;
+        if(current > filterWeight){
+            result += current;
+        }
         return result;
     }
 

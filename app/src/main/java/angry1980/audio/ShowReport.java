@@ -9,27 +9,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ComponentScan;
 import rx.Subscriber;
 
-import java.util.Map;
-
 @SpringBootApplication
-@Import(ShowReportConfig.class)
+@ComponentScan(value = {"angry1980.audio.config"})
 public class ShowReport {
 
     private static Logger LOG = LoggerFactory.getLogger(ShowReport.class);
 
     @Autowired
-    private DataImporter dataImporter;
-    @Autowired
-    private DataImporter.TrackDataEnvironment sourceEnvironment;
-    @Autowired
     private TrackSimilarityStatsService trackSimilarityStatsService;
     @Autowired
     private SpringMapWrapper<FingerprintType, Integer> fingerprintTypeMinWeights;
 
-    //todo: import as separate command
     public static void main(String[] args){
         SpringApplication sa = new SpringApplication(ShowReport.class);
         sa.setAdditionalProfiles(
@@ -41,12 +34,7 @@ public class ShowReport {
         );
         ConfigurableApplicationContext context = sa.run(args);
         context.registerShutdownHook();
-        context.getBean(ShowReport.class).importData().print();
-    }
-
-    public ShowReport importData(){
-        dataImporter.importTo(sourceEnvironment);
-        return this;
+        context.getBean(ShowReport.class).print();
     }
 
     public void print(){

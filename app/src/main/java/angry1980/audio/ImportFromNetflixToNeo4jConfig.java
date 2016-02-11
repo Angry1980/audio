@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ComponentScan(value = {"angry1980.audio.config"})
-public class ShowReportConfig {
+public class ImportFromNetflixToNeo4jConfig {
 
     @Autowired
     private TrackDAO trackDAO;

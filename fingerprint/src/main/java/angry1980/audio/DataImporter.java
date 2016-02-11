@@ -2,6 +2,7 @@ package angry1980.audio;
 
 import angry1980.audio.dao.TrackDAO;
 import angry1980.audio.dao.TrackSimilarityDAO;
+import angry1980.audio.model.FingerprintType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,9 +18,9 @@ public class DataImporter {
         this.from = from;
     }
 
-    public void importTo(TrackDataEnvironment to){
-        if(!to.isEmpty()){
-            LOG.info("Data has been already imported");
+    public void importTo(TrackDataEnvironment to, FingerprintType type){
+        if(!to.isEmpty(type)){
+            LOG.info("Similarities for {} has been already imported", type);
             return;
         }
         from.getTrackDAO().getAll()
@@ -27,7 +28,7 @@ public class DataImporter {
                 .ifPresent(
                         tracks -> tracks.stream()
                                     .forEach(track ->
-                                            from.getTrackSimilarityDAO().findByTrackId(track.getId())
+                                            from.getTrackSimilarityDAO().findByTrackIdAndFingerprintType(track.getId(), type)
                                                 .flatMap(to.getTrackSimilarityDAO()::createAll)
                                     )
                 );
@@ -43,9 +44,8 @@ public class DataImporter {
             this.trackSimilarityDAO = Objects.requireNonNull(trackSimilarityDAO);
         }
 
-        public boolean isEmpty(){
-            return trackDAO.getAll().map(c -> c.isEmpty()).orElse(true)
-                    && trackSimilarityDAO.getAll().map(c -> c.isEmpty()).orElse(true);
+        public boolean isEmpty(FingerprintType type){
+            return trackSimilarityDAO.findByFingerprintType(type).map(c -> c.isEmpty()).orElse(true);
         }
 
         public TrackDAO getTrackDAO() {

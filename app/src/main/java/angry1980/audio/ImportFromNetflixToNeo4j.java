@@ -23,7 +23,6 @@ public class ImportFromNetflixToNeo4j {
     public static void main(String[] args){
         SpringApplication sa = new SpringApplication(ImportFromNetflixToNeo4j.class);
         sa.setAdditionalProfiles(
-                //todo: as input arg
                 FingerprintType.CHROMAPRINT.name(),
                 FingerprintType.PEAKS.name(),
                 FingerprintType.LASTFM.name(),
@@ -32,12 +31,16 @@ public class ImportFromNetflixToNeo4j {
         );
         ConfigurableApplicationContext context = sa.run(args);
         context.registerShutdownHook();
-        context.getBean(ImportFromNetflixToNeo4j.class).importData();
+        context.getBean(ImportFromNetflixToNeo4j.class)
+                .importData(FingerprintType.CHROMAPRINT)
+                .importData(FingerprintType.LASTFM)
+                .importData(FingerprintType.PEAKS)
+        ;
     }
 
-    public ImportFromNetflixToNeo4j importData(){
-        dataImporter.importTo(sourceEnvironment);
-        LOG.info("Data was imported");
+    public ImportFromNetflixToNeo4j importData(FingerprintType type){
+        dataImporter.importTo(sourceEnvironment, type);
+        LOG.info("Similarities for {} was imported", type);
         return this;
     }
 

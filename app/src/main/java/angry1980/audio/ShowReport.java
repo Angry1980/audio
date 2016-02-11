@@ -29,7 +29,6 @@ public class ShowReport {
                 FingerprintType.CHROMAPRINT.name(),
                 FingerprintType.PEAKS.name(),
                 FingerprintType.LASTFM.name(),
-                "IMPORT",
                 "NEO4J"
         );
         ConfigurableApplicationContext context = sa.run(args);

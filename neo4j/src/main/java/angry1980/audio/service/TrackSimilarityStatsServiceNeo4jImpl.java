@@ -55,9 +55,30 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
 
     @Override
     public Observable<FingerprintTypeResult> getResultDependsOnFingerprintType() {
-        return Observable.from(FingerprintType.values())
-                            .map(this::getFingerprintTypeStats)
-        ;
+        return Observable.from(FingerprintType.values()).map(this::getResultDependsOnFingerprintType);
+    }
+
+    @Override
+    public FingerprintTypeResult getResultDependsOnFingerprintType(FingerprintType type){
+        return getResultDependsOnFingerprintType(type, minWeights.get(type));
+    }
+
+    @Override
+    public FingerprintTypeResult getResultDependsOnFingerprintType(FingerprintType type, int minWeight) {
+        return template.execute(graphDB -> {
+            FingerprintTypeQuery positive = template.handle(new FingerprintTypePositiveQuery(type, minWeight));
+            return ImmutableFingerprintTypeResult.builder()
+                    .type(type)
+                    .clustersCount(getNodesCount(Neo4jNodeType.CLUSTER))
+                    .tracksCount(getNodesCount(Neo4jNodeType.TRACK))
+                    .falseNegative(template.handle(new FingerprintTypeNegativeQuery(type, minWeight)).getValue(false))
+                    .falsePositive(positive.getValue(false))
+                    .truthPositive(positive.getValue(true))
+                    .uniqueCount(template.handle(new UniqueCountQuery(type, minWeight)).getResult())
+                    .build();
+
+        });
+
     }
 
     @Override
@@ -67,22 +88,6 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
         LouvainResult result = louvain.getResult();
         return result.layer(0).getNode2CommunityMap().entrySet().stream()
                 .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
-    }
-
-    private FingerprintTypeResult getFingerprintTypeStats(FingerprintType type){
-        return template.execute(graphDB -> {
-            FingerprintTypeQuery positive = template.handle(new FingerprintTypePositiveQuery(type, minWeights.get(type)));
-            return ImmutableFingerprintTypeResult.builder()
-                    .type(type)
-                    .clustersCount(getNodesCount(Neo4jNodeType.CLUSTER))
-                    .tracksCount(getNodesCount(Neo4jNodeType.TRACK))
-                    .falseNegative(template.handle(new FingerprintTypeNegativeQuery(type, minWeights.get(type))).getValue(false))
-                    .falsePositive(positive.getValue(false))
-                    .truthPositive(positive.getValue(true))
-                    .uniqueCount(template.handle(new UniqueCountQuery(type, minWeights.get(type))).getResult())
-                    .build();
-
-        });
     }
 
     private int getNodesCount(Neo4jNodeType type){

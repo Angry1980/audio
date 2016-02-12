@@ -18,9 +18,9 @@ import java.util.concurrent.Executor;
 
 @SpringBootApplication
 @ComponentScan(value = {"angry1980.audio.config"})
-public class Calculate{
+public class CalculateSimilarities {
 
-    private static Logger LOG = LoggerFactory.getLogger(Calculate.class);
+    private static Logger LOG = LoggerFactory.getLogger(CalculateSimilarities.class);
 //todo:
 //similarity type - comparing, minhash, errorrates
 // parameters for different implementations to props file
@@ -35,8 +35,10 @@ public class Calculate{
     private TrackSimilarityService trackSimilarityService;
 
     public static void main(String[] args){
-        SpringApplication sa = new SpringApplication(Calculate.class);
+        SpringApplication sa = new SpringApplication(CalculateSimilarities.class);
         sa.setAdditionalProfiles(
+                "NETFLIX",
+                "CALCULATE",
                 FingerprintType.CHROMAPRINT.name(),
                 FingerprintType.PEAKS.name()//,
                 //FingerprintType.LASTFM.name()
@@ -45,7 +47,7 @@ public class Calculate{
         context.registerShutdownHook();
         CountDownLatch latch = new CountDownLatch(1);
         LOG.info("Starting application");
-        context.getBean(Calculate.class).run(latch);
+        context.getBean(CalculateSimilarities.class).run(latch);
         try {
             latch.await();
         } catch (InterruptedException e) {

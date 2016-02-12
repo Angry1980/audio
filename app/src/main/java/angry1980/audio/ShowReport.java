@@ -9,11 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import rx.Subscriber;
 
 @SpringBootApplication
-@ComponentScan(value = {"angry1980.audio.config"})
+@Import(Neo4jDAOConfig.class)
 public class ShowReport {
 
     private static Logger LOG = LoggerFactory.getLogger(ShowReport.class);

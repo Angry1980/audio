@@ -9,21 +9,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 
 import java.util.Arrays;
 
 @SpringBootApplication
-@ComponentScan(value = {"angry1980.audio.config"})
-public class CalculateWeights {
+@Import(Neo4jDAOConfig.class)
+public class CalculateBestFpTpWeights {
 
-    private static Logger LOG = LoggerFactory.getLogger(CalculateWeights.class);
+    private static Logger LOG = LoggerFactory.getLogger(CalculateBestFpTpWeights.class);
 
     @Autowired
     private TrackSimilarityStatsService trackSimilarityStatsService;
 
     public static void main(String[] args){
-        SpringApplication sa = new SpringApplication(CalculateWeights.class);
+        SpringApplication sa = new SpringApplication(CalculateBestFpTpWeights.class);
         sa.setAdditionalProfiles(
                 FingerprintType.CHROMAPRINT.name(),
                 FingerprintType.PEAKS.name(),
@@ -32,10 +32,10 @@ public class CalculateWeights {
         );
         ConfigurableApplicationContext context = sa.run(args);
         context.registerShutdownHook();
-        CalculateWeights calculator = context.getBean(CalculateWeights.class);
+        CalculateBestFpTpWeights calculator = context.getBean(CalculateBestFpTpWeights.class);
         for(FingerprintType type : Arrays.asList(
-                FingerprintType.CHROMAPRINT//,
-                //FingerprintType.LASTFM,
+                //FingerprintType.CHROMAPRINT//,
+                FingerprintType.LASTFM//,
                 //FingerprintType.PEAKS
         )){
             LOG.info("Optimal weight value for {} is {}", type, calculator.calculate(type));

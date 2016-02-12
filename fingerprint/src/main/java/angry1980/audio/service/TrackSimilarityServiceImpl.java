@@ -9,13 +9,14 @@ import angry1980.audio.similarity.FindSimilarTracks;
 import angry1980.audio.similarity.TrackSimilarities;
 import angry1980.audio.similarity.TracksToCalculate;
 import angry1980.utils.ImmutableCollectors;
+import it.unimi.dsi.fastutil.longs.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 import rx.Observable;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collector;
 
 public class TrackSimilarityServiceImpl implements TrackSimilarityService {
 
@@ -75,5 +76,31 @@ public class TrackSimilarityServiceImpl implements TrackSimilarityService {
         });
     }
 
-
+    @Override
+    public Observable<TrackSimilarity> findCommonSimilarities(FingerprintType fingerprintType) {
+        LongSet empty = new LongArraySet();
+        Long2ObjectMap<LongSet> sorted = trackSimilarityDAO.findByFingerprintType(fingerprintType)
+                .map(list -> list.stream().collect(
+                                Collector.of(
+                                    () -> new Long2ObjectArrayMap<LongSet>(),
+                                    (map, ts) -> map.computeIfAbsent(ts.getTrack1(), t1 -> new LongOpenHashSet()).add(ts.getTrack2()),
+                                    (map1, map2) -> {
+                                        map2.entrySet().stream()
+                                            .filter(entry -> !CollectionUtils.isEmpty(entry.getValue()))
+                                            .forEach(entry -> map1.computeIfAbsent(entry.getKey(), k -> new LongOpenHashSet()).addAll(entry.getValue()));
+                                        return map1;
+                                    }
+                                )
+                            )
+                ).orElseGet(Long2ObjectArrayMap::new);
+        return Observable.create(subscriber -> {
+            Arrays.stream(FingerprintType.values())
+                    .filter(type -> !type.equals(fingerprintType))
+                    .flatMap(type -> trackSimilarityDAO.findByFingerprintType(type).orElseGet(Collections::emptyList).stream())
+                    .filter(ts -> sorted.getOrDefault(ts.getTrack1(), empty).contains(ts.getTrack2()))
+                    .forEach(subscriber::onNext)
+            ;
+            subscriber.onCompleted();
+        });
+    }
 }

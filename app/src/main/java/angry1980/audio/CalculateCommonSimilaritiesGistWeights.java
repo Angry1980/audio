@@ -42,8 +42,8 @@ public class CalculateCommonSimilaritiesGistWeights {
         context.registerShutdownHook();
         CalculateCommonSimilaritiesGistWeights calculator = context.getBean(CalculateCommonSimilaritiesGistWeights.class);
         for(FingerprintType type : Arrays.asList(
-                //FingerprintType.CHROMAPRINT//,
-                FingerprintType.LASTFM//,
+                FingerprintType.CHROMAPRINT//,
+                //FingerprintType.LASTFM//,
                 //FingerprintType.PEAKS
         )){
             int[] best = calculator.calculate(type)

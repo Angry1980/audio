@@ -78,16 +78,16 @@ public class TrackSimilarityServiceImpl implements TrackSimilarityService {
 
     @Override
     public Observable<TrackSimilarity> findCommonSimilarities(FingerprintType fingerprintType) {
-        LongSet empty = new LongArraySet();
-        Long2ObjectMap<LongSet> sorted = trackSimilarityDAO.findByFingerprintType(fingerprintType)
+        Long2ObjectMap<TrackSimilarity> empty = new Long2ObjectArrayMap<>();
+        Long2ObjectMap<Long2ObjectMap<TrackSimilarity>> sorted = trackSimilarityDAO.findByFingerprintType(fingerprintType)
                 .map(list -> list.stream().collect(
                                 Collector.of(
-                                    () -> new Long2ObjectArrayMap<LongSet>(),
-                                    (map, ts) -> map.computeIfAbsent(ts.getTrack1(), t1 -> new LongOpenHashSet()).add(ts.getTrack2()),
+                                    () -> new Long2ObjectArrayMap<Long2ObjectMap<TrackSimilarity>>(),
+                                    (map, ts) -> map.computeIfAbsent(ts.getTrack1(), t1 -> new Long2ObjectArrayMap<>()).put(ts.getTrack2(), ts),
                                     (map1, map2) -> {
                                         map2.entrySet().stream()
                                             .filter(entry -> !CollectionUtils.isEmpty(entry.getValue()))
-                                            .forEach(entry -> map1.computeIfAbsent(entry.getKey(), k -> new LongOpenHashSet()).addAll(entry.getValue()));
+                                            .forEach(entry -> map1.computeIfAbsent(entry.getKey(), k -> new Long2ObjectArrayMap<>()).putAll(entry.getValue()));
                                         return map1;
                                     }
                                 )
@@ -97,7 +97,8 @@ public class TrackSimilarityServiceImpl implements TrackSimilarityService {
             Arrays.stream(FingerprintType.values())
                     .filter(type -> !type.equals(fingerprintType))
                     .flatMap(type -> trackSimilarityDAO.findByFingerprintType(type).orElseGet(Collections::emptyList).stream())
-                    .filter(ts -> sorted.getOrDefault(ts.getTrack1(), empty).contains(ts.getTrack2()))
+                    .map(ts -> sorted.getOrDefault(ts.getTrack1(), empty).get(ts.getTrack2()))
+                    .filter(Objects::nonNull)
                     .forEach(subscriber::onNext)
             ;
             subscriber.onCompleted();

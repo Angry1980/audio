@@ -6,15 +6,12 @@ import angry1980.audio.model.ImmutableTrackSimilarity;
 import angry1980.audio.model.TrackHash;
 import angry1980.audio.model.TrackSimilarity;
 import angry1980.utils.Numbered;
-import it.unimi.dsi.fastutil.longs.LongArrayList;
-import it.unimi.dsi.fastutil.longs.LongList;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class HashInvertedIndex implements InvertedIndex<Fingerprint>, angry1980.audio.similarity.Calculator<Fingerprint>{
 
@@ -50,18 +47,11 @@ public class HashInvertedIndex implements InvertedIndex<Fingerprint>, angry1980.
     @Override
     public List<TrackSimilarity> calculate(Fingerprint fingerprint) {
         LOG.debug("Similarity calculation for {} of type {}", fingerprint.getTrackId(), fingerprint.getType());
-        Supplier<SortedSet<TrackHash>> supplier = () -> new TreeSet<TrackHash>(Comparator.comparingInt(TrackHash::getTime));
-        Map<Long, SortedSet<TrackHash>> temp = fingerprint.getHashes().stream()
-                //.peek(h -> LOG.debug("Check hashes for {}", h))
-                .map(hash -> hashDAO.findByHash(hash.getHash()))
-                .flatMap(list -> list.stream())
-                .filter(th -> fingerprint.getTrackId() != th.getTrackId())
-                .collect(
-                        Collectors.groupingBy(TrackHash::getTrackId, Collectors.toCollection(supplier))
-                );
-        LOG.debug("There are {} similarity candidates for {} of type {} ", new Object[]{temp.size(), fingerprint.getTrackId(), fingerprint.getType()});
-        return temp.entrySet().stream()
+        Long2ObjectMap<SortedSet<TrackHash>> hashes = hashDAO.findByHashesAndSortByTrack(fingerprint.getHashes());
+        LOG.debug("There are {} similarity candidates for {} of type {} ", new Object[]{hashes.size(), fingerprint.getTrackId(), fingerprint.getType()});
+        return hashes.entrySet().stream()
                 //.peek(entry -> LOG.debug("Results by track {}", entry))
+                .filter(entry -> !entry.getKey().equals(fingerprint.getTrackId()))
                 .map(entry -> new Numbered<>(entry.getKey(), this.splitAndSum(entry.getValue(), filterWeight)))
                 .filter(n -> n.getValue() > minWeight)
                 .map(n -> ImmutableTrackSimilarity.builder()

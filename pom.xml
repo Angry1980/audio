@@ -54,6 +54,7 @@
         <module>netflix</module>
         <module>lastfm</module>
         <module>neo4j</module>
+        <module>benchmark</module>
     </modules>
 
     <properties>

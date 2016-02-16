@@ -1,6 +1,8 @@
 package angry1980.audio.dao;
 
 import angry1980.audio.model.*;
+import angry1980.audio.neo4j.FingerprintTypeComparingAllQuery;
+import angry1980.audio.neo4j.FingerprintTypeSimilaritiesQuery;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -8,6 +10,7 @@ import org.neo4j.graphdb.Relationship;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class TrackSimilarityDAONeo4jImpl extends Neo4jRelation implements TrackSimilarityDAO {
@@ -50,6 +53,25 @@ public class TrackSimilarityDAONeo4jImpl extends Neo4jRelation implements TrackS
             ;
         });
         return entity;
+    }
+
+    @Override
+    public Optional<List<TrackSimilarity>> findTruthPositiveByFingerprintType(FingerprintType type) {
+        return getTemplate().execute(graphDB -> {
+            return Optional.of(
+                    getTemplate().handle(new FingerprintTypeSimilaritiesQuery(type, true)).getResult()
+            );
+        });
+    }
+
+    @Override
+    public Optional<List<TrackSimilarity>> findFalsePositiveByFingerprintType(FingerprintType type) {
+        return getTemplate().execute(graphDB -> {
+            return Optional.of(
+                    getTemplate().handle(new FingerprintTypeSimilaritiesQuery(type, false)).getResult()
+            );
+        });
+
     }
 
     private void getOrCreateRelation(Node from, Node to, TrackSimilarity s){

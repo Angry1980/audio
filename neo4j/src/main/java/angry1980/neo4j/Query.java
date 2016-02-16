@@ -30,6 +30,12 @@ public interface Query<K extends Query<K>> {
                 .map(Integer::decode);
     }
 
+    static Optional<Long> getLongValue(Map<String, Object> data, String name){
+        return Optional.ofNullable(data.get(name))
+                .map(Object::toString)
+                .map(Long::decode);
+    }
+
     static Optional<Boolean> getBooleanValue(Map<String, Object> data, String name){
         return Optional.ofNullable(data.get(name))
                 .map(Object::toString)

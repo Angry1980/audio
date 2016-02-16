@@ -52,6 +52,10 @@ public interface TrackSimilarityDAO extends DAO<TrackSimilarity> {
         return result;
     }
 
+    Optional<List<TrackSimilarity>> findTruthPositiveByFingerprintType(FingerprintType type);
+
+    Optional<List<TrackSimilarity>> findFalsePositiveByFingerprintType(FingerprintType type);
+
     @Override
     default TrackSimilarity tryToGet(long id) {
         throw new UnsupportedOperationException();

@@ -72,6 +72,16 @@ public class TrackSimilarityDAONetflixImpl extends Netflix<String> implements Tr
     }
 
     @Override
+    public Optional<List<TrackSimilarity>> findTruthPositiveByFingerprintType(FingerprintType type) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Optional<List<TrackSimilarity>> findFalsePositiveByFingerprintType(FingerprintType type) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     protected NetflixNodeType getNodeType() {
         return NetflixNodeType.SIMILARITY;
     }

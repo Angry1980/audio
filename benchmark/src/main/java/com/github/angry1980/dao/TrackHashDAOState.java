@@ -9,7 +9,7 @@ import org.openjdk.jmh.annotations.State;
 import java.util.Random;
 import java.util.stream.IntStream;
 
-@State(Scope.Group)
+@State(Scope.Benchmark)
 public class TrackHashDAOState {
 
     private static Random RND = new Random();

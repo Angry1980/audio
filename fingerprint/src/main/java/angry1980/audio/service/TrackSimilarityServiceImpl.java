@@ -16,6 +16,7 @@ import org.springframework.util.CollectionUtils;
 import rx.Observable;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
@@ -74,6 +75,22 @@ public class TrackSimilarityServiceImpl implements TrackSimilarityService {
             trackDAO.getAllOrEmpty().stream()
                     .map(track -> new TrackSimilarities(track, trackSimilarityDAO.findByTrackIdOrEmpty(track.getId())))
                     .forEach(subscriber::onNext);
+            subscriber.onCompleted();
+        });
+    }
+
+    @Override
+    public Observable<TrackSimilarity> findSimilarities(FingerprintType fingerprintType, boolean truthPositive) {
+        Supplier<Optional<List<TrackSimilarity>>> s = () -> truthPositive
+                ? trackSimilarityDAO.findTruthPositiveByFingerprintType(fingerprintType)
+                : trackSimilarityDAO.findFalsePositiveByFingerprintType(fingerprintType)
+        ;
+        return Observable.create(subscriber -> {
+            s.get().orElseGet(Collections::emptyList)
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .forEach(subscriber::onNext)
+            ;
             subscriber.onCompleted();
         });
     }

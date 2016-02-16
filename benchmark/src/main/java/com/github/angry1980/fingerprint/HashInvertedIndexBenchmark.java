@@ -21,7 +21,7 @@ public class HashInvertedIndexBenchmark {
                 .include(".*" + HashInvertedIndexBenchmark.class.getSimpleName() + ".*")
                 .jvmArgs("-server")
                 .warmupIterations(5)
-                .forks(2)
+                .forks(1)
                 .measurementIterations(5)
                 .build();
         new Runner(opt).run();

@@ -6,7 +6,6 @@ import angry1980.audio.model.ImmutableTrackSimilarity;
 import angry1980.audio.model.TrackHash;
 import angry1980.audio.model.TrackSimilarity;
 import angry1980.utils.Numbered;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +46,7 @@ public class HashInvertedIndex implements InvertedIndex<Fingerprint>, angry1980.
     @Override
     public List<TrackSimilarity> calculate(Fingerprint fingerprint) {
         LOG.debug("Similarity calculation for {} of type {}", fingerprint.getTrackId(), fingerprint.getType());
-        Long2ObjectMap<SortedSet<TrackHash>> hashes = hashDAO.findByHashesAndSortByTrack(fingerprint.getHashes());
+        Map<Long, SortedSet<TrackHash>> hashes = hashDAO.findByHashesAndSortByTrack(fingerprint.getHashes());
         LOG.debug("There are {} similarity candidates for {} of type {} ", new Object[]{hashes.size(), fingerprint.getTrackId(), fingerprint.getType()});
         return hashes.entrySet().stream()
                 //.peek(entry -> LOG.debug("Results by track {}", entry))

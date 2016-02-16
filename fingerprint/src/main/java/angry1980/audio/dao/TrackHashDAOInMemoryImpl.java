@@ -1,8 +1,10 @@
 package angry1980.audio.dao;
 
 import angry1980.audio.model.TrackHash;
+import it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectRBTreeMap;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
@@ -13,7 +15,7 @@ import java.util.stream.LongStream;
 public class TrackHashDAOInMemoryImpl implements TrackHashDAO {
 
     private static Comparator<TrackHash> c = Comparator.comparingInt(TrackHash::getTime);
-    private static Long2ObjectMap<SortedSet<TrackHash>> defaultMap = new Long2ObjectOpenHashMap<>(1);
+
     private final long mask;
     private final Long2ObjectMap<Collection<TrackHash>> index;
 

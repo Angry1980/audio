@@ -10,7 +10,5 @@ public interface TrackHashDAO {
 
     Collection<TrackHash> findByHash(long hash);
 
-    Map<Long, SortedSet<TrackHash>> findByHashesAndSortByTrack(Collection<TrackHash> hashes);
-
-    Map<Long, SortedSet<TrackHash>> findByHashesAndSortByTrack(long[] hashes);
+    Collection<TrackHash> findByHashes(long[] hashes);
 }

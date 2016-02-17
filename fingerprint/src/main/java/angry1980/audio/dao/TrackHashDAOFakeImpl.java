@@ -16,12 +16,8 @@ public class TrackHashDAOFakeImpl implements TrackHashDAO {
     }
 
     @Override
-    public Map<Long, SortedSet<TrackHash>> findByHashesAndSortByTrack(Collection<TrackHash> hashes) {
-        return Collections.emptyMap();
+    public Collection<TrackHash> findByHashes(long[] hashes) {
+        return Collections.emptyList();
     }
 
-    @Override
-    public Map<Long, SortedSet<TrackHash>> findByHashesAndSortByTrack(long[] hashes) {
-        return Collections.emptyMap();
-    }
 }

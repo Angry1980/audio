@@ -17,7 +17,7 @@ import java.util.SortedSet;
 @State(Scope.Benchmark)
 public class TrackHashDAOBenchmark {
 
-    @Param({"1", "2", "3", "4"})
+    @Param({"1", "4"})
     public int track;
 
     public static void main(String[] args) throws RunnerException {
@@ -33,11 +33,6 @@ public class TrackHashDAOBenchmark {
     @Benchmark
     public Collection<TrackHash> testFindByHash(TrackHashDAOState state){
         return state.dao.findByHash(state.hashes[track][10]);
-    }
-
-    @Benchmark
-    public Map<Long, SortedSet<TrackHash>> testFindByHashes(TrackHashDAOState state){
-        return state.dao.findByHashesAndSortByTrack(state.hashes[track]);
     }
 
 }

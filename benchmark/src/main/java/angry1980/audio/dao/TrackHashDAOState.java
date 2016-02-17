@@ -1,7 +1,5 @@
-package com.github.angry1980.dao;
+package angry1980.audio.dao;
 
-import angry1980.audio.dao.TrackHashDAO;
-import angry1980.audio.dao.TrackHashDAOInMemoryImpl;
 import angry1980.audio.model.ImmutableTrackHash;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;

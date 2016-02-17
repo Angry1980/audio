@@ -1,4 +1,4 @@
-package com.github.angry1980.dao;
+package angry1980.audio.dao;
 
 import angry1980.audio.model.TrackHash;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -11,8 +11,6 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.SortedSet;
 
 @State(Scope.Benchmark)
 public class TrackHashDAOBenchmark {

@@ -1,8 +1,7 @@
-package com.github.angry1980.fingerprint;
+package angry1980.audio.fingerprint;
 
-import angry1980.audio.fingerprint.HashInvertedIndex;
 import angry1980.audio.model.*;
-import com.github.angry1980.dao.TrackHashDAOState;
+import angry1980.audio.dao.TrackHashDAOState;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;

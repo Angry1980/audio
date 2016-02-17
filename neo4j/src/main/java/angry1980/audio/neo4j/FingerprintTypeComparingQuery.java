@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 public class FingerprintTypeComparingQuery implements Query<FingerprintTypeComparingQuery>{
 
+    //private static final String QUERY = "match (track1:TRACK)-[similar1:SIMILAR{type:{type1}}]->(track2:TRACK)"
     private static final String QUERY = "match (cluster1)<-[:IS]-(track1:TRACK)-[similar1:SIMILAR{type:{type1}}]->(track2:TRACK)-[:IS]->(cluster1)"
         + " where similar1.weight > {minWeight1}"
         + " optional match (track1)-[similar2:SIMILAR{type:{type2}}]->(track2)"

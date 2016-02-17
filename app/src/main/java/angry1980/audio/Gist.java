@@ -44,19 +44,21 @@ public class Gist {
         return gist;
     }
 
-    final FingerprintType type;
-    Int2IntSortedMap data;
-    int all;
+    private final FingerprintType type;
+    private Int2IntSortedMap data;
+    private long all;
+    private int max;
 
     public Gist(FingerprintType type) {
         this.type = type;
         this.data = new Int2IntAVLTreeMap();
         this.all = 0;
+        this.max = 0;
     }
 
     public Optional<Interval> getInterval(int percent){
         LOG.debug(data.toString());
-        int limit = all * percent / 100;
+        long limit = all * percent / 100;
         LOG.debug("Limit is {}", limit);
         return intervals(limit)
                 //looking for an interval with min length
@@ -64,7 +66,7 @@ public class Gist {
                 ;
     }
 
-    private Stream<Interval> intervals(int limit){
+    private Stream<Interval> intervals(long limit){
         Function<Integer, Optional<Interval>> fetch = key -> fetchInterval(key, limit);
         return data.keySet().stream()
                 .map(fetch)
@@ -74,10 +76,10 @@ public class Gist {
                 ;
     }
 
-    private Optional<Interval> fetchInterval(int key, int limit){
-        int sum = 0;
+    private Optional<Interval> fetchInterval(int key, long limit){
+        long sum = 0;
         for(Int2IntMap.Entry entry : data.tailMap(key).int2IntEntrySet()){
-            sum += entry.getIntValue();
+            sum += getValue(entry);
             if(sum >= limit){
                 return Optional.of(new Interval(key, entry.getIntKey()));
             }
@@ -85,12 +87,23 @@ public class Gist {
         return Optional.empty();
     }
 
+    private long getValue(Int2IntMap.Entry entry){
+        //return entry.getValue();
+        //todo: normalize key using max
+        return entry.getIntKey() * entry.getValue();
+    }
+
     public void add(int value){
         data.computeIfPresent(value, (v, c) -> c + 1);
         data.computeIfAbsent(value, v -> 1);
-        all++;
+        fixValue(value);
     }
 
+    private void fixValue(int value){
+        //all++;
+        all += value;
+        max = Math.max(max, value);
+    }
 
     public class Interval {
         final int start;

@@ -5,6 +5,7 @@ import java.util.stream.IntStream;
 
 public class Ranges {
 
+    private int rangesCount;
     private final int lowerLimit;
     private final int upperLimit;
     private final int[] ranges;
@@ -18,10 +19,22 @@ public class Ranges {
         }
         this.lowerLimit = lowerLimit;
         this.upperLimit = upperLimit;
+        this.rangesCount = rangesCount;
         int delta = Math.floorDiv((upperLimit - lowerLimit), rangesCount);
         this.ranges = IntStream.range(0, rangesCount + 1)
                 .map(i -> lowerLimit + i * delta)
                 .toArray();
+    }
+
+    public int getRangesCount() {
+        return rangesCount;
+    }
+
+    public int getRangeLimit(int rangeNumber) {
+        if(rangeNumber > rangesCount){
+            throw new IllegalArgumentException();
+        }
+        return ranges[rangeNumber];
     }
 
     public int getLowerLimit() {
@@ -42,7 +55,7 @@ public class Ranges {
 
     public int getIndex(int value) {
         int i = 0;
-        while (i < ranges.length && ranges[i] < value) {
+        while (i < ranges.length && ranges[i + 1] <= value) {
             i++;
         }
         return i;

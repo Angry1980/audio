@@ -5,6 +5,9 @@ import angry1980.audio.Adapter;
 import angry1980.audio.utils.SpectrumBuilder;
 import angry1980.utils.Numbered;
 import angry1980.utils.Ranges;
+import com.google.common.collect.ImmutableMap;
+import it.unimi.dsi.fastutil.ints.Int2LongMap;
+import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,42 +59,49 @@ public class PeaksCalculator implements Calculator<Fingerprint>{
     private List<TrackHash> calculateHashes(Track track, Stream<Numbered<double[]>> spectrum){
         LOG.debug("Start of hashes calculation for track {}" , track.getId());
         return spectrum
-                .map(Numbered.<double[], Long>transformator(this::hash))
+                //.map(Numbered.<double[], Long>transformator(this::hash))
                 .map(numbered -> createTrackHash(track.getId(), numbered.getNumberAsInt(), numbered.getValue()))
                 .collect(Collectors.toList());
     }
 
-    private TrackHash createTrackHash(long trackId, int time, long hash){
+    private TrackHash createTrackHash(long trackId, int time, double[] window){
         return ImmutableTrackHash.builder()
                 .trackId(trackId)
                 .time(time)
-                .hash(hash)
+                .hash(hash(window))
                 .build();
     }
 
     private long hash(double[] data){
-        Map<Integer, Long> points = ranges.stream()
-                // Get the magnitude:
-                .mapToObj(freq -> new Numbered<>(freq, Math.log(abs(data, freq) + 1)))
-                .collect(
-                        Collectors.groupingBy(numbered -> ranges.getIndex(numbered.getNumberAsInt()),
-                                Collectors.collectingAndThen(
-                                        Collectors.maxBy((n1, n2) -> Double.compare(n1.getValue(), n2.getValue())),
-                                        o -> o.map(numbered -> numbered.getNumber()).orElse(0L)
-                                )
-                        )
-                );
-        return (points.get(3) - (points.get(3) % FUZ_FACTOR)) * 100000000
-                + (points.get(2) - (points.get(2) % FUZ_FACTOR))* 100000
-                + (points.get(1) - (points.get(1) % FUZ_FACTOR)) * 100
-                + (points.get(0) - (points.get(0) % FUZ_FACTOR));
+        int[] points = choosePeaks(data);
+        //LOG.debug(Arrays.toString(points));
+        return (points[3] - (points[3] % FUZ_FACTOR)) * 100000000
+                + (points[2] - (points[2] % FUZ_FACTOR))* 100000
+                + (points[1] - (points[1] % FUZ_FACTOR)) * 100
+                + (points[0] - (points[0] % FUZ_FACTOR));
     }
 
-    private double abs(double[] data, int freq) {
+    private int[] choosePeaks(double[] data){
         int windowSize = data.length/2;
-        return Math.hypot(data[freq], data[freq + windowSize]);
-        // complex
-        //return Math.hypot(data[freq], data[freq + 1]);
+        int[] points = new int[ranges.getRangesCount()];
+        int rangeNumber = 0;
+        int rangeLimit = ranges.getRangeLimit(rangeNumber + 1);
+        double max = 0;
+        points[rangeNumber] = ranges.getLowerLimit();
+        for(int freq = ranges.getLowerLimit(); freq < ranges.getUpperLimit(); freq++){
+            if(freq >= rangeLimit){
+                rangeNumber++;
+                rangeLimit = ranges.getRangeLimit(rangeNumber + 1);
+                max = 0;
+                points[rangeNumber] = freq;
+            }
+            //Math.hypot(data[freq], data[freq + 1]);
+            double v = Math.log(Math.hypot(data[freq], data[freq + windowSize]) + 1);
+            if(max < v){
+                max = v;
+                points[rangeNumber] = freq;
+            }
+        }
+        return points;
     }
-
 }

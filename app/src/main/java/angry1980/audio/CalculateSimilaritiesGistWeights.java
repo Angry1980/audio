@@ -39,8 +39,8 @@ public class CalculateSimilaritiesGistWeights {
         CalculateSimilaritiesGistWeights calculator = context.getBean(CalculateSimilaritiesGistWeights.class);
         for(FingerprintType type : Arrays.asList(
                 //FingerprintType.CHROMAPRINT//,
-                FingerprintType.LASTFM//,
-                //FingerprintType.PEAKS
+                //FingerprintType.LASTFM//,
+                FingerprintType.PEAKS
         )){
             Optional<Gist.Interval> bestFP = calculator.calculate(type, 70, false);
             Optional<Gist.Interval> bestTP = calculator.calculate(type, 70, true);

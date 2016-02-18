@@ -29,7 +29,7 @@ public class PeaksCalculator implements Calculator<Fingerprint>{
 
     public PeaksCalculator(Adapter adapter) {
         this.adapter = adapter;
-        this.spectrumBuilder = SpectrumBuilder.create();
+        this.spectrumBuilder = SpectrumBuilder.create().windowSize(1024).overlap(512);
     }
 
     public PeaksCalculator setConvertToPCM_SIGNED(boolean convertToPCM_SIGNED) {

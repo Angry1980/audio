@@ -43,7 +43,7 @@ public class CommonConfig {
     public SpringMapWrapper fingerprintTypeMinWeights(){
         return new SpringMapWrapper(ImmutableMap.of(FingerprintType.CHROMAPRINT, 10,
                                 FingerprintType.LASTFM, 436,
-                                FingerprintType.PEAKS, 500
+                                FingerprintType.PEAKS, 70
         ));
     }
 }

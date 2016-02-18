@@ -6,7 +6,7 @@
     <groupId>com.github.angry1980</groupId>
     <artifactId>audio</artifactId>
     <packaging>pom</packaging>
-    <version>0.0.7-SNAPSHOT</version>
+    <version>0.0.7</version>
 
     <name>${project.artifactId}</name>
     <description>Tools to create audio fingerprint and compare tracks between each other using different algorithms</description>

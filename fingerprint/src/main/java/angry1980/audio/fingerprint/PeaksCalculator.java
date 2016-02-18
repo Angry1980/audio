@@ -5,9 +5,6 @@ import angry1980.audio.Adapter;
 import angry1980.audio.utils.SpectrumBuilder;
 import angry1980.utils.Numbered;
 import angry1980.utils.Ranges;
-import com.google.common.collect.ImmutableMap;
-import it.unimi.dsi.fastutil.ints.Int2LongMap;
-import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,9 +12,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * ported from https://github.com/wsieroci/audiorecognizer
- */
 public class PeaksCalculator implements Calculator<Fingerprint>{
 
     private static Logger LOG = LoggerFactory.getLogger(PeaksCalculator.class);
@@ -46,10 +40,10 @@ public class PeaksCalculator implements Calculator<Fingerprint>{
         return Optional.of(track)
                     .flatMap(adapter::getContent)
                     .flatMap(spectrumBuilder::build)
-                    .map(in -> this.calculateHashes(track, in))
-                    .map(peaks -> ImmutableFingerprint.builder()
+                    .map(spectrum -> this.calculateHashes(track, spectrum))
+                    .map(hashes -> ImmutableFingerprint.builder()
                                     .trackId(track.getId())
-                                    .hashes(peaks)
+                                    .hashes(hashes)
                                     .type(FingerprintType.PEAKS)
                                         .build()
                     )
@@ -59,7 +53,6 @@ public class PeaksCalculator implements Calculator<Fingerprint>{
     private List<TrackHash> calculateHashes(Track track, Stream<Numbered<double[]>> spectrum){
         LOG.debug("Start of hashes calculation for track {}" , track.getId());
         return spectrum
-                //.map(Numbered.<double[], Long>transformator(this::hash))
                 .map(numbered -> createTrackHash(track.getId(), numbered.getNumberAsInt(), numbered.getValue()))
                 .collect(Collectors.toList());
     }

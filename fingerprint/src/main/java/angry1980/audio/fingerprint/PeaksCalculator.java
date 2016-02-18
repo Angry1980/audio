@@ -2,11 +2,10 @@ package angry1980.audio.fingerprint;
 
 import angry1980.audio.model.*;
 import angry1980.audio.utils.AudioUtils;
-import angry1980.audio.utils.Complex;
-import angry1980.audio.utils.FFT;
 import angry1980.audio.Adapter;
 import angry1980.utils.Numbered;
 import angry1980.utils.Ranges;
+import org.jtransforms.fft.DoubleFFT_1D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +66,7 @@ public class PeaksCalculator implements Calculator<Fingerprint>{
     private List<TrackHash> calculateHashes(Track track, byte[] audio){
         LOG.debug("Start of hashes calculation for track {}" , track.getId());
         return calculateSpectrum(audio)
-                .map(Numbered.<Complex[], Long>transformator(this::hash))
+                .map(Numbered.<double[], Long>transformator(this::hash))
                 .map(numbered -> createTrackHash(track.getId(), numbered.getNumberAsInt(), numbered.getValue()))
                 .collect(Collectors.toList());
     }
@@ -80,26 +79,29 @@ public class PeaksCalculator implements Calculator<Fingerprint>{
                 .build();
     }
 
-    private Stream<Numbered<Complex[]>> calculateSpectrum(byte[] audio){
+    private Stream<Numbered<double[]>> calculateSpectrum(byte[] audio){
+        DoubleFFT_1D fft = new DoubleFFT_1D(windowSize);
         final int overlap = this.overlap > 0 ? this.overlap : this.windowSize;
         int maxWidth = this.maxWidth > 0 ? this.maxWidth : Integer.MAX_VALUE;
         int amountPossible = Math.min(maxWidth, ((audio.length - windowSize) / overlap)); //width of the image
         return IntStream.range(0, amountPossible)
-                .mapToObj(times -> new Numbered<>(times, calculateWindow(audio, times, overlap)))
-                .map(Numbered.<Complex[], Complex[]>transformator(FFT::fft))
+                .mapToObj(times -> new Numbered<>(times, getWindow(audio, times, overlap)))
+                .peek(window -> fft.realForward(window.getValue()))
         ;
     }
 
-    private Complex[] calculateWindow(byte[] audio, int times, int overlap){
-        return IntStream.range(0, windowSize)
-                .mapToObj(i -> new Complex(audio[(times * overlap) + i], 0))
-                .toArray(Complex[]::new);
+    private double[] getWindow(byte[] audio, int times, int overlap){
+        int size = Math.min(windowSize, audio.length - times * overlap);
+        double[] data = new double[size * 2];
+        IntStream.range(0, size)
+                .forEach(i -> data[i] = audio[(times * overlap) + i]);
+        return data;
     }
 
-    private long hash(Complex[] data){
+    private long hash(double[] data){
         Map<Integer, Long> points = ranges.stream()
                 // Get the magnitude:
-                .mapToObj(freq -> new Numbered<>(freq, Math.log(data[freq].abs() + 1)))
+                .mapToObj(freq -> new Numbered<>(freq, Math.log(abs(data, freq) + 1)))
                 .collect(
                         Collectors.groupingBy(numbered -> ranges.getIndex(numbered.getNumberAsInt()),
                                 Collectors.collectingAndThen(
@@ -112,6 +114,10 @@ public class PeaksCalculator implements Calculator<Fingerprint>{
                 + (points.get(2) - (points.get(2) % FUZ_FACTOR))* 100000
                 + (points.get(1) - (points.get(1) % FUZ_FACTOR)) * 100
                 + (points.get(0) - (points.get(0) % FUZ_FACTOR));
+    }
+
+    private double abs(double[] data, int freq) {
+        return Math.hypot(data[freq], data[freq + windowSize]);
     }
 
 }

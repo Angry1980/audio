@@ -38,10 +38,16 @@
         </dependency>
         <!-- multithreaded FFT library -->
         <!--<dependency>-->
-        <!--<groupId>com.github.rwl</groupId>-->
-        <!--<artifactId>jtransforms</artifactId>-->
-        <!--<version>2.4.0</version>-->
+            <!--<groupId>com.github.rwl</groupId>-->
+            <!--<artifactId>jtransforms</artifactId>-->
+            <!--<version>2.4.0</version>-->
         <!--</dependency>-->
+        <dependency>
+            <groupId>com.github.wendykierp</groupId>
+            <artifactId>JTransforms</artifactId>
+            <version>3.1</version>
+            <classifier>with-dependencies</classifier>
+        </dependency>
         <!-- fix java.io.IOException: mark/reset not supported-->
         <dependency>
             <groupId>com.googlecode.soundlibs</groupId>

@@ -32,9 +32,9 @@ public class ImportFromNetflixToNeo4j {
         ConfigurableApplicationContext context = sa.run(args);
         context.registerShutdownHook();
         context.getBean(ImportFromNetflixToNeo4j.class)
-                //.importData(FingerprintType.CHROMAPRINT)
+                .importData(FingerprintType.CHROMAPRINT)
                 .importData(FingerprintType.LASTFM)
-                //.importData(FingerprintType.PEAKS)
+                .importData(FingerprintType.PEAKS)
         ;
     }
 

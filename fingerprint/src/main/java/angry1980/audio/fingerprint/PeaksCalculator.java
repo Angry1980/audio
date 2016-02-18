@@ -86,7 +86,9 @@ public class PeaksCalculator implements Calculator<Fingerprint>{
         int amountPossible = Math.min(maxWidth, ((audio.length - windowSize) / overlap)); //width of the image
         return IntStream.range(0, amountPossible)
                 .mapToObj(times -> new Numbered<>(times, getWindow(audio, times, overlap)))
+                //fft.realForward is faster than fft.complexForward and gives correct results
                 .peek(window -> fft.realForward(window.getValue()))
+                //.peek(window -> fft.complexForward(window.getValue()))
         ;
     }
 
@@ -95,6 +97,8 @@ public class PeaksCalculator implements Calculator<Fingerprint>{
         double[] data = new double[size * 2];
         IntStream.range(0, size)
                 .forEach(i -> data[i] = audio[(times * overlap) + i]);
+                // complex
+                //.forEach(i -> data[2*i] = audio[(times * overlap) + i]);
         return data;
     }
 
@@ -118,6 +122,8 @@ public class PeaksCalculator implements Calculator<Fingerprint>{
 
     private double abs(double[] data, int freq) {
         return Math.hypot(data[freq], data[freq + windowSize]);
+        // complex
+        //return Math.hypot(data[freq], data[freq + 1]);
     }
 
 }

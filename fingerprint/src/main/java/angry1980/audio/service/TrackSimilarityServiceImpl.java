@@ -118,6 +118,34 @@ public class TrackSimilarityServiceImpl implements TrackSimilarityService {
         });
     }
 
+    @Override
+    public Observable<TrackSimilarity> findUniqueSimilarities(FingerprintType fingerprintType, boolean onlyTruthPositive) {
+        Long2ObjectMap<TrackSimilarity> empty = new Long2ObjectArrayMap<>();
+        Function<FingerprintType, Optional<List<TrackSimilarity>>> f = t -> onlyTruthPositive
+                ? trackSimilarityDAO.findTruthPositiveByFingerprintType(t)
+                //: trackSimilarityDAO.findByFingerprintType(t)
+                : trackSimilarityDAO.findFalsePositiveByFingerprintType(t)
+                ;
+        Long2ObjectMap<Long2ObjectMap<TrackSimilarity>>[] sorted = Arrays.stream(FingerprintType.values())
+                .filter(type -> !type.equals(fingerprintType))
+                .map(type -> f.apply(type).map(this::sortByTracks).orElseGet(Long2ObjectArrayMap::new))
+                .toArray(Long2ObjectMap[]::new);
+        return Observable.create(subscriber -> {
+            f.apply(fingerprintType).orElseGet(Collections::emptyList).stream()
+                    .filter(ts -> {
+                        for(Long2ObjectMap<Long2ObjectMap<TrackSimilarity>> s : sorted){
+                            if(s.getOrDefault(ts.getTrack1(), empty).containsKey(ts.getTrack2())){
+                                return false;
+                            }
+                        }
+                        return true;
+                    }).forEach(subscriber::onNext)
+            ;
+            subscriber.onCompleted();
+        });
+
+    }
+
     private Long2ObjectMap<Long2ObjectMap<TrackSimilarity>> sortByTracks(List<TrackSimilarity> list){
         return list.stream().collect(
                 Collector.of(

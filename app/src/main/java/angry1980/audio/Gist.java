@@ -5,15 +5,12 @@ import angry1980.audio.model.TrackSimilarity;
 import it.unimi.dsi.fastutil.ints.Int2IntAVLTreeMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntSortedMap;
-import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
 
-import java.util.Comparator;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -24,11 +21,11 @@ public class Gist {
 
     public static Gist calculate(Supplier<Observable<TrackSimilarity>> s, FingerprintType type){
         Gist gist = new Gist(type);
-        Object2IntMap<FingerprintType> counter = new Object2IntArrayMap<>(FingerprintType.values().length);
+        Map<FingerprintType, Set<TrackSimilarity>> tracks = new HashMap<>(FingerprintType.values().length);
         s.get().subscribe(new Subscriber<TrackSimilarity>() {
             @Override
             public void onCompleted() {
-                counter.entrySet().stream().map(Object::toString).forEach(LOG::debug);
+                tracks.entrySet().stream().forEach(tracks -> LOG.debug("There are {} similarities", tracks.getValue().size()));
             }
             @Override
             public void onError(Throwable throwable) {
@@ -37,8 +34,7 @@ public class Gist {
             @Override
             public void onNext(TrackSimilarity trackSimilarity) {
                 gist.add(trackSimilarity.getValue());
-                counter.computeIfPresent(trackSimilarity.getFingerprintType(), (ft, c) -> c + 1);
-                counter.computeIfAbsent(trackSimilarity.getFingerprintType(), ft -> 1);
+                tracks.computeIfAbsent(trackSimilarity.getFingerprintType(), ft -> new HashSet<>()).add(trackSimilarity);
             }
         });
         return gist;

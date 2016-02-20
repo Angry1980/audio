@@ -2,20 +2,16 @@ package angry1980.audio.config;
 
 import angry1980.audio.dao.TrackDAO;
 import angry1980.audio.dao.TrackSimilarityDAO;
-import angry1980.audio.model.FingerprintType;
 import angry1980.audio.service.TrackSimilarityService;
 import angry1980.audio.service.TrackSimilarityServiceImpl;
 import angry1980.audio.similarity.FindSimilarTracks;
 import angry1980.audio.similarity.FindSimilarTracksFakeImpl;
 import angry1980.audio.similarity.TracksToCalculate;
-import angry1980.utils.SpringMapWrapper;
-import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
-import java.util.Map;
 
 @Configuration
 public class CommonConfig {
@@ -39,11 +35,4 @@ public class CommonConfig {
         return new TrackSimilarityServiceImpl(trackDAO, trackSimilarityDAO, findSimilarTracksList, tracksToCalculate);
     }
 
-    @Bean
-    public SpringMapWrapper fingerprintTypeMinWeights(){
-        return new SpringMapWrapper(ImmutableMap.of(FingerprintType.CHROMAPRINT, 10,
-                                FingerprintType.LASTFM, 10,
-                                FingerprintType.PEAKS, 10
-        ));
-    }
 }

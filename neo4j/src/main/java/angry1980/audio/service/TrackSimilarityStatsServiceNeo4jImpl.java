@@ -19,25 +19,23 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
 
     private GraphDatabaseService graphDB;
     private Template template;
-    private Map<FingerprintType, Integer> minWeights;
 
-    public TrackSimilarityStatsServiceNeo4jImpl(GraphDatabaseService graphDB, Map<FingerprintType, Integer> minWeights) {
+    public TrackSimilarityStatsServiceNeo4jImpl(GraphDatabaseService graphDB) {
         this.graphDB = Objects.requireNonNull(graphDB);
         this.template = new Template(graphDB);
-        this.minWeights = Objects.requireNonNull(minWeights);
     }
 
     @Override
-    public Observable<Stats> compareFingerprintTypes() {
+    public Observable<Stats> compareFingerprintTypes(Map<FingerprintType, Integer> minWeights) {
         int trackCount = getNodesCount(Neo4jNodeType.TRACK);
         return Observable.create(subscriber -> {
-            subscriber.onNext(stats(getResultDependsOnFingerprintType(FingerprintType.CHROMAPRINT), trackCount));
-            subscriber.onNext(stats(getResultDependsOnFingerprintType(FingerprintType.LASTFM), trackCount));
-            subscriber.onNext(stats(getResultDependsOnFingerprintType(FingerprintType.PEAKS), trackCount));
-            subscriber.onNext(stats(compareFingerprintTypes(FingerprintType.CHROMAPRINT, FingerprintType.PEAKS), trackCount));
-            subscriber.onNext(stats(compareFingerprintTypes(FingerprintType.CHROMAPRINT, FingerprintType.LASTFM), trackCount));
-            subscriber.onNext(stats(compareFingerprintTypes(FingerprintType.LASTFM, FingerprintType.PEAKS), trackCount));
-            subscriber.onNext(stats(getCommonCount(), trackCount));
+            subscriber.onNext(stats(getResultDependsOnFingerprintType(minWeights, FingerprintType.CHROMAPRINT), trackCount));
+            subscriber.onNext(stats(getResultDependsOnFingerprintType(minWeights, FingerprintType.LASTFM), trackCount));
+            subscriber.onNext(stats(getResultDependsOnFingerprintType(minWeights, FingerprintType.PEAKS), trackCount));
+            subscriber.onNext(stats(compareFingerprintTypes(minWeights, FingerprintType.CHROMAPRINT, FingerprintType.PEAKS), trackCount));
+            subscriber.onNext(stats(compareFingerprintTypes(minWeights, FingerprintType.CHROMAPRINT, FingerprintType.LASTFM), trackCount));
+            subscriber.onNext(stats(compareFingerprintTypes(minWeights, FingerprintType.LASTFM, FingerprintType.PEAKS), trackCount));
+            subscriber.onNext(stats(getCommonCount(minWeights), trackCount));
             subscriber.onCompleted();
         });
     }
@@ -49,19 +47,19 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
                 .build();
     }
 
-    private Stats getCommonCount() {
+    private Stats getCommonCount(Map<FingerprintType, Integer> minWeights) {
         return template.execute(graphDB -> {
             return template.handle(new FingerprintTypeComparingAllQuery(minWeights)).getResult();
         });
     }
 
-    private Stats compareFingerprintTypes(FingerprintType type1, FingerprintType type2){
+    private Stats compareFingerprintTypes(Map<FingerprintType, Integer> minWeights, FingerprintType type1, FingerprintType type2){
         return template.execute(graphDB -> {
             return template.handle(new FingerprintTypeComparingQuery(minWeights, type1, type2)).getResult();
         });
     }
 
-    private Stats getResultDependsOnFingerprintType(FingerprintType type){
+    private Stats getResultDependsOnFingerprintType(Map<FingerprintType, Integer> minWeights, FingerprintType type){
         return getResultDependsOnFingerprintType(type, minWeights.get(type));
     }
 
@@ -81,7 +79,7 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
     }
 
     @Override
-    public Map<Long, List<Long>> generateClusters() {
+    public Map<Long, List<Long>> generateClusters(Map<FingerprintType, Integer> minWeights) {
         Louvain louvain = new Louvain(graphDB, new LouvainTaskAdapter(minWeights));
         louvain.execute();
         LouvainResult result = louvain.getResult();

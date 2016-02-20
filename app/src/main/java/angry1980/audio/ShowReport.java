@@ -2,7 +2,9 @@ package angry1980.audio;
 
 import angry1980.audio.model.FingerprintType;
 import angry1980.audio.service.TrackSimilarityStatsService;
+import angry1980.audio.stats.Stats;
 import angry1980.utils.SpringMapWrapper;
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +37,14 @@ public class ShowReport {
     }
 
     public void print(){
-        Subscriber printer = new Subscriber() {
+        Subscriber<Stats> printer = new Subscriber<Stats>() {
+
+            Stats best = null;
+
             @Override
-            public void onCompleted() {}
+            public void onCompleted() {
+                LOG.info("Best choice {}", best);
+            }
 
             @Override
             public void onError(Throwable e) {
@@ -45,11 +52,29 @@ public class ShowReport {
             }
 
             @Override
-            public void onNext(Object o) {
+            public void onNext(Stats o) {
+                if(o == null){
+                    return;
+                }
                 LOG.info(o.toString());
+                if(best == null || Double.compare(best.getF1(), o.getF1()) < 0){
+                    best = o;
+                }
             }
         };
-        trackSimilarityStatsService.compareFingerprintTypes().subscribe(printer);
+        trackSimilarityStatsService.compareFingerprintTypes(ImmutableMap.of(
+                        FingerprintType.CHROMAPRINT, 10,
+                        FingerprintType.LASTFM, 10,
+                        FingerprintType.PEAKS, 10
+                )
+        ).subscribe(printer);
+        trackSimilarityStatsService.compareFingerprintTypes(ImmutableMap.of(
+                FingerprintType.CHROMAPRINT, 665,
+                FingerprintType.LASTFM, 466,
+                FingerprintType.PEAKS, 1102
+                )
+        ).subscribe(printer);
+
         /*
         trackSimilarityStatsService.generateClusters().entrySet().stream()
                 .peek(entry -> LOG.info("Cluster {} contains", entry.getKey()))

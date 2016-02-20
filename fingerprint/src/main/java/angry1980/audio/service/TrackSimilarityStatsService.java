@@ -9,9 +9,9 @@ import java.util.Map;
 
 public interface TrackSimilarityStatsService {
 
-    Observable<Stats> compareFingerprintTypes();
+    Observable<Stats> compareFingerprintTypes(Map<FingerprintType, Integer> minWeights);
 
     Stats getResultDependsOnFingerprintType(FingerprintType type, int minWeight);
 
-    Map<Long, List<Long>> generateClusters();
+    Map<Long, List<Long>> generateClusters(Map<FingerprintType, Integer> minWeights);
 }

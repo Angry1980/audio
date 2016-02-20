@@ -2,9 +2,7 @@ package angry1980.audio.service;
 
 import angry1980.audio.model.*;
 import angry1980.audio.neo4j.*;
-import angry1980.audio.stats.FingerprintTypeComparing;
-import angry1980.audio.stats.FingerprintTypeResult;
-import angry1980.audio.stats.ImmutableFingerprintTypeResult;
+import angry1980.audio.stats.*;
 import angry1980.neo4j.NodeCountQuery;
 import angry1980.neo4j.Template;
 import angry1980.neo4j.louvain.Louvain;
@@ -30,51 +28,52 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
     }
 
     @Override
-    public Observable<FingerprintTypeComparing> compareFingerprintTypes() {
+    public Observable<Stats> compareFingerprintTypes() {
+        int trackCount = getNodesCount(Neo4jNodeType.TRACK);
         return Observable.create(subscriber -> {
-            subscriber.onNext(compareFingerprintTypes(FingerprintType.CHROMAPRINT, FingerprintType.PEAKS));
-            subscriber.onNext(compareFingerprintTypes(FingerprintType.CHROMAPRINT, FingerprintType.LASTFM));
-            subscriber.onNext(compareFingerprintTypes(FingerprintType.LASTFM, FingerprintType.PEAKS));
+            subscriber.onNext(stats(getResultDependsOnFingerprintType(FingerprintType.CHROMAPRINT), trackCount));
+            subscriber.onNext(stats(getResultDependsOnFingerprintType(FingerprintType.LASTFM), trackCount));
+            subscriber.onNext(stats(getResultDependsOnFingerprintType(FingerprintType.PEAKS), trackCount));
+            subscriber.onNext(stats(compareFingerprintTypes(FingerprintType.CHROMAPRINT, FingerprintType.PEAKS), trackCount));
+            subscriber.onNext(stats(compareFingerprintTypes(FingerprintType.CHROMAPRINT, FingerprintType.LASTFM), trackCount));
+            subscriber.onNext(stats(compareFingerprintTypes(FingerprintType.LASTFM, FingerprintType.PEAKS), trackCount));
+            subscriber.onNext(stats(getCommonCount(), trackCount));
             subscriber.onCompleted();
         });
     }
 
-    @Override
-    public int getCommonCount() {
+    private Stats stats(Stats c, int trackCount){
+        return ImmutableStats.builder()
+                .from(c)
+                .falseNegative(c.getFalseNegative().orElse(trackCount - c.getTruePositive()))
+                .build();
+    }
+
+    private Stats getCommonCount() {
         return template.execute(graphDB -> {
-            return template.handle(new FingerprintTypeComparingAllQuery(minWeights)).getValue();
+            return template.handle(new FingerprintTypeComparingAllQuery(minWeights)).getResult();
         });
     }
 
-    private FingerprintTypeComparing compareFingerprintTypes(FingerprintType type1, FingerprintType type2){
+    private Stats compareFingerprintTypes(FingerprintType type1, FingerprintType type2){
         return template.execute(graphDB -> {
-            return template.handle(new FingerprintTypeComparingQuery(minWeights, type1, type2))
-                    .merge(template.handle(new FingerprintTypeComparingQuery(minWeights, type2, type1)));
+            return template.handle(new FingerprintTypeComparingQuery(minWeights, type1, type2)).getResult();
         });
     }
 
-    @Override
-    public Observable<FingerprintTypeResult> getResultDependsOnFingerprintType() {
-        return Observable.from(FingerprintType.values()).map(this::getResultDependsOnFingerprintType);
-    }
-
-    @Override
-    public FingerprintTypeResult getResultDependsOnFingerprintType(FingerprintType type){
+    private Stats getResultDependsOnFingerprintType(FingerprintType type){
         return getResultDependsOnFingerprintType(type, minWeights.get(type));
     }
 
     @Override
-    public FingerprintTypeResult getResultDependsOnFingerprintType(FingerprintType type, int minWeight) {
+    public Stats getResultDependsOnFingerprintType(FingerprintType type, int minWeight) {
         return template.execute(graphDB -> {
             FingerprintTypeQuery positive = template.handle(new FingerprintTypePositiveQuery(type, minWeight));
-            return ImmutableFingerprintTypeResult.builder()
-                    .type(type)
-                    .clustersCount(getNodesCount(Neo4jNodeType.CLUSTER))
-                    .tracksCount(getNodesCount(Neo4jNodeType.TRACK))
+            return ImmutableStats.builder()
+                    .addTypes(ImmutableFingerprintTypeData.builder().type(type).weight(minWeight).build())
                     .falseNegative(template.handle(new FingerprintTypeNegativeQuery(type, minWeight)).getValue(false))
                     .falsePositive(positive.getValue(false))
-                    .truthPositive(positive.getValue(true))
-                    .uniqueCount(template.handle(new UniqueCountQuery(type, minWeight)).getResult())
+                    .truePositive(positive.getValue(true))
                     .build();
 
         });

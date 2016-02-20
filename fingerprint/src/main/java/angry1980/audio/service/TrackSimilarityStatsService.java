@@ -1,8 +1,7 @@
 package angry1980.audio.service;
 
 import angry1980.audio.model.FingerprintType;
-import angry1980.audio.stats.FingerprintTypeComparing;
-import angry1980.audio.stats.FingerprintTypeResult;
+import angry1980.audio.stats.Stats;
 import rx.Observable;
 
 import java.util.List;
@@ -10,15 +9,9 @@ import java.util.Map;
 
 public interface TrackSimilarityStatsService {
 
-    Observable<FingerprintTypeResult> getResultDependsOnFingerprintType();
+    Observable<Stats> compareFingerprintTypes();
 
-    Observable<FingerprintTypeComparing> compareFingerprintTypes();
-
-    FingerprintTypeResult getResultDependsOnFingerprintType(FingerprintType type);
-
-    FingerprintTypeResult getResultDependsOnFingerprintType(FingerprintType type, int minWeight);
-
-    int getCommonCount();
+    Stats getResultDependsOnFingerprintType(FingerprintType type, int minWeight);
 
     Map<Long, List<Long>> generateClusters();
 }

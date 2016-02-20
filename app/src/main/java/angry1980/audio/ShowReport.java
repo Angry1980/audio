@@ -20,8 +20,6 @@ public class ShowReport {
 
     @Autowired
     private TrackSimilarityStatsService trackSimilarityStatsService;
-    @Autowired
-    private SpringMapWrapper<FingerprintType, Integer> fingerprintTypeMinWeights;
 
     public static void main(String[] args){
         SpringApplication sa = new SpringApplication(ShowReport.class);
@@ -51,9 +49,7 @@ public class ShowReport {
                 LOG.info(o.toString());
             }
         };
-        trackSimilarityStatsService.getResultDependsOnFingerprintType().subscribe(printer);
         trackSimilarityStatsService.compareFingerprintTypes().subscribe(printer);
-        LOG.info("There are {} common similarities with min weights {}", trackSimilarityStatsService.getCommonCount(), fingerprintTypeMinWeights.getMap());
         /*
         trackSimilarityStatsService.generateClusters().entrySet().stream()
                 .peek(entry -> LOG.info("Cluster {} contains", entry.getKey()))

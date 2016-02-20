@@ -2,7 +2,7 @@ package angry1980.audio;
 
 import angry1980.audio.model.FingerprintType;
 import angry1980.audio.service.TrackSimilarityStatsService;
-import angry1980.audio.stats.FingerprintTypeResult;
+import angry1980.audio.stats.Stats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,12 +84,12 @@ public class CalculateBestFpTpWeights {
     }
 
     private double calculateFpTp(FingerprintType type, int weight){
-        FingerprintTypeResult result = trackSimilarityStatsService.getResultDependsOnFingerprintType(type, weight);
+        Stats result = trackSimilarityStatsService.getResultDependsOnFingerprintType(type, weight);
         LOG.debug("Fp/Tp for {} is {}", weight, result);
-        if(result.getTruthPositive() == 0){
+        if(result.getTruePositive() == 0){
             return Double.MAX_VALUE;
         }
-        return (double)result.getFalsePositive() / (double)result.getTruthPositive();
+        return (double)result.getFalsePositive() / (double)result.getTruePositive();
     }
 
     private class State{

@@ -1,1 +1,1 @@
-# different implementations of audio fingerprinting
+# comparing different implementations of audio fingerprinting

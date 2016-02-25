@@ -15,12 +15,12 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-public class Gist {
+public class Hist {
 
-    private static Logger LOG = LoggerFactory.getLogger(Gist.class);
+    private static Logger LOG = LoggerFactory.getLogger(Hist.class);
 
-    public static Gist calculate(Supplier<Observable<TrackSimilarity>> s, FingerprintType type){
-        Gist gist = new Gist(type);
+    public static Hist calculate(Supplier<Observable<TrackSimilarity>> s, FingerprintType type){
+        Hist hist = new Hist(type);
         Map<FingerprintType, Set<TrackSimilarity>> tracks = new HashMap<>(FingerprintType.values().length);
         s.get().subscribe(new Subscriber<TrackSimilarity>() {
             @Override
@@ -33,11 +33,11 @@ public class Gist {
             }
             @Override
             public void onNext(TrackSimilarity trackSimilarity) {
-                gist.add(trackSimilarity.getValue());
+                hist.add(trackSimilarity.getValue());
                 tracks.computeIfAbsent(trackSimilarity.getFingerprintType(), ft -> new HashSet<>()).add(trackSimilarity);
             }
         });
-        return gist;
+        return hist;
     }
 
     private final FingerprintType type;
@@ -45,7 +45,7 @@ public class Gist {
     private long all;
     private int max;
 
-    public Gist(FingerprintType type) {
+    public Hist(FingerprintType type) {
         this.type = type;
         this.data = new Int2IntAVLTreeMap();
         this.all = 0;

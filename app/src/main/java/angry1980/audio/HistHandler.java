@@ -5,22 +5,19 @@ import angry1980.audio.model.TrackSimilarity;
 import angry1980.audio.service.TrackSimilarityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.ConfigurableApplicationContext;
 import rx.Observable;
 
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-public class GistHandler {
+public class HistHandler {
 
-    private static Logger LOG = LoggerFactory.getLogger(GistHandler.class);
+    private static Logger LOG = LoggerFactory.getLogger(HistHandler.class);
 
     private TrackSimilarityService trackSimilarityService;
 
-    public GistHandler(TrackSimilarityService trackSimilarityService) {
+    public HistHandler(TrackSimilarityService trackSimilarityService) {
         this.trackSimilarityService = trackSimilarityService;
     }
 
@@ -30,8 +27,8 @@ public class GistHandler {
                 //FingerprintType.LASTFM//,
                 //FingerprintType.PEAKS
         )){
-            Optional<Gist.Interval> bestFP = calculate(function, type, 70, false);
-            Optional<Gist.Interval> bestTP = calculate(function, type, 70, true);
+            Optional<Hist.Interval> bestFP = calculate(function, type, 70, false);
+            Optional<Hist.Interval> bestTP = calculate(function, type, 70, true);
             if (bestFP.isPresent()) {
                 LOG.info("Best false positive interval for {} is {}", type, bestFP.get());
             } else {
@@ -46,9 +43,9 @@ public class GistHandler {
         }
     }
 
-    private Optional<Gist.Interval> calculate(BiFunction<Boolean, FingerprintType, Observable<TrackSimilarity>> function,
-                                             FingerprintType type, int percent, boolean onlyTruthPositive){
-        return Gist.calculate(() -> function.apply(onlyTruthPositive, type), type).getInterval(percent);
+    private Optional<Hist.Interval> calculate(BiFunction<Boolean, FingerprintType, Observable<TrackSimilarity>> function,
+                                              FingerprintType type, int percent, boolean onlyTruthPositive){
+        return Hist.calculate(() -> function.apply(onlyTruthPositive, type), type).getInterval(percent);
     }
 
 }

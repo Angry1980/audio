@@ -7,19 +7,19 @@ import org.springframework.context.annotation.Import;
 
 @SpringBootApplication
 @Import(Neo4jDAOConfig.class)
-public class CalculateCommonSimilaritiesGistWeights implements CalculateSimilaritiesWeights {
+public class CalculateSimilaritiesHistWeights implements CalculateSimilaritiesWeights {
 
     @Autowired
     private TrackSimilarityService trackSimilarityService;
 
     public static void main(String[] args){
-        CalculateSimilaritiesWeights.init(args, CalculateCommonSimilaritiesGistWeights.class);
+        CalculateSimilaritiesWeights.init(args, CalculateSimilaritiesHistWeights.class);
     }
 
     @Override
     public void calculate(){
-        new GistHandler(trackSimilarityService).handle(
-                (onlyTruthPositive, type) -> trackSimilarityService.findCommonSimilarities(type, onlyTruthPositive)
+        new HistHandler(trackSimilarityService).handle(
+                (onlyTruthPositive, type) -> trackSimilarityService.findSimilarities(type, onlyTruthPositive)
         );
     }
 

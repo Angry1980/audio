@@ -24,9 +24,6 @@ public class CalculateSimilarities {
 //todo:
 //similarity type - comparing, minhash, errorrates
 // parameters for different implementations to props file
-//wavelet
-//autotests
-//process, process waiter refactoring
 //maven release
 
     @Autowired
@@ -40,8 +37,8 @@ public class CalculateSimilarities {
                 "NETFLIX",
                 "CALCULATE",
                 FingerprintType.CHROMAPRINT.name(),
-                FingerprintType.PEAKS.name()//,
-                //FingerprintType.LASTFM.name()
+                FingerprintType.PEAKS.name(),
+                FingerprintType.LASTFM.name()
         );
         ConfigurableApplicationContext context = sa.run(args);
         context.registerShutdownHook();
@@ -59,8 +56,8 @@ public class CalculateSimilarities {
     public void run(CountDownLatch latch){
         trackSimilarityService.getTracksToCalculateSimilarity()
                 .doOnNext(track -> LOG.info("Similarity calculation for {}", track))
-                //.observeOn(Schedulers.from(executor))
-                .flatMap(trackSimilarityService::findOrCalculateSimilarities)
+                //.flatMap(trackSimilarityService::findOrCalculateSimilarities)
+                .flatMap(track -> trackSimilarityService.findOrCalculateSimilarities(track, FingerprintType.CHROMAPRINT, FingerprintType.PEAKS))
                 .subscribeOn(Schedulers.from(executor))
                 .subscribe(new SubscriberImpl(latch));
     }

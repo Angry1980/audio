@@ -8,9 +8,10 @@ import java.util.List;
 import java.util.function.LongFunction;
 import java.util.function.Predicate;
 
-public interface FindSimilarTracks extends LongFunction<List<TrackSimilarity>>,
-                                                Predicate<FingerprintType>,
+public interface FindSimilarTracks extends Predicate<FingerprintType>,
                                                 Ordered{
+
+    List<TrackSimilarity> apply(long track, FingerprintType type);
 
     @Override
     default boolean test(FingerprintType fingerprintType) {

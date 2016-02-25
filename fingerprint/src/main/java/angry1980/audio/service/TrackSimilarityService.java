@@ -10,9 +10,7 @@ public interface TrackSimilarityService {
 
     Observable<Track> getTracksToCalculateSimilarity();
 
-    Observable<TrackSimilarities> findOrCalculateSimilarities(Track track);
-
-    Observable<TrackSimilarities> findOrCalculateSimilarities(Track track, FingerprintType fingerprintType);
+    Observable<TrackSimilarities> findOrCalculateSimilarities(Track track, FingerprintType type, FingerprintType ... types);
 
     Observable<TrackSimilarity> findSimilarities(FingerprintType fingerprintType, boolean truthPositive);
 

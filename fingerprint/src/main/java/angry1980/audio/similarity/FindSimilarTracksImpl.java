@@ -39,7 +39,7 @@ public class FindSimilarTracksImpl implements FindSimilarTracks {
     }
 
     @Override
-    public List<TrackSimilarity> apply(long trackId) {
+    public List<TrackSimilarity> apply(long trackId, FingerprintType type) {
         return trackSimilarityDAO.findByTrackIdAndFingerprintType(trackId, fingerprintType)
                     .orElseGet(() -> calculate(trackId).stream()
                                         .map(trackSimilarityDAO::create)

@@ -20,6 +20,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import java.util.stream.Stream;
 
 public class TrackSimilarityServiceImpl implements TrackSimilarityService {
 
@@ -27,12 +28,12 @@ public class TrackSimilarityServiceImpl implements TrackSimilarityService {
 
     private TrackDAO trackDAO;
     private TrackSimilarityDAO trackSimilarityDAO;
-    private List<FindSimilarTracks> findSimilarTracks;
+    private FindSimilarTracks findSimilarTracks;
     private TracksToCalculate tracksToCalculate;
 
     public TrackSimilarityServiceImpl(TrackDAO trackDAO,
                                       TrackSimilarityDAO trackSimilarityDAO,
-                                      List<FindSimilarTracks> findSimilarTracks,
+                                      FindSimilarTracks findSimilarTracks,
                                       TracksToCalculate tracksToCalculate) {
         this.trackDAO = Objects.requireNonNull(trackDAO);
         this.trackSimilarityDAO = Objects.requireNonNull(trackSimilarityDAO);
@@ -46,27 +47,18 @@ public class TrackSimilarityServiceImpl implements TrackSimilarityService {
     }
 
     @Override
-    public Observable<TrackSimilarities> findOrCalculateSimilarities(Track track) {
-        return Observable.just(
-                    findSimilarTracks.stream()
-                        .peek(handler -> LOG.debug("{} is getting ready to handle by {}", track.getId(), handler))
-                        .flatMap(handler -> {
-                            try{
-                                return handler.apply(track.getId()).stream();
-                            } catch(Exception e){
-                                LOG.error("Error while trying to handle {} by {}", track.getId(), handler);
-                            }
-                            return Collections.<TrackSimilarity>emptyList().stream();
-                        }).collect(ImmutableCollectors.toSet())
-                ).map(s -> {
+    public Observable<TrackSimilarities> findOrCalculateSimilarities(Track track, FingerprintType type, FingerprintType ... types) {
+        Observable<FingerprintType> r = Observable.just(type);
+        if(types.length > 0){
+            r = r.mergeWith(Observable.from(types));
+        }
+        return r
+                .doOnNext(t -> LOG.debug("{} is getting ready to handle by {} implementation", track.getId(), t))
+                .map(t -> findSimilarTracks.apply(track.getId(), t))
+                .map(s -> {
                         LOG.debug("{} was handled. There are {} similarities. ", track.getId(), s.size());
                         return new TrackSimilarities(track, s);
                 });
-    }
-
-    @Override
-    public Observable<TrackSimilarities> findOrCalculateSimilarities(Track track, FingerprintType fingerprintType) {
-        throw new UnsupportedOperationException();
     }
 
     @Override

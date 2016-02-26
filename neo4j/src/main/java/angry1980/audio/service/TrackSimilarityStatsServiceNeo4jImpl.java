@@ -30,11 +30,17 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
         int trackCount = getNodesCount(Neo4jNodeType.TRACK);
         return Observable.create(subscriber -> {
             subscriber.onNext(stats(getResultDependsOnFingerprintType(minWeights, FingerprintType.CHROMAPRINT), trackCount));
+            subscriber.onNext(stats(getResultDependsOnFingerprintType(minWeights, FingerprintType.CHROMAPRINT_ER), trackCount));
             subscriber.onNext(stats(getResultDependsOnFingerprintType(minWeights, FingerprintType.LASTFM), trackCount));
+            subscriber.onNext(stats(getResultDependsOnFingerprintType(minWeights, FingerprintType.LASTFM_ER), trackCount));
             subscriber.onNext(stats(getResultDependsOnFingerprintType(minWeights, FingerprintType.PEAKS), trackCount));
             subscriber.onNext(stats(compareFingerprintTypes(minWeights, FingerprintType.CHROMAPRINT, FingerprintType.PEAKS), trackCount));
             subscriber.onNext(stats(compareFingerprintTypes(minWeights, FingerprintType.CHROMAPRINT, FingerprintType.LASTFM), trackCount));
+            subscriber.onNext(stats(compareFingerprintTypes(minWeights, FingerprintType.CHROMAPRINT, FingerprintType.CHROMAPRINT_ER), trackCount));
+            subscriber.onNext(stats(compareFingerprintTypes(minWeights, FingerprintType.CHROMAPRINT_ER, FingerprintType.PEAKS), trackCount));
             subscriber.onNext(stats(compareFingerprintTypes(minWeights, FingerprintType.LASTFM, FingerprintType.PEAKS), trackCount));
+            subscriber.onNext(stats(compareFingerprintTypes(minWeights, FingerprintType.LASTFM, FingerprintType.LASTFM_ER), trackCount));
+            subscriber.onNext(stats(compareFingerprintTypes(minWeights, FingerprintType.LASTFM_ER, FingerprintType.PEAKS), trackCount));
             subscriber.onNext(stats(getCommonCount(minWeights), trackCount));
             subscriber.onCompleted();
         });

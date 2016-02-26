@@ -32,17 +32,20 @@ public class ImportFromNetflixToNeo4j {
         ConfigurableApplicationContext context = sa.run(args);
         context.registerShutdownHook();
         context.getBean(ImportFromNetflixToNeo4j.class)
-                .importData(FingerprintType.CHROMAPRINT)
-                .importData(FingerprintType.LASTFM)
-                .importData(FingerprintType.PEAKS)
+                .importData(FingerprintType.CHROMAPRINT, FingerprintType.CHROMAPRINT_ER)
+                //.importData(FingerprintType.LASTFM, FingerprintType.LASTFM_ER)
+                //.importData(FingerprintType.PEAKS)
         ;
     }
 
     public ImportFromNetflixToNeo4j importData(FingerprintType type){
-        dataImporter.importTo(sourceEnvironment, type);
+        return importData(type, type);
+    }
+
+    public ImportFromNetflixToNeo4j importData(FingerprintType type, FingerprintType goal){
+        dataImporter.importTo(sourceEnvironment, type, goal);
         LOG.info("Similarities for {} was imported", type);
         return this;
     }
-
 
 }

@@ -57,6 +57,10 @@ public class ShowReport {
                     return;
                 }
                 LOG.info(o.toString());
+                if(o.getFalsePositive() == 0){
+                    //bit comparing
+                    return;
+                }
                 if(best == null || Double.compare(best.getF1(), o.getF1()) < 0){
                     best = o;
                 }
@@ -64,17 +68,22 @@ public class ShowReport {
         };
         trackSimilarityStatsService.compareFingerprintTypes(ImmutableMap.of(
                         FingerprintType.CHROMAPRINT, 10,
+                        FingerprintType.CHROMAPRINT_ER, 10,
                         FingerprintType.LASTFM, 10,
+                        FingerprintType.LASTFM_ER, 10,
                         FingerprintType.PEAKS, 10
                 )
         ).subscribe(printer);
+/*
         trackSimilarityStatsService.compareFingerprintTypes(ImmutableMap.of(
                 FingerprintType.CHROMAPRINT, 665,
+                FingerprintType.CHROMAPRINT_ER, 1500,
                 FingerprintType.LASTFM, 466,
+                FingerprintType.LASTFM_ER, 844,
                 FingerprintType.PEAKS, 1102
                 )
         ).subscribe(printer);
-
+*/
         /*
         trackSimilarityStatsService.generateClusters().entrySet().stream()
                 .peek(entry -> LOG.info("Cluster {} contains", entry.getKey()))

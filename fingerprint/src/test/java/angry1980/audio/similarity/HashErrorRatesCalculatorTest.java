@@ -44,7 +44,7 @@ public class HashErrorRatesCalculatorTest {
         firstTrackFingerprint = fingerprint(1, firstTrackFingerprintHashes);
         calculator = new HashErrorRatesCalculator(
                 FingerprintType.CHROMAPRINT,
-                new HashErrorRatesCalculatorTrackClusterSource(trackDAO),
+                new HashErrorRatesCalculatorTrackSourceImpl(trackDAO),
                 fingerprintDAO,
                 25,
                 8

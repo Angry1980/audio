@@ -7,18 +7,19 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 
-public class HashErrorRatesCalculatorTrackClusterSource implements HashErrorRatesCalculatorTrackSource {
+public class HashErrorRatesCalculatorTrackSourceImpl implements HashErrorRatesCalculatorTrackSource {
 
     private boolean all;
     private TrackDAO trackDAO;
 
-    public HashErrorRatesCalculatorTrackClusterSource(TrackDAO trackDAO) {
+    public HashErrorRatesCalculatorTrackSourceImpl(TrackDAO trackDAO) {
         this.trackDAO = Objects.requireNonNull(trackDAO);
         this.all = false;
     }
 
-    public void setAll(boolean all) {
+    public HashErrorRatesCalculatorTrackSourceImpl setAll(boolean all) {
         this.all = all;
+        return this;
     }
 
     @Override

@@ -2,11 +2,15 @@ package angry1980.audio.similarity;
 
 import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.TrackSimilarity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.Optional;
 
 public class HashErrorRatesCalculatorSimilarTrackSource implements HashErrorRatesCalculatorTrackSource{
+
+    private static Logger LOG = LoggerFactory.getLogger(HashErrorRatesCalculatorSimilarTrackSource.class);
 
     private FingerprintType fingerprintType;
     private FindSimilarTracks findSimilarTracks;
@@ -25,11 +29,11 @@ public class HashErrorRatesCalculatorSimilarTrackSource implements HashErrorRate
 
     @Override
     public Optional<long[]> get(long sourceTrackId) {
-        return Optional.of(
-                findSimilarTracks.apply(sourceTrackId, fingerprintType).stream()
-                    .filter(ts -> ts.getValue() > limit)
-                    .mapToLong(TrackSimilarity::getTrack2)
-                    .toArray()
-        );
+        long[] result = findSimilarTracks.apply(sourceTrackId, fingerprintType).stream()
+                            .filter(ts -> ts.getValue() > limit)
+                            .mapToLong(TrackSimilarity::getTrack2)
+                            .toArray();
+        LOG.debug("There are {} tracks which are looking similar to {} by {}", new Object[]{result.length, sourceTrackId, fingerprintType});
+        return Optional.of(result);
     }
 }

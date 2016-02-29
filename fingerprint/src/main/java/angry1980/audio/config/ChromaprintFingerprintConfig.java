@@ -8,10 +8,7 @@ import angry1980.audio.model.FingerprintType;
 import angry1980.audio.similarity.FindSimilarTracksImpl;
 
 import angry1980.audio.similarity.FindSimilarTracks;
-import angry1980.audio.similarity.HashErrorRatesCalculator;
-import angry1980.audio.similarity.HashErrorRatesCalculatorSimilarTrackSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -26,9 +23,6 @@ public class ChromaprintFingerprintConfig {
     private TrackSimilarityDAO trackSimilarityDAO;
     @Autowired
     private TrackDAO trackDAO;
-    @Autowired
-    @Qualifier("peaksFindSimilarTracks")
-    private FindSimilarTracks peaksFindSimilarTracks;
 
     @Bean
     public FingerprintDAO chromaprintFingerprintDAO(){
@@ -62,14 +56,7 @@ public class ChromaprintFingerprintConfig {
 
     @Bean
     public angry1980.audio.similarity.Calculator<Fingerprint> chromaprintSimilarityCalculator(){
-        return new HashErrorRatesCalculator(
-                FingerprintType.CHROMAPRINT,
-                new HashErrorRatesCalculatorSimilarTrackSource(
-                        FingerprintType.PEAKS,
-                        peaksFindSimilarTracks
-                ),
-                chromaprintFingerprintDAO()
-        );
+        return chromaprintInvertedIndex();
     }
 
     @Bean

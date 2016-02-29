@@ -1,16 +1,22 @@
 package angry1980.audio.dao;
 
 import angry1980.audio.model.Fingerprint;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class FingerprintDAOInMemoryImpl<F extends Fingerprint> implements FingerprintDAO<F>{
 
-    private Map<Long, F> fingerprints;
+    private Long2ObjectMap<F> fingerprints;
 
     public FingerprintDAOInMemoryImpl(){
-        this.fingerprints = new HashMap<>();
+        this(16);
+    }
+
+    public FingerprintDAOInMemoryImpl(int expectedSize){
+        this.fingerprints = new Long2ObjectOpenHashMap<>(expectedSize);
     }
 
     @Override
@@ -26,9 +32,8 @@ public class FingerprintDAOInMemoryImpl<F extends Fingerprint> implements Finger
     @Override
     public Collection<F> findByTrackIds(long[] trackIds) {
         return Arrays.stream(trackIds)
-                .mapToObj(this::findByTrackId)
-                .filter(o -> o.isPresent())
-                .map(o -> o.get())
+                .mapToObj(this::tryToFindByTrackId)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 

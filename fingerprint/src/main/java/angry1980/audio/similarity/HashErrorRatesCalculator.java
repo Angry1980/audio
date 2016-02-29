@@ -6,9 +6,7 @@ import angry1980.utils.Numbered;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class HashErrorRatesCalculator implements Calculator<Fingerprint> {
@@ -41,21 +39,24 @@ public class HashErrorRatesCalculator implements Calculator<Fingerprint> {
 
     @Override
     public List<TrackSimilarity> calculate(Fingerprint fingerprint) {
-        int[] source = getHashes(fingerprint);
         return trackSource.get(fingerprint.getTrackId())
                 .map(fingerprintDAO::findByTrackIds)
-                .map(list -> list.stream()
-                    .map(fp -> new Numbered<>(fp.getTrackId(), calculate(source, getHashes(fp))))
-                    .filter(n -> n.getValue().compareTo(20) > 0)
-                    .map(n -> (TrackSimilarity)ImmutableTrackSimilarity.builder()
-                            .track1(fingerprint.getTrackId())
-                            .track2(n.getNumber())
-                            .value(n.getValue())
-                            .fingerprintType(type)
-                            .build()
-                    ).collect(Collectors.toList())
-                ).orElseGet(() -> Collections.emptyList())
+                .map(list -> calculate(fingerprint.getTrackId(), getHashes(fingerprint), list))
+                .orElseGet(() -> Collections.emptyList())
         ;
+    }
+
+    private List<TrackSimilarity> calculate(long trackId, int[] source, Collection<Fingerprint> others){
+        return others.stream()
+                .map(fp -> new Numbered<>(fp.getTrackId(), calculate(source, getHashes(fp))))
+                .filter(n -> n.getValue().compareTo(20) > 0)
+                .map(n -> ImmutableTrackSimilarity.builder()
+                        .track1(trackId)
+                        .track2(n.getNumber())
+                        .value(n.getValue())
+                        .fingerprintType(type)
+                        .build()
+                ).collect(Collectors.toList());
     }
 
     private int[] getHashes(Fingerprint fingerprint){

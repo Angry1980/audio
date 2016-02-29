@@ -56,7 +56,7 @@ public class HashErrorRatesCalculatorBenchmark {
                                 .type(FingerprintType.CHROMAPRINT)
                                 .hashes(IntStream.range(0, 2000)
                                             .mapToObj(time -> ImmutableTrackHash.builder()
-                                                                .hash(RND.nextLong())
+                                                                .hash(RND.nextInt())
                                                                 .time(time)
                                                                 .trackId(track)
                                                                 .build()

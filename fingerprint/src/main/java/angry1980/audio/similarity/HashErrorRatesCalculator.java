@@ -2,6 +2,7 @@ package angry1980.audio.similarity;
 
 import angry1980.audio.dao.FingerprintDAO;
 import angry1980.audio.model.*;
+import angry1980.utils.Numbered;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class HashErrorRatesCalculator implements Calculator<Fingerprint> {
 
@@ -41,22 +41,27 @@ public class HashErrorRatesCalculator implements Calculator<Fingerprint> {
 
     @Override
     public List<TrackSimilarity> calculate(Fingerprint fingerprint) {
-        int[] source = fingerprint.getHashes().stream()
-                        .mapToInt(hash -> (int)hash.getHash())
-                        .toArray();
+        int[] source = getHashes(fingerprint);
         return trackSource.get(fingerprint.getTrackId())
                 .map(fingerprintDAO::findByTrackIds)
                 .map(list -> list.stream()
-                    .map(fp -> (TrackSimilarity)ImmutableTrackSimilarity.builder()
+                    .map(fp -> new Numbered<>(fp.getTrackId(), calculate(source, getHashes(fp))))
+                    .filter(n -> n.getValue().compareTo(20) > 0)
+                    .map(n -> (TrackSimilarity)ImmutableTrackSimilarity.builder()
                             .track1(fingerprint.getTrackId())
-                            .track2(fp.getTrackId())
-                            .value(calculate(source, fp.getHashes().stream().mapToInt(hash -> (int)hash.getHash()).toArray()))
+                            .track2(n.getNumber())
+                            .value(n.getValue())
                             .fingerprintType(type)
                             .build()
-                    ).filter(ts -> ts.getValue() > 20)
-                    .collect(Collectors.toList())
+                    ).collect(Collectors.toList())
                 ).orElseGet(() -> Collections.emptyList())
         ;
+    }
+
+    private int[] getHashes(Fingerprint fingerprint){
+        return fingerprint.getHashes().stream()
+                .mapToInt(hash -> (int)hash.getHash())
+                .toArray();
     }
 
     private int calculate(int[] source, int[] other) {

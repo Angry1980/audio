@@ -9,11 +9,13 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 @State(Scope.Benchmark)
 public class HashErrorRatesCalculatorBenchmark {
@@ -40,25 +42,23 @@ public class HashErrorRatesCalculatorBenchmark {
     @Param({"1", "2"})
     private long track;
 
-    private Collection<Track> tracks;
+    private long[] tracks;
     private Fingerprint fingerprint;
     private HashErrorRatesCalculator calculator;
 
     @Setup
     public void init(){
-        FingerprintDAO<Fingerprint> fingerprintDAO = new FingerprintDAOInMemoryImpl<>();
-        tracks = IntStream.range(0, tracksCount)
-                        .mapToObj(trackId -> ImmutableTrack.builder().id(trackId).cluster(1).path("").build())
-                        .collect(Collectors.toList());
-        tracks.stream()
-                .map(track -> ImmutableFingerprint.builder()
-                                .trackId(track.getId())
+        FingerprintDAO<Fingerprint> fingerprintDAO = new FingerprintDAOInMemoryImpl<>(tracksCount);
+        tracks = LongStream.range(0, tracksCount).toArray();
+        Arrays.stream(tracks)
+                .mapToObj(track -> ImmutableFingerprint.builder()
+                                .trackId(track)
                                 .type(FingerprintType.CHROMAPRINT)
                                 .hashes(IntStream.range(0, 2000)
                                             .mapToObj(time -> ImmutableTrackHash.builder()
                                                                 .hash(RND.nextLong())
                                                                 .time(time)
-                                                                .trackId(track.getId())
+                                                                .trackId(track)
                                                                 .build()
                                             ).collect(Collectors.toList())
                                 ).build())
@@ -81,7 +81,7 @@ public class HashErrorRatesCalculatorBenchmark {
     public class TrackSource implements HashErrorRatesCalculatorTrackSource{
 
         @Override
-        public Optional<Collection<Track>> get(long sourceTrackId) {
+        public Optional<long[]> get(long sourceTrackId) {
             return Optional.of(tracks);
         }
     }

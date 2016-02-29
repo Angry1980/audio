@@ -43,11 +43,6 @@ public class HashErrorRatesCalculator implements Calculator<Fingerprint> {
     @Override
     public List<TrackSimilarity> calculate(Fingerprint fingerprint) {
         return trackSource.get(fingerprint.getTrackId())
-                .map(tracks -> tracks.stream()
-                                .mapToLong(Track::getId)
-                                .filter(trackId -> trackId != fingerprint.getTrackId())
-                                .toArray()
-                )
                 .map(fingerprintDAO::findByTrackIds)
                 .map(list -> list.stream()
                     .map(fp -> (TrackSimilarity)ImmutableTrackSimilarity.builder()

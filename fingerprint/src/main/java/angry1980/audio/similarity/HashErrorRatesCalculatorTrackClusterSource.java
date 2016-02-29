@@ -16,8 +16,13 @@ public class HashErrorRatesCalculatorTrackClusterSource implements HashErrorRate
     }
 
     @Override
-    public Optional<Collection<Track>> get(long sourceTrackId) {
+    public Optional<long[]> get(long sourceTrackId) {
         return trackDAO.get(sourceTrackId)
-                .map(track -> trackDAO.findByCluster(track.getCluster()));
+                .map(track -> trackDAO.findByCluster(track.getCluster()))
+                .map(tracks -> tracks.stream()
+                        .mapToLong(Track::getId)
+                        .filter(trackId -> trackId != sourceTrackId)
+                        .toArray()
+                );
     }
 }

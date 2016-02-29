@@ -4,6 +4,8 @@ import angry1980.audio.dao.FingerprintDAO;
 import angry1980.audio.dao.TrackDAO;
 import angry1980.audio.model.*;
 import org.apache.commons.lang3.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,21 +14,27 @@ import java.util.stream.Collectors;
 
 public class HashErrorRatesCalculator implements Calculator<Fingerprint> {
 
+    private static Logger LOG = LoggerFactory.getLogger(HashErrorRatesCalculator.class);
+
     private static final double positiveLimit = 0.8;
 
     private FingerprintType type;
-    private TrackDAO trackDAO;
+    private HashErrorRatesCalculatorTrackSource trackSource;
     private FingerprintDAO<Fingerprint> fingerprintDAO;
     private int batchSize;
     private int errorLimit;
 
-    public HashErrorRatesCalculator(FingerprintType type, TrackDAO trackDAO, FingerprintDAO<Fingerprint> fingerprintDAO){
-        this(type, trackDAO, fingerprintDAO, 25, 8);
+    public HashErrorRatesCalculator(FingerprintType type, HashErrorRatesCalculatorTrackSource trackSource, FingerprintDAO<Fingerprint> fingerprintDAO){
+        this(type, trackSource, fingerprintDAO, 25, 8);
     }
 
-    public HashErrorRatesCalculator(FingerprintType type, TrackDAO trackDAO, FingerprintDAO<Fingerprint> fingerprintDAO, int batchSize, int errorLimit) {
+    public HashErrorRatesCalculator(FingerprintType type,
+                                    HashErrorRatesCalculatorTrackSource trackSource,
+                                    FingerprintDAO<Fingerprint> fingerprintDAO,
+                                    int batchSize,
+                                    int errorLimit) {
         this.type = type;
-        this.trackDAO = Objects.requireNonNull(trackDAO);
+        this.trackSource = Objects.requireNonNull(trackSource);
         this.fingerprintDAO = Objects.requireNonNull(fingerprintDAO);
         this.batchSize = batchSize;
         this.errorLimit = errorLimit;
@@ -34,11 +42,14 @@ public class HashErrorRatesCalculator implements Calculator<Fingerprint> {
 
     @Override
     public List<TrackSimilarity> calculate(Fingerprint fingerprint) {
-        return trackDAO.get(fingerprint.getTrackId())
-                .map(track -> trackDAO.findByCluster(track.getCluster()).stream().mapToLong(t -> t.getId()).toArray())
+        return trackSource.get(fingerprint.getTrackId())
+                .map(tracks -> tracks.stream()
+                                .mapToLong(Track::getId)
+                                .filter(trackId -> trackId != fingerprint.getTrackId())
+                                .toArray()
+                )
                 .map(fingerprintDAO::findByTrackIds)
                 .map(list -> list.stream()
-                    .filter(fp -> fp.getTrackId() != fingerprint.getTrackId())
                     .map(fp -> (TrackSimilarity)ImmutableTrackSimilarity.builder()
                             .track1(fingerprint.getTrackId())
                             .track2(fp.getTrackId())

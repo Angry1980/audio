@@ -57,7 +57,7 @@ public class CalculateSimilarities {
         trackSimilarityService.getTracksToCalculateSimilarity()
                 .doOnNext(track -> LOG.info("Similarity calculation for {}", track))
                 //.flatMap(trackSimilarityService::findOrCalculateSimilarities)
-                .flatMap(track -> trackSimilarityService.findOrCalculateSimilarities(track, FingerprintType.CHROMAPRINT, FingerprintType.PEAKS))
+                .flatMap(track -> trackSimilarityService.findOrCalculateSimilarities(track, FingerprintType.CHROMAPRINT))//, FingerprintType.PEAKS))
                 .subscribeOn(Schedulers.from(executor))
                 .subscribe(new SubscriberImpl(latch));
     }

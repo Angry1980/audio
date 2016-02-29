@@ -33,6 +33,7 @@ public class FingerprintDAOInMemoryImpl<F extends Fingerprint> implements Finger
     public Collection<F> findByTrackIds(long[] trackIds) {
         return Arrays.stream(trackIds)
                 .mapToObj(this::tryToFindByTrackId)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 

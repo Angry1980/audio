@@ -70,11 +70,17 @@ public class HashErrorRatesCalculator implements Calculator<Fingerprint> {
                 || source == null){
             return counter;
         }
-        int batchSize = Math.min(this.batchSize, other.length - 1);
+        int batchSize = Math.min(this.batchSize, other.length);
+        int batchLength = batchSize;
+        int limit = (int) (batchLength * positiveLimit);
         for (int begin = 0; begin < source.length; begin += batchSize){
-            int end = Math.min(begin + batchSize, source.length);
-            int batchLength = end - begin;
-            int limit = (int) (batchLength * positiveLimit);
+            int end = begin + batchSize;
+            if(end > source.length){
+                //values for last batch
+                end = source.length;
+                batchLength = end - begin;
+                limit = (int) (batchLength * positiveLimit);
+            }
             int s = 0;
             for(int i = 0; i < other.length - batchLength; i++){
                 s = Math.max(s, check(source, begin, end, other, i, i + batchLength));

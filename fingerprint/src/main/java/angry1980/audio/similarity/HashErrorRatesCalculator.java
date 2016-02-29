@@ -1,9 +1,7 @@
 package angry1980.audio.similarity;
 
 import angry1980.audio.dao.FingerprintDAO;
-import angry1980.audio.dao.TrackDAO;
 import angry1980.audio.model.*;
-import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class HashErrorRatesCalculator implements Calculator<Fingerprint> {
 
@@ -42,34 +41,39 @@ public class HashErrorRatesCalculator implements Calculator<Fingerprint> {
 
     @Override
     public List<TrackSimilarity> calculate(Fingerprint fingerprint) {
+        int[] source = fingerprint.getHashes().stream()
+                        .mapToInt(hash -> (int)hash.getHash())
+                        .toArray();
         return trackSource.get(fingerprint.getTrackId())
                 .map(fingerprintDAO::findByTrackIds)
                 .map(list -> list.stream()
                     .map(fp -> (TrackSimilarity)ImmutableTrackSimilarity.builder()
                             .track1(fingerprint.getTrackId())
                             .track2(fp.getTrackId())
-                            .value(calculate(fingerprint.getHashes(), fp.getHashes()))
-                            .fingerprintType(type).build()
+                            .value(calculate(source, fp.getHashes().stream().mapToInt(hash -> (int)hash.getHash()).toArray()))
+                            .fingerprintType(type)
+                            .build()
                     ).filter(ts -> ts.getValue() > 20)
                     .collect(Collectors.toList())
                 ).orElseGet(() -> Collections.emptyList())
         ;
     }
 
-    private int calculate(List<TrackHash> source, List<TrackHash> other) {
+    private int calculate(int[] source, int[] other) {
         int counter = 0;
-        if(other == null || source == null){
+        if(other == null
+                || source == null){
             return counter;
         }
-        int batchSize = Math.min(this.batchSize, other.size() - 1);
-        for (int begin = 0; begin < source.size(); begin += batchSize){
-            int end = Math.min(begin + batchSize, source.size());
-            List<TrackHash> batch = source.subList(begin, end);
-            int limit = (int) (batch.size() * positiveLimit);
+        int batchSize = Math.min(this.batchSize, other.length - 1);
+        for (int begin = 0; begin < source.length; begin += batchSize){
+            int end = Math.min(begin + batchSize, source.length);
+            int batchLength = end - begin;
+            int limit = (int) (batchLength * positiveLimit);
             int s = 0;
-            for(int i = 0; i < other.size() - batch.size(); i++){
-                s = Math.max(s, check(batch, other.subList(i, i + batch.size())));
-                if(s == batch.size()){
+            for(int i = 0; i < other.length - batchLength; i++){
+                s = Math.max(s, check(source, begin, end, other, i, i + batchLength));
+                if(s == batchLength){
                     break;
                 }
             }
@@ -80,11 +84,11 @@ public class HashErrorRatesCalculator implements Calculator<Fingerprint> {
         return counter;
     }
 
-
-    private int check(List<TrackHash> source, List<TrackHash> other){
+    private int check(int[] source, int sourceStart, int sourceEnd,
+                        int[] other, int otherStart, int otherEnd){
         int counter = 0;
-        for(int i = 0; i < source.size() && i < other.size(); i++){
-            int errors = Integer.bitCount(((int)source.get(i).getHash()) ^ ((int)other.get(i).getHash()));
+        for(int i = sourceStart, j = otherStart; i < sourceEnd && j < otherEnd; i++, j++){
+            int errors = Integer.bitCount(source[i] ^ other[j]);
             if(errors <= errorLimit){
                 counter++;
             }

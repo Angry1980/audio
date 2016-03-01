@@ -10,9 +10,7 @@ import angry1980.neo4j.louvain.LouvainResult;
 import org.neo4j.graphdb.*;
 import rx.Observable;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStatsService{
@@ -29,21 +27,52 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
     public Observable<Stats> compareFingerprintTypes(Map<FingerprintType, Integer> minWeights) {
         int trackCount = getNodesCount(Neo4jNodeType.TRACK);
         return Observable.create(subscriber -> {
-            subscriber.onNext(stats(getResultDependsOnFingerprintType(minWeights, FingerprintType.CHROMAPRINT), trackCount));
-            subscriber.onNext(stats(getResultDependsOnFingerprintType(minWeights, FingerprintType.CHROMAPRINT_ER), trackCount));
-            subscriber.onNext(stats(getResultDependsOnFingerprintType(minWeights, FingerprintType.LASTFM), trackCount));
-            subscriber.onNext(stats(getResultDependsOnFingerprintType(minWeights, FingerprintType.LASTFM_ER), trackCount));
-            subscriber.onNext(stats(getResultDependsOnFingerprintType(minWeights, FingerprintType.PEAKS), trackCount));
-            subscriber.onNext(stats(compareFingerprintTypes(minWeights, FingerprintType.CHROMAPRINT, FingerprintType.PEAKS), trackCount));
-            subscriber.onNext(stats(compareFingerprintTypes(minWeights, FingerprintType.CHROMAPRINT, FingerprintType.LASTFM), trackCount));
-            subscriber.onNext(stats(compareFingerprintTypes(minWeights, FingerprintType.CHROMAPRINT, FingerprintType.CHROMAPRINT_ER), trackCount));
-            subscriber.onNext(stats(compareFingerprintTypes(minWeights, FingerprintType.CHROMAPRINT_ER, FingerprintType.PEAKS), trackCount));
-            subscriber.onNext(stats(compareFingerprintTypes(minWeights, FingerprintType.LASTFM, FingerprintType.PEAKS), trackCount));
-            subscriber.onNext(stats(compareFingerprintTypes(minWeights, FingerprintType.LASTFM, FingerprintType.LASTFM_ER), trackCount));
-            subscriber.onNext(stats(compareFingerprintTypes(minWeights, FingerprintType.LASTFM_ER, FingerprintType.PEAKS), trackCount));
+            Collection<FingerprintType> types = minWeights.keySet();
+            types.stream().forEach(type ->
+                    subscriber.onNext(stats(getResultDependsOnFingerprintType(minWeights, type), trackCount))
+            );
+            TypePair.pairs(types).stream().forEach(pair ->
+                    subscriber.onNext(stats(compareFingerprintTypes(minWeights, pair.type1, pair.type2), trackCount))
+            );
             subscriber.onNext(stats(getCommonCount(minWeights), trackCount));
             subscriber.onCompleted();
         });
+    }
+
+    private static class TypePair{
+
+        static Collection<TypePair> pairs(Collection<FingerprintType> types){
+            Collection<TypePair> pairs = new HashSet<>();
+            types.stream().forEach(type1 ->
+                    types.stream().filter(type2 -> !type1.equals(type2)).forEach(type2 ->
+                            pairs.add(new TypePair(type1, type2))
+                    )
+            );
+            return pairs;
+        }
+
+        final FingerprintType type1;
+        final FingerprintType type2;
+
+        private TypePair(FingerprintType type1, FingerprintType type2) {
+            this.type1 = type1;
+            this.type2 = type2;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            TypePair typePair = (TypePair) o;
+            return (type1 == typePair.type1  && type2 == typePair.type2)
+                    || (type1 == typePair.type2  && type2 == typePair.type1)
+                    ;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(type1, type2) + Objects.hash(type2, type1);
+        }
     }
 
     private Stats stats(Stats c, int trackCount){

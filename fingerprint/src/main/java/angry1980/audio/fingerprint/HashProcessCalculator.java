@@ -15,9 +15,9 @@ public class HashProcessCalculator extends ProcessCalculator<Fingerprint>{
 
     private static Logger LOG = LoggerFactory.getLogger(HashProcessCalculator.class);
 
-    private final ComparingType type;
+    private final FingerprintType type;
 
-    public HashProcessCalculator(ProcessCreator creator, Adapter adapter, ComparingType type) {
+    public HashProcessCalculator(ProcessCreator creator, Adapter adapter, FingerprintType type) {
         super(creator, adapter);
         this.type = Objects.requireNonNull(type);
     }
@@ -33,12 +33,12 @@ public class HashProcessCalculator extends ProcessCalculator<Fingerprint>{
     }
 
     @Override
-    protected Fingerprint create(Track track, byte[] hash) {
+    protected Fingerprint create(Track track, FingerprintType fingerprintType, byte[] hash) {
         LOG.debug("Creation of fingerprint entity for track {}", track.getId());
         Fingerprint f = ImmutableFingerprint.builder()
                 .trackId(track.getId())
                 .hashes(convert(track.getId(), hash))
-                .type(type)
+                .type(fingerprintType)
                 .build();
         LOG.debug("Fingerprint was created for track {}", track.getId());
         LOG.debug("There are {} hash values in fingerprint for track {} ", f.getHashes().size(), track.getId());

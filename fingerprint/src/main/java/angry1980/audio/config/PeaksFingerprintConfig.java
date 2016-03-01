@@ -7,6 +7,7 @@ import angry1980.audio.fingerprint.GetOrCreateFingerprint;
 import angry1980.audio.fingerprint.PeaksCalculator;
 import angry1980.audio.model.Fingerprint;
 import angry1980.audio.model.ComparingType;
+import angry1980.audio.model.FingerprintType;
 import angry1980.audio.similarity.Calculator;
 import angry1980.audio.similarity.FindSimilarTracks;
 import angry1980.audio.similarity.FindSimilarTracksImpl;
@@ -42,7 +43,7 @@ public class PeaksFingerprintConfig {
                 trackSimilarityDAO,
                 peaksGetOrCreateFingerprint(),
                 peaksFingerprintCalculator(),
-                ComparingType.PEAKS
+                FingerprintType.PEAKS
         );
     }
 

@@ -19,7 +19,7 @@ public class ComplexFindSimilarTracks implements FindSimilarTracks{
     @Override
     public List<TrackSimilarity> apply(long track, ComparingType type) {
         return findSimilarTracks.stream()
-                .filter(handler -> handler.test(type))
+                .filter(handler -> handler.test(type.getFingerprintType()))
                 .findAny()
                 .orElse(_default)
                 .apply(track, type);

@@ -9,7 +9,7 @@ public interface Fingerprint {
 
     long getTrackId();
 
-    ComparingType getType();
+    FingerprintType getType();
 
     List<TrackHash> getHashes();
 

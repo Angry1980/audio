@@ -1,10 +1,7 @@
 package angry1980.audio.fingerprint;
 
 import angry1980.audio.dao.TrackHashDAO;
-import angry1980.audio.model.Fingerprint;
-import angry1980.audio.model.ImmutableTrackSimilarity;
-import angry1980.audio.model.TrackHash;
-import angry1980.audio.model.TrackSimilarity;
+import angry1980.audio.model.*;
 import angry1980.utils.Numbered;
 import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
 import it.unimi.dsi.fastutil.ints.IntSortedSet;
@@ -48,7 +45,12 @@ public class HashInvertedIndex implements InvertedIndex<Fingerprint>, angry1980.
     }
 
     @Override
-    public List<TrackSimilarity> calculate(Fingerprint fingerprint) {
+    public boolean test(SimilarityType similarityType) {
+        return SimilarityType.MASKED.equals(similarityType);
+    }
+
+    @Override
+    public List<TrackSimilarity> calculate(Fingerprint fingerprint, ComparingType comparingType) {
         LOG.debug("Similarity calculation for {} of type {}", fingerprint.getTrackId(), fingerprint.getType());
         Long2ObjectMap<IntSortedSet> hashes = findByHashesAndSortByTrack(fingerprint.getHashes());
         LOG.debug("There are {} similarity candidates for {} of type {} ", new Object[]{hashes.size(), fingerprint.getTrackId(), fingerprint.getType()});
@@ -60,7 +62,7 @@ public class HashInvertedIndex implements InvertedIndex<Fingerprint>, angry1980.
                 .map(n -> ImmutableTrackSimilarity.builder()
                         .track1(fingerprint.getTrackId())
                         .track2(n.getNumber())
-                        .comparingType(fingerprint.getType())
+                        .comparingType(comparingType)
                         .value(n.getValue())
                         .build()
 

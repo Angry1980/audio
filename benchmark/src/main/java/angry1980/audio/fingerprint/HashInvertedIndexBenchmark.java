@@ -44,14 +44,14 @@ public class HashInvertedIndexBenchmark {
                 ).collect(Collectors.toList());
         fingerprint = ImmutableFingerprint.builder()
                 .trackId(track)
-                .type(ComparingType.CHROMAPRINT)
+                .type(FingerprintType.CHROMAPRINT)
                 .hashes(hashes)
                 .build();
     }
 
     @Benchmark
     public Collection<TrackSimilarity> testCalculate(){
-        return index.calculate(fingerprint);
+        return index.calculate(fingerprint, ComparingType.CHROMAPRINT);
     }
 
 }

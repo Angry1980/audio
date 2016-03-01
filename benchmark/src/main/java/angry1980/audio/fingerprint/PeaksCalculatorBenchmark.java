@@ -1,9 +1,7 @@
 package angry1980.audio.fingerprint;
 
 import angry1980.audio.ClassPathAdapter;
-import angry1980.audio.model.Fingerprint;
-import angry1980.audio.model.ImmutableTrack;
-import angry1980.audio.model.Track;
+import angry1980.audio.model.*;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -40,7 +38,7 @@ public class PeaksCalculatorBenchmark {
 
     @Benchmark
     public Optional<Fingerprint> testCalculate(){
-        return calculator.calculate(track);
+        return calculator.calculate(track, FingerprintType.PEAKS);
     }
 
 }

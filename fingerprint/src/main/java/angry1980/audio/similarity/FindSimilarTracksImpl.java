@@ -1,8 +1,10 @@
 package angry1980.audio.similarity;
 
 import angry1980.audio.dao.TrackSimilarityDAO;
+import angry1980.audio.fingerprint.GetOrCreateFingerprint;
 import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.Fingerprint;
+import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.TrackSimilarity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +13,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.LongFunction;
 import java.util.stream.Collectors;
 
 public class FindSimilarTracksImpl implements FindSimilarTracks {
@@ -19,42 +20,41 @@ public class FindSimilarTracksImpl implements FindSimilarTracks {
     private static Logger LOG = LoggerFactory.getLogger(FindSimilarTracksImpl.class);
 
     private TrackSimilarityDAO trackSimilarityDAO;
-    private LongFunction<Fingerprint> fingerprintHandler;
+    private GetOrCreateFingerprint<Fingerprint> fingerprintHandler;
     private Calculator calculator;
-    private ComparingType comparingType;
+    private FingerprintType fingerprintType;
 
     public FindSimilarTracksImpl(TrackSimilarityDAO trackSimilarityDAO,
-                                 LongFunction<Fingerprint> fingerprintHandler,
+                                 GetOrCreateFingerprint<Fingerprint> fingerprintHandler,
                                  Calculator calculator,
-                                 ComparingType comparingType) {
+                                 FingerprintType fingerprintType) {
         this.trackSimilarityDAO = Objects.requireNonNull(trackSimilarityDAO);
         this.fingerprintHandler = Objects.requireNonNull(fingerprintHandler);
         this.calculator = Objects.requireNonNull(calculator);
-        this.comparingType = Objects.requireNonNull(comparingType);
+        this.fingerprintType = Objects.requireNonNull(fingerprintType);
     }
 
     @Override
-    public boolean test(ComparingType comparingType) {
-        return this.comparingType.equals(comparingType);
+    public boolean test(FingerprintType fingerprintType) {
+        return this.fingerprintType.equals(fingerprintType);
     }
 
     @Override
     public List<TrackSimilarity> apply(long trackId, ComparingType type) {
-        return trackSimilarityDAO.findByTrackIdAndFingerprintType(trackId, comparingType)
-                    .orElseGet(() -> calculate(trackId).stream()
+        return trackSimilarityDAO.findByTrackIdAndFingerprintType(trackId, type)
+                    .orElseGet(() -> calculate(trackId, type).stream()
                                         .map(trackSimilarityDAO::create)
                                         .map(Optional::get)
                                         .collect(Collectors.toList())
                     );
     }
 
-    private List<TrackSimilarity> calculate(long trackId){
-        LOG.debug("Start calculation of {} similarities for track {}", comparingType, trackId);
-        return Optional.of(trackId)
-                .map(fingerprintHandler::apply)
-                .map(fingerprint -> calculator.calculate(fingerprint))
+    private List<TrackSimilarity> calculate(long trackId, ComparingType type){
+        LOG.debug("Start calculation of {} similarities for track {}", type, trackId);
+        return Optional.ofNullable(fingerprintHandler.apply(trackId, type))
+                .map(fingerprint -> calculator.calculate(fingerprint, type))
                 .orElseGet(() -> {
-                    LOG.debug("It's not possible to calculate {} similarities for track {}", comparingType, trackId);
+                    LOG.debug("It's not possible to calculate {} similarities for track {}", type, trackId);
                     return Collections.<TrackSimilarity>emptyList();
                 });
     }
@@ -62,7 +62,7 @@ public class FindSimilarTracksImpl implements FindSimilarTracks {
     @Override
     public String toString() {
         return "FindSimilarTracks{" +
-                "comparingType=" + comparingType +
+                "fingerprintType=" + fingerprintType +
                 '}';
     }
 }

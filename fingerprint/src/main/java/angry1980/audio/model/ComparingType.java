@@ -28,11 +28,4 @@ public enum ComparingType {
         return similarityType;
     }
 
-    @Override
-    public String toString() {
-        return "ComparingType{" +
-                "fingerprintType=" + fingerprintType +
-                ", similarityType=" + similarityType +
-                '}';
-    }
 }

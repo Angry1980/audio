@@ -4,7 +4,7 @@ import angry1980.audio.model.*;
 
 public class Entities {
 
-    private static ComparingType defaultComparingType = ComparingType.CHROMAPRINT;
+    public static ComparingType defaultComparingType = ComparingType.CHROMAPRINT;
 
     private Entities(){};
 
@@ -21,10 +21,10 @@ public class Entities {
     }
 
     public static Fingerprint hashFingerprint(long trackId, TrackHash ... hashes){
-        return hashFingerprint(trackId, defaultComparingType, hashes);
+        return hashFingerprint(trackId, defaultComparingType.getFingerprintType(), hashes);
     }
 
-    public static Fingerprint hashFingerprint(long trackId, ComparingType type, TrackHash ... hashes){
+    public static Fingerprint hashFingerprint(long trackId, FingerprintType type, TrackHash ... hashes){
         return ImmutableFingerprint.builder().trackId(trackId).type(type).addHashes(hashes).build();
     }
 }

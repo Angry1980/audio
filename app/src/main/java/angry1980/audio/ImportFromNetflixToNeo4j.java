@@ -33,8 +33,9 @@ public class ImportFromNetflixToNeo4j {
         context.registerShutdownHook();
         context.getBean(ImportFromNetflixToNeo4j.class)
                 .importData(ComparingType.CHROMAPRINT)
+                .importData(ComparingType.CHROMAPRINT_ER)
                 //.importData(ComparingType.LASTFM, ComparingType.LASTFM_ER)
-                .importData(ComparingType.PEAKS)
+                //.importData(ComparingType.PEAKS)
         ;
     }
 

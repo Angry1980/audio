@@ -6,7 +6,7 @@
     <parent>
         <artifactId>audio</artifactId>
         <groupId>com.github.angry1980</groupId>
-        <version>0.0.8-SNAPSHOT</version>
+        <version>0.0.9-SNAPSHOT</version>
     </parent>
     <artifactId>audio-netflix</artifactId>
 

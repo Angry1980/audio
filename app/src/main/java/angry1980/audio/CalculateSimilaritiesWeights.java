@@ -1,6 +1,6 @@
 package angry1980.audio;
 
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -9,9 +9,9 @@ public interface CalculateSimilaritiesWeights {
     static <T extends CalculateSimilaritiesWeights> void init(String[] args, Class<T> _class){
         SpringApplication sa = new SpringApplication(_class);
         sa.setAdditionalProfiles(
-                FingerprintType.CHROMAPRINT.name(),
-                FingerprintType.PEAKS.name(),
-                FingerprintType.LASTFM.name(),
+                ComparingType.CHROMAPRINT.name(),
+                ComparingType.PEAKS.name(),
+                ComparingType.LASTFM.name(),
                 "NEO4J"
         );
         ConfigurableApplicationContext context = sa.run(args);

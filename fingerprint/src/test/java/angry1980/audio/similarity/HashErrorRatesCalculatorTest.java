@@ -43,7 +43,7 @@ public class HashErrorRatesCalculatorTest {
         };
         firstTrackFingerprint = fingerprint(1, firstTrackFingerprintHashes);
         calculator = new HashErrorRatesCalculator(
-                FingerprintType.CHROMAPRINT,
+                ComparingType.CHROMAPRINT,
                 new HashErrorRatesCalculatorTrackSourceImpl(trackDAO),
                 fingerprintDAO,
                 25,
@@ -80,7 +80,7 @@ public class HashErrorRatesCalculatorTest {
                             .track1(1)
                             .track2(2)
                             .value(firstTrackFingerprintHashes.length)
-                            .fingerprintType(FingerprintType.CHROMAPRINT)
+                            .comparingType(ComparingType.CHROMAPRINT)
                                 .build()
                 );
     }
@@ -109,7 +109,7 @@ public class HashErrorRatesCalculatorTest {
                         .track1(1)
                         .track2(2)
                         .value(firstTrackFingerprintHashes.length)
-                        .fingerprintType(FingerprintType.CHROMAPRINT)
+                        .comparingType(ComparingType.CHROMAPRINT)
                         .build());
         //9 different bits
         anotherHashes = Arrays.stream(firstTrackFingerprintHashes)

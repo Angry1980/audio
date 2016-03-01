@@ -1,6 +1,6 @@
 package angry1980.audio.neo4j;
 
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 import angry1980.neo4j.Query;
 import com.google.common.collect.ImmutableMap;
 import org.neo4j.graphdb.Result;
@@ -18,14 +18,14 @@ public class UniqueCountQuery implements Query<UniqueCountQuery> {
         ;
 
     private final int minWeight;
-    private final FingerprintType type;
+    private final ComparingType type;
     private int result;
 
-    public UniqueCountQuery(FingerprintType type) {
+    public UniqueCountQuery(ComparingType type) {
         this(type, 0);
     }
 
-    public UniqueCountQuery(FingerprintType type, int minWeight) {
+    public UniqueCountQuery(ComparingType type, int minWeight) {
         this.minWeight = minWeight;
         this.type = Objects.requireNonNull(type);
     }

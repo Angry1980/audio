@@ -44,7 +44,7 @@ public class HashInvertedIndexBenchmark {
                 ).collect(Collectors.toList());
         fingerprint = ImmutableFingerprint.builder()
                 .trackId(track)
-                .type(FingerprintType.CHROMAPRINT)
+                .type(ComparingType.CHROMAPRINT)
                 .hashes(hashes)
                 .build();
     }

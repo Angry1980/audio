@@ -1,8 +1,8 @@
 package angry1980.audio.similarity;
 
 import angry1980.audio.dao.TrackSimilarityDAO;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.Fingerprint;
-import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.TrackSimilarity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,26 +21,26 @@ public class FindSimilarTracksImpl implements FindSimilarTracks {
     private TrackSimilarityDAO trackSimilarityDAO;
     private LongFunction<Fingerprint> fingerprintHandler;
     private Calculator calculator;
-    private FingerprintType fingerprintType;
+    private ComparingType comparingType;
 
     public FindSimilarTracksImpl(TrackSimilarityDAO trackSimilarityDAO,
                                  LongFunction<Fingerprint> fingerprintHandler,
                                  Calculator calculator,
-                                 FingerprintType fingerprintType) {
+                                 ComparingType comparingType) {
         this.trackSimilarityDAO = Objects.requireNonNull(trackSimilarityDAO);
         this.fingerprintHandler = Objects.requireNonNull(fingerprintHandler);
         this.calculator = Objects.requireNonNull(calculator);
-        this.fingerprintType = Objects.requireNonNull(fingerprintType);
+        this.comparingType = Objects.requireNonNull(comparingType);
     }
 
     @Override
-    public boolean test(FingerprintType fingerprintType) {
-        return this.fingerprintType.equals(fingerprintType);
+    public boolean test(ComparingType comparingType) {
+        return this.comparingType.equals(comparingType);
     }
 
     @Override
-    public List<TrackSimilarity> apply(long trackId, FingerprintType type) {
-        return trackSimilarityDAO.findByTrackIdAndFingerprintType(trackId, fingerprintType)
+    public List<TrackSimilarity> apply(long trackId, ComparingType type) {
+        return trackSimilarityDAO.findByTrackIdAndFingerprintType(trackId, comparingType)
                     .orElseGet(() -> calculate(trackId).stream()
                                         .map(trackSimilarityDAO::create)
                                         .map(Optional::get)
@@ -49,12 +49,12 @@ public class FindSimilarTracksImpl implements FindSimilarTracks {
     }
 
     private List<TrackSimilarity> calculate(long trackId){
-        LOG.debug("Start calculation of {} similarities for track {}", fingerprintType, trackId);
+        LOG.debug("Start calculation of {} similarities for track {}", comparingType, trackId);
         return Optional.of(trackId)
                 .map(fingerprintHandler::apply)
                 .map(fingerprint -> calculator.calculate(fingerprint))
                 .orElseGet(() -> {
-                    LOG.debug("It's not possible to calculate {} similarities for track {}", fingerprintType, trackId);
+                    LOG.debug("It's not possible to calculate {} similarities for track {}", comparingType, trackId);
                     return Collections.<TrackSimilarity>emptyList();
                 });
     }
@@ -62,7 +62,7 @@ public class FindSimilarTracksImpl implements FindSimilarTracks {
     @Override
     public String toString() {
         return "FindSimilarTracks{" +
-                "fingerprintType=" + fingerprintType +
+                "comparingType=" + comparingType +
                 '}';
     }
 }

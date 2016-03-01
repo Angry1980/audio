@@ -1,6 +1,6 @@
 package angry1980.audio;
 
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.TrackSimilarity;
 import angry1980.audio.service.TrackSimilarityService;
 import org.slf4j.Logger;
@@ -21,11 +21,11 @@ public class HistHandler {
         this.trackSimilarityService = trackSimilarityService;
     }
 
-    public void handle(BiFunction<Boolean, FingerprintType, Observable<TrackSimilarity>> function){
-        for(FingerprintType type : Arrays.asList(
-                FingerprintType.CHROMAPRINT//,
-                //FingerprintType.LASTFM//,
-                //FingerprintType.PEAKS
+    public void handle(BiFunction<Boolean, ComparingType, Observable<TrackSimilarity>> function){
+        for(ComparingType type : Arrays.asList(
+                ComparingType.CHROMAPRINT//,
+                //ComparingType.LASTFM//,
+                //ComparingType.PEAKS
         )){
             Optional<Hist.Interval> bestFP = calculate(function, type, 70, false);
             Optional<Hist.Interval> bestTP = calculate(function, type, 70, true);
@@ -43,8 +43,8 @@ public class HistHandler {
         }
     }
 
-    private Optional<Hist.Interval> calculate(BiFunction<Boolean, FingerprintType, Observable<TrackSimilarity>> function,
-                                              FingerprintType type, int percent, boolean onlyTruthPositive){
+    private Optional<Hist.Interval> calculate(BiFunction<Boolean, ComparingType, Observable<TrackSimilarity>> function,
+                                              ComparingType type, int percent, boolean onlyTruthPositive){
         return Hist.calculate(() -> function.apply(onlyTruthPositive, type), type).getInterval(percent);
     }
 

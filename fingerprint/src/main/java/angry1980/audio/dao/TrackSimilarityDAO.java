@@ -1,6 +1,6 @@
 package angry1980.audio.dao;
 
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.TrackSimilarity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +24,10 @@ public interface TrackSimilarityDAO extends DAO<TrackSimilarity> {
 
     List<TrackSimilarity> tryToFindByTrackId(long trackId);
 
-    default Optional<List<TrackSimilarity>> findByTrackIdAndFingerprintType(long trackId, FingerprintType type){
+    default Optional<List<TrackSimilarity>> findByTrackIdAndFingerprintType(long trackId, ComparingType type){
         Optional<List<TrackSimilarity>> result = Optional.of(
                 tryToFindByTrackId(trackId).stream()
-                        .filter(ts -> ts.getFingerprintType().equals(type))
+                        .filter(ts -> ts.getComparingType().equals(type))
                         .collect(Collectors.toList())
         ).filter(list -> !list.isEmpty());
         if(result.isPresent()){
@@ -38,10 +38,10 @@ public interface TrackSimilarityDAO extends DAO<TrackSimilarity> {
         return result;
     }
 
-    default Optional<List<TrackSimilarity>> findByFingerprintType(FingerprintType type){
+    default Optional<List<TrackSimilarity>> findByFingerprintType(ComparingType type){
         Optional<List<TrackSimilarity>> result = Optional.of(
                 tryToGetAll().stream()
-                        .filter(ts -> ts.getFingerprintType().equals(type))
+                        .filter(ts -> ts.getComparingType().equals(type))
                         .collect(Collectors.toList())
         ).filter(list -> !list.isEmpty());
         if(result.isPresent()){
@@ -52,9 +52,9 @@ public interface TrackSimilarityDAO extends DAO<TrackSimilarity> {
         return result;
     }
 
-    Optional<List<TrackSimilarity>> findTruthPositiveByFingerprintType(FingerprintType type);
+    Optional<List<TrackSimilarity>> findTruthPositiveByFingerprintType(ComparingType type);
 
-    Optional<List<TrackSimilarity>> findFalsePositiveByFingerprintType(FingerprintType type);
+    Optional<List<TrackSimilarity>> findFalsePositiveByFingerprintType(ComparingType type);
 
     @Override
     default TrackSimilarity tryToGet(long id) {

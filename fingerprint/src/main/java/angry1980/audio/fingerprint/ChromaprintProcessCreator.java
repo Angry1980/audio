@@ -1,6 +1,6 @@
 package angry1980.audio.fingerprint;
 
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -19,8 +19,8 @@ public class ChromaprintProcessCreator implements ProcessCalculator.ProcessCreat
     }
 
     @Override
-    public FingerprintType getType() {
-        return FingerprintType.CHROMAPRINT;
+    public ComparingType getType() {
+        return ComparingType.CHROMAPRINT;
     }
 
 }

@@ -44,7 +44,7 @@ public class PeaksCalculator implements Calculator<Fingerprint>{
                     .map(hashes -> ImmutableFingerprint.builder()
                                     .trackId(track.getId())
                                     .hashes(hashes)
-                                    .type(FingerprintType.PEAKS)
+                                    .type(ComparingType.PEAKS)
                                         .build()
                     )
         ;

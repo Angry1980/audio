@@ -1,7 +1,6 @@
 package angry1980.audio.dao;
 
 import angry1980.audio.model.*;
-import angry1980.audio.neo4j.FingerprintTypeComparingAllQuery;
 import angry1980.audio.neo4j.FingerprintTypeSimilaritiesQuery;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -56,7 +55,7 @@ public class TrackSimilarityDAONeo4jImpl extends Neo4jRelation implements TrackS
     }
 
     @Override
-    public Optional<List<TrackSimilarity>> findTruthPositiveByFingerprintType(FingerprintType type) {
+    public Optional<List<TrackSimilarity>> findTruthPositiveByFingerprintType(ComparingType type) {
         return getTemplate().execute(graphDB -> {
             return Optional.of(
                     getTemplate().handle(new FingerprintTypeSimilaritiesQuery(type, true)).getResult()
@@ -65,7 +64,7 @@ public class TrackSimilarityDAONeo4jImpl extends Neo4jRelation implements TrackS
     }
 
     @Override
-    public Optional<List<TrackSimilarity>> findFalsePositiveByFingerprintType(FingerprintType type) {
+    public Optional<List<TrackSimilarity>> findFalsePositiveByFingerprintType(ComparingType type) {
         return getTemplate().execute(graphDB -> {
             return Optional.of(
                     getTemplate().handle(new FingerprintTypeSimilaritiesQuery(type, false)).getResult()
@@ -77,12 +76,12 @@ public class TrackSimilarityDAONeo4jImpl extends Neo4jRelation implements TrackS
     private void getOrCreateRelation(Node from, Node to, TrackSimilarity s){
         Relationship r = getNodeConnectionsAsStream(from, Neo4jRelationType.SIMILAR)
                 .filter(rl -> rl.getEndNode().getId() == to.getId())
-                .filter(rl -> s.getFingerprintType().name().equals(rl.getProperty("type")))
+                .filter(rl -> s.getComparingType().name().equals(rl.getProperty("type")))
                 .findAny()
                 .orElseGet(() -> from.createRelationshipTo(to, Neo4jRelationType.SIMILAR));
-        r.setProperty(ID_PROPERTY_NAME, s.getTrack1() + "-" + s.getTrack2() + "-" + s.getFingerprintType());
+        r.setProperty(ID_PROPERTY_NAME, s.getTrack1() + "-" + s.getTrack2() + "-" + s.getComparingType());
         r.setProperty("weight", s.getValue());
-        r.setProperty("type", s.getFingerprintType().name());
+        r.setProperty("type", s.getComparingType().name());
     }
 
     private TrackSimilarity fromRelationToTrackSimilarity(Relationship r){
@@ -90,7 +89,7 @@ public class TrackSimilarityDAONeo4jImpl extends Neo4jRelation implements TrackS
                 .track1(getId(r.getStartNode()))
                 .track2(getId(r.getEndNode()))
                 .value((Integer) r.getProperty("weight"))
-                .fingerprintType(FingerprintType.valueOf((String) r.getProperty("type")))
+                .comparingType(ComparingType.valueOf((String) r.getProperty("type")))
                     .build();
     }
 }

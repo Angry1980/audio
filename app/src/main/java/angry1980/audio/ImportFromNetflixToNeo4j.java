@@ -1,6 +1,6 @@
 package angry1980.audio;
 
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,26 +23,26 @@ public class ImportFromNetflixToNeo4j {
     public static void main(String[] args){
         SpringApplication sa = new SpringApplication(ImportFromNetflixToNeo4j.class);
         sa.setAdditionalProfiles(
-                FingerprintType.CHROMAPRINT.name(),
-                FingerprintType.PEAKS.name(),
-                FingerprintType.LASTFM.name(),
+                ComparingType.CHROMAPRINT.name(),
+                ComparingType.PEAKS.name(),
+                ComparingType.LASTFM.name(),
                 "NEO4J",
                 "NETFLIX"
         );
         ConfigurableApplicationContext context = sa.run(args);
         context.registerShutdownHook();
         context.getBean(ImportFromNetflixToNeo4j.class)
-                .importData(FingerprintType.CHROMAPRINT)
-                //.importData(FingerprintType.LASTFM, FingerprintType.LASTFM_ER)
-                //.importData(FingerprintType.PEAKS)
+                .importData(ComparingType.CHROMAPRINT)
+                //.importData(ComparingType.LASTFM, ComparingType.LASTFM_ER)
+                .importData(ComparingType.PEAKS)
         ;
     }
 
-    public ImportFromNetflixToNeo4j importData(FingerprintType type){
+    public ImportFromNetflixToNeo4j importData(ComparingType type){
         return importData(type, type);
     }
 
-    public ImportFromNetflixToNeo4j importData(FingerprintType type, FingerprintType goal){
+    public ImportFromNetflixToNeo4j importData(ComparingType type, ComparingType goal){
         dataImporter.importTo(sourceEnvironment, type, goal);
         LOG.info("Similarities for {} was imported", type);
         return this;

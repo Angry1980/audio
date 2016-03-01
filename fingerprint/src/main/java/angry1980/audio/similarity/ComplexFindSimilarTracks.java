@@ -1,6 +1,6 @@
 package angry1980.audio.similarity;
 
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.TrackSimilarity;
 
 import java.util.List;
@@ -17,7 +17,7 @@ public class ComplexFindSimilarTracks implements FindSimilarTracks{
     }
 
     @Override
-    public List<TrackSimilarity> apply(long track, FingerprintType type) {
+    public List<TrackSimilarity> apply(long track, ComparingType type) {
         return findSimilarTracks.stream()
                 .filter(handler -> handler.test(type))
                 .findAny()

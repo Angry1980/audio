@@ -1,6 +1,6 @@
 package angry1980.audio.dao;
 
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.NetflixNodeType;
 import angry1980.audio.model.NetflixRelationType;
 import com.netflix.nfgraph.build.NFBuildGraph;
@@ -16,7 +16,7 @@ public class NetflixData {
     private OrdinalMap<Long> clusters;
     private OrdinalMap<String> paths;
     private OrdinalMap<String> similarities;
-    private OrdinalMap<FingerprintType> types;
+    private OrdinalMap<ComparingType> types;
 
     public NetflixData() {
         this.graph = new NFBuildGraph(getSchema());
@@ -62,7 +62,7 @@ public class NetflixData {
         return similarities;
     }
 
-    public OrdinalMap<FingerprintType> getTypes() {
+    public OrdinalMap<ComparingType> getTypes() {
         return types;
     }
 

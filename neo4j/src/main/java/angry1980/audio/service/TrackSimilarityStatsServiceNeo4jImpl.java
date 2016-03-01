@@ -24,10 +24,10 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
     }
 
     @Override
-    public Observable<Stats> compareFingerprintTypes(Map<FingerprintType, Integer> minWeights) {
+    public Observable<Stats> compareFingerprintTypes(Map<ComparingType, Integer> minWeights) {
         int trackCount = getNodesCount(Neo4jNodeType.TRACK);
         return Observable.create(subscriber -> {
-            Collection<FingerprintType> types = minWeights.keySet();
+            Collection<ComparingType> types = minWeights.keySet();
             types.stream().forEach(type ->
                     subscriber.onNext(stats(getResultDependsOnFingerprintType(minWeights, type), trackCount))
             );
@@ -41,7 +41,7 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
 
     private static class TypePair{
 
-        static Collection<TypePair> pairs(Collection<FingerprintType> types){
+        static Collection<TypePair> pairs(Collection<ComparingType> types){
             Collection<TypePair> pairs = new HashSet<>();
             types.stream().forEach(type1 ->
                     types.stream().filter(type2 -> !type1.equals(type2)).forEach(type2 ->
@@ -51,10 +51,10 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
             return pairs;
         }
 
-        final FingerprintType type1;
-        final FingerprintType type2;
+        final ComparingType type1;
+        final ComparingType type2;
 
-        private TypePair(FingerprintType type1, FingerprintType type2) {
+        private TypePair(ComparingType type1, ComparingType type2) {
             this.type1 = type1;
             this.type2 = type2;
         }
@@ -82,24 +82,24 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
                 .build();
     }
 
-    private Stats getCommonCount(Map<FingerprintType, Integer> minWeights) {
+    private Stats getCommonCount(Map<ComparingType, Integer> minWeights) {
         return template.execute(graphDB -> {
             return template.handle(new FingerprintTypeComparingAllQuery(minWeights)).getResult();
         });
     }
 
-    private Stats compareFingerprintTypes(Map<FingerprintType, Integer> minWeights, FingerprintType type1, FingerprintType type2){
+    private Stats compareFingerprintTypes(Map<ComparingType, Integer> minWeights, ComparingType type1, ComparingType type2){
         return template.execute(graphDB -> {
             return template.handle(new FingerprintTypeComparingQuery(minWeights, type1, type2)).getResult();
         });
     }
 
-    private Stats getResultDependsOnFingerprintType(Map<FingerprintType, Integer> minWeights, FingerprintType type){
+    private Stats getResultDependsOnFingerprintType(Map<ComparingType, Integer> minWeights, ComparingType type){
         return getResultDependsOnFingerprintType(type, minWeights.get(type));
     }
 
     @Override
-    public Stats getResultDependsOnFingerprintType(FingerprintType type, int minWeight) {
+    public Stats getResultDependsOnFingerprintType(ComparingType type, int minWeight) {
         return template.execute(graphDB -> {
             FingerprintTypeQuery positive = template.handle(new FingerprintTypePositiveQuery(type, minWeight));
             return ImmutableStats.builder()
@@ -114,7 +114,7 @@ public class TrackSimilarityStatsServiceNeo4jImpl implements TrackSimilarityStat
     }
 
     @Override
-    public Map<Long, List<Long>> generateClusters(Map<FingerprintType, Integer> minWeights) {
+    public Map<Long, List<Long>> generateClusters(Map<ComparingType, Integer> minWeights) {
         Louvain louvain = new Louvain(graphDB, new LouvainTaskAdapter(minWeights));
         louvain.execute();
         LouvainResult result = louvain.getResult();

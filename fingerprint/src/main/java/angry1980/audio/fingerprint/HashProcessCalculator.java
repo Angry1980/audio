@@ -15,9 +15,9 @@ public class HashProcessCalculator extends ProcessCalculator<Fingerprint>{
 
     private static Logger LOG = LoggerFactory.getLogger(HashProcessCalculator.class);
 
-    private final FingerprintType type;
+    private final ComparingType type;
 
-    public HashProcessCalculator(ProcessCreator creator, Adapter adapter, FingerprintType type) {
+    public HashProcessCalculator(ProcessCreator creator, Adapter adapter, ComparingType type) {
         super(creator, adapter);
         this.type = Objects.requireNonNull(type);
     }

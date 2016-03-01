@@ -1,8 +1,8 @@
 package angry1980.audio.fingerprint;
 
 import angry1980.audio.Adapter;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.Fingerprint;
-import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.Track;
 import angry1980.utils.ProcessWaiter;
 import org.slf4j.Logger;
@@ -20,7 +20,7 @@ public abstract class ProcessCalculator<F extends Fingerprint> implements Calcul
 
         ProcessBuilder create(File file);
 
-        FingerprintType getType();
+        ComparingType getType();
     }
 
     private Adapter adapter;

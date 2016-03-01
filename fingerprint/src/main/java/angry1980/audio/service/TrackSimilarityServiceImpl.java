@@ -2,13 +2,12 @@ package angry1980.audio.service;
 
 import angry1980.audio.dao.TrackDAO;
 import angry1980.audio.dao.TrackSimilarityDAO;
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.Track;
 import angry1980.audio.model.TrackSimilarity;
 import angry1980.audio.similarity.FindSimilarTracks;
 import angry1980.audio.similarity.TrackSimilarities;
 import angry1980.audio.similarity.TracksToCalculate;
-import angry1980.utils.ImmutableCollectors;
 import it.unimi.dsi.fastutil.longs.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,11 +15,9 @@ import org.springframework.util.CollectionUtils;
 import rx.Observable;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
-import java.util.stream.Stream;
 
 public class TrackSimilarityServiceImpl implements TrackSimilarityService {
 
@@ -47,8 +44,8 @@ public class TrackSimilarityServiceImpl implements TrackSimilarityService {
     }
 
     @Override
-    public Observable<TrackSimilarities> findOrCalculateSimilarities(Track track, FingerprintType type, FingerprintType ... types) {
-        Observable<FingerprintType> r = Observable.just(type);
+    public Observable<TrackSimilarities> findOrCalculateSimilarities(Track track, ComparingType type, ComparingType... types) {
+        Observable<ComparingType> r = Observable.just(type);
         if(types.length > 0){
             r = r.mergeWith(Observable.from(types));
         }
@@ -72,10 +69,10 @@ public class TrackSimilarityServiceImpl implements TrackSimilarityService {
     }
 
     @Override
-    public Observable<TrackSimilarity> findSimilarities(FingerprintType fingerprintType, boolean truthPositive) {
+    public Observable<TrackSimilarity> findSimilarities(ComparingType comparingType, boolean truthPositive) {
         Supplier<Optional<List<TrackSimilarity>>> s = () -> truthPositive
-                ? trackSimilarityDAO.findTruthPositiveByFingerprintType(fingerprintType)
-                : trackSimilarityDAO.findFalsePositiveByFingerprintType(fingerprintType)
+                ? trackSimilarityDAO.findTruthPositiveByFingerprintType(comparingType)
+                : trackSimilarityDAO.findFalsePositiveByFingerprintType(comparingType)
         ;
         return Observable.create(subscriber -> {
             s.get().orElseGet(Collections::emptyList)
@@ -88,19 +85,19 @@ public class TrackSimilarityServiceImpl implements TrackSimilarityService {
     }
 
     @Override
-    public Observable<TrackSimilarity> findCommonSimilarities(FingerprintType fingerprintType, boolean onlyTruthPositive) {
+    public Observable<TrackSimilarity> findCommonSimilarities(ComparingType comparingType, boolean onlyTruthPositive) {
         Long2ObjectMap<TrackSimilarity> empty = new Long2ObjectArrayMap<>();
-        Function<FingerprintType, Optional<List<TrackSimilarity>>> f = t -> onlyTruthPositive
+        Function<ComparingType, Optional<List<TrackSimilarity>>> f = t -> onlyTruthPositive
                                                 ? trackSimilarityDAO.findTruthPositiveByFingerprintType(t)
                                                 : trackSimilarityDAO.findByFingerprintType(t)
                                                 //: trackSimilarityDAO.findFalsePositiveByFingerprintType(t)
         ;
-        Long2ObjectMap<Long2ObjectMap<TrackSimilarity>> sorted = f.apply(fingerprintType)
+        Long2ObjectMap<Long2ObjectMap<TrackSimilarity>> sorted = f.apply(comparingType)
                 .map(this::sortByTracks)
                 .orElseGet(Long2ObjectArrayMap::new);
         return Observable.create(subscriber -> {
-            Arrays.stream(FingerprintType.values())
-                    .filter(type -> !type.equals(fingerprintType))
+            Arrays.stream(ComparingType.values())
+                    .filter(type -> !type.equals(comparingType))
                     .flatMap(type -> f.apply(type).orElseGet(Collections::emptyList).stream())
                     .map(ts -> sorted.getOrDefault(ts.getTrack1(), empty).get(ts.getTrack2()))
                     .filter(Objects::nonNull)
@@ -111,19 +108,19 @@ public class TrackSimilarityServiceImpl implements TrackSimilarityService {
     }
 
     @Override
-    public Observable<TrackSimilarity> findUniqueSimilarities(FingerprintType fingerprintType, boolean onlyTruthPositive) {
+    public Observable<TrackSimilarity> findUniqueSimilarities(ComparingType comparingType, boolean onlyTruthPositive) {
         Long2ObjectMap<TrackSimilarity> empty = new Long2ObjectArrayMap<>();
-        Function<FingerprintType, Optional<List<TrackSimilarity>>> f = t -> onlyTruthPositive
+        Function<ComparingType, Optional<List<TrackSimilarity>>> f = t -> onlyTruthPositive
                 ? trackSimilarityDAO.findTruthPositiveByFingerprintType(t)
                 //: trackSimilarityDAO.findByFingerprintType(t)
                 : trackSimilarityDAO.findFalsePositiveByFingerprintType(t)
                 ;
-        Long2ObjectMap<Long2ObjectMap<TrackSimilarity>>[] sorted = Arrays.stream(FingerprintType.values())
-                .filter(type -> !type.equals(fingerprintType))
+        Long2ObjectMap<Long2ObjectMap<TrackSimilarity>>[] sorted = Arrays.stream(ComparingType.values())
+                .filter(type -> !type.equals(comparingType))
                 .map(type -> f.apply(type).map(this::sortByTracks).orElseGet(Long2ObjectArrayMap::new))
                 .toArray(Long2ObjectMap[]::new);
         return Observable.create(subscriber -> {
-            f.apply(fingerprintType).orElseGet(Collections::emptyList).stream()
+            f.apply(comparingType).orElseGet(Collections::emptyList).stream()
                     .filter(ts -> {
                         for(Long2ObjectMap<Long2ObjectMap<TrackSimilarity>> s : sorted){
                             if(s.getOrDefault(ts.getTrack1(), empty).containsKey(ts.getTrack2())){

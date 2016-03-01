@@ -1,6 +1,6 @@
 package angry1980.audio.service;
 
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.Track;
 import angry1980.audio.model.TrackSimilarity;
 import angry1980.audio.similarity.TrackSimilarities;
@@ -10,13 +10,13 @@ public interface TrackSimilarityService {
 
     Observable<Track> getTracksToCalculateSimilarity();
 
-    Observable<TrackSimilarities> findOrCalculateSimilarities(Track track, FingerprintType type, FingerprintType ... types);
+    Observable<TrackSimilarities> findOrCalculateSimilarities(Track track, ComparingType type, ComparingType... types);
 
-    Observable<TrackSimilarity> findSimilarities(FingerprintType fingerprintType, boolean truthPositive);
+    Observable<TrackSimilarity> findSimilarities(ComparingType comparingType, boolean truthPositive);
 
-    Observable<TrackSimilarity> findCommonSimilarities(FingerprintType fingerprintType, boolean onlyTruthPositive);
+    Observable<TrackSimilarity> findCommonSimilarities(ComparingType comparingType, boolean onlyTruthPositive);
 
-    Observable<TrackSimilarity> findUniqueSimilarities(FingerprintType fingerprintType, boolean onlyTruthPositive);
+    Observable<TrackSimilarity> findUniqueSimilarities(ComparingType comparingType, boolean onlyTruthPositive);
 
     Observable<TrackSimilarities> getReport();
 

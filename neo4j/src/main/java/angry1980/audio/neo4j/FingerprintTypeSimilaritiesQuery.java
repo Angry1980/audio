@@ -1,6 +1,6 @@
 package angry1980.audio.neo4j;
 
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.ImmutableTrackSimilarity;
 import angry1980.audio.model.TrackSimilarity;
 import angry1980.neo4j.Query;
@@ -19,11 +19,11 @@ public class FingerprintTypeSimilaritiesQuery implements Query<FingerprintTypeSi
             + " return track1.id as t1, track2.id as t2, similar.weight as value, cluster1=cluster2 as tp"
             ;
 
-    private final FingerprintType type;
+    private final ComparingType type;
     private final boolean truthPositive;
     private List<TrackSimilarity> result = Collections.emptyList();
 
-    public FingerprintTypeSimilaritiesQuery(FingerprintType type, boolean truthPositive) {
+    public FingerprintTypeSimilaritiesQuery(ComparingType type, boolean truthPositive) {
         this.type = type;
         this.truthPositive = truthPositive;
     }
@@ -50,7 +50,7 @@ public class FingerprintTypeSimilaritiesQuery implements Query<FingerprintTypeSi
                                 .track1(Query.getLongValue(data, "t1").orElse(0L))
                                 .track2(Query.getLongValue(data, "t2").orElse(0L))
                                 .value(Query.getIntValue(data, "value").orElse(0))
-                                .fingerprintType(type)
+                                .comparingType(type)
                                 .build()
                 ).collect(Collectors.toList());
         return this;

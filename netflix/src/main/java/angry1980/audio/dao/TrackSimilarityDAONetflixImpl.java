@@ -52,7 +52,7 @@ public class TrackSimilarityDAONetflixImpl extends Netflix<String> implements Tr
     public TrackSimilarity tryToCreate(TrackSimilarity entity) {
         LOG.debug("Try to save {}", entity);
         String value = value(entity);
-        addConnection(value, NetflixRelationType.TYPE_OF, data.getTypes().add(entity.getFingerprintType()));
+        addConnection(value, NetflixRelationType.TYPE_OF, data.getTypes().add(entity.getComparingType()));
         int ordinal = data.getSimilarities().get(value);
         data.getGraph().addConnection(
                 NetflixNodeType.TRACK.name(),
@@ -72,12 +72,12 @@ public class TrackSimilarityDAONetflixImpl extends Netflix<String> implements Tr
     }
 
     @Override
-    public Optional<List<TrackSimilarity>> findTruthPositiveByFingerprintType(FingerprintType type) {
+    public Optional<List<TrackSimilarity>> findTruthPositiveByFingerprintType(ComparingType type) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Optional<List<TrackSimilarity>> findFalsePositiveByFingerprintType(FingerprintType type) {
+    public Optional<List<TrackSimilarity>> findFalsePositiveByFingerprintType(ComparingType type) {
         throw new UnsupportedOperationException();
     }
 
@@ -95,7 +95,7 @@ public class TrackSimilarityDAONetflixImpl extends Netflix<String> implements Tr
         return ts.getTrack1() + "-" + ts.getTrack2() + "-" + ts.getValue();
     }
 
-    private Optional<TrackSimilarity> similarity(String value, FingerprintType type){
+    private Optional<TrackSimilarity> similarity(String value, ComparingType type){
         String[] r = value.split("-");
         if(r.length != 3){
             return Optional.empty();
@@ -108,12 +108,12 @@ public class TrackSimilarityDAONetflixImpl extends Netflix<String> implements Tr
 
     }
 
-    private TrackSimilarity similarity(String[] r, FingerprintType type){
+    private TrackSimilarity similarity(String[] r, ComparingType type){
         return ImmutableTrackSimilarity.builder()
                 .track1(Long.decode(r[0]))
                 .track2(Long.decode(r[1]))
                 .value(Integer.decode(r[2]))
-                .fingerprintType(type)
+                .comparingType(type)
                     .build();
     }
 }

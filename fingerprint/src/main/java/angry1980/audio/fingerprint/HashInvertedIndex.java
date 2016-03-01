@@ -60,7 +60,7 @@ public class HashInvertedIndex implements InvertedIndex<Fingerprint>, angry1980.
                 .map(n -> ImmutableTrackSimilarity.builder()
                         .track1(fingerprint.getTrackId())
                         .track2(n.getNumber())
-                        .fingerprintType(fingerprint.getType())
+                        .comparingType(fingerprint.getType())
                         .value(n.getValue())
                         .build()
 

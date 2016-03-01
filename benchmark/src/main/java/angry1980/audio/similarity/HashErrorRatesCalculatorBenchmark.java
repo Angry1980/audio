@@ -53,7 +53,7 @@ public class HashErrorRatesCalculatorBenchmark {
         Arrays.stream(tracks)
                 .mapToObj(track -> ImmutableFingerprint.builder()
                                 .trackId(track)
-                                .type(FingerprintType.CHROMAPRINT)
+                                .type(ComparingType.CHROMAPRINT)
                                 .hashes(IntStream.range(0, 2000)
                                             .mapToObj(time -> ImmutableTrackHash.builder()
                                                                 .hash(RND.nextInt())
@@ -65,7 +65,7 @@ public class HashErrorRatesCalculatorBenchmark {
                 .forEach(fingerprintDAO::create);
         fingerprint = fingerprintDAO.findByTrackId(track).get();
         calculator = new HashErrorRatesCalculator(
-                            FingerprintType.CHROMAPRINT,
+                            ComparingType.CHROMAPRINT,
                             new TrackSource(),
                             fingerprintDAO,
                             batchSize,

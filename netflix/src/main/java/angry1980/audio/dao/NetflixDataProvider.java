@@ -1,6 +1,6 @@
 package angry1980.audio.dao;
 
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.NetflixNodeType;
 import angry1980.audio.model.NetflixRelationType;
 import com.netflix.nfgraph.NFGraph;
@@ -27,8 +27,8 @@ public class NetflixDataProvider implements InitializingBean {
                                                 in -> in.readLong(),
                                                 (out, node) -> out.writeLong(node)
     );
-    private Vocabulary<FingerprintType> typeVocabulary = new Vocabulary<>(
-                                                in -> FingerprintType.valueOf(in.readUTF()),
+    private Vocabulary<ComparingType> typeVocabulary = new Vocabulary<>(
+                                                in -> ComparingType.valueOf(in.readUTF()),
                                                 (out, node) -> out.writeUTF(node.name())
     );
 

@@ -2,7 +2,7 @@ package angry1980.audio;
 
 import angry1980.audio.dao.TrackDAO;
 import angry1980.audio.dao.TrackSimilarityDAO;
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.ImmutableTrackSimilarity;
 import angry1980.audio.model.Track;
 import angry1980.audio.model.TrackSimilarity;
@@ -26,7 +26,7 @@ public class DataImporter {
         this.from = from;
     }
 
-    public void importTo(TrackDataEnvironment to, FingerprintType type, FingerprintType goal){
+    public void importTo(TrackDataEnvironment to, ComparingType type, ComparingType goal){
         if(!to.isEmpty(goal)){
             LOG.info("Similarities for {} has been already imported", goal);
             return;
@@ -37,7 +37,7 @@ public class DataImporter {
                 .ifPresent(importer);
     }
 
-    private void importTracks(Collection<Track> tracks, TrackDataEnvironment to, FingerprintType type, FingerprintType goal){
+    private void importTracks(Collection<Track> tracks, TrackDataEnvironment to, ComparingType type, ComparingType goal){
         Consumer<Track> importer = track -> importTrack(track, to, type, goal);
         int size = tracks.size();
         AtomicInteger counter = new AtomicInteger();
@@ -46,18 +46,18 @@ public class DataImporter {
                 .forEach(importer);
     }
 
-    private void importTrack(Track track, TrackDataEnvironment to, FingerprintType type, FingerprintType goal){
+    private void importTrack(Track track, TrackDataEnvironment to, ComparingType type, ComparingType goal){
         from.getTrackSimilarityDAO().findByTrackIdAndFingerprintType(track.getId(), type)
                 .map(list -> transform(list, type, goal))
                 .flatMap(to.getTrackSimilarityDAO()::createAll);
     }
 
-    private List<TrackSimilarity> transform(List<TrackSimilarity> input, FingerprintType type, FingerprintType goal){
+    private List<TrackSimilarity> transform(List<TrackSimilarity> input, ComparingType type, ComparingType goal){
         if(type.equals(goal)){
             return input;
         }
         return input.stream()
-                .map(ts -> ImmutableTrackSimilarity.builder().from(ts).fingerprintType(goal).build())
+                .map(ts -> ImmutableTrackSimilarity.builder().from(ts).comparingType(goal).build())
                 .collect(Collectors.toList());
     }
 
@@ -71,7 +71,7 @@ public class DataImporter {
             this.trackSimilarityDAO = Objects.requireNonNull(trackSimilarityDAO);
         }
 
-        public boolean isEmpty(FingerprintType type){
+        public boolean isEmpty(ComparingType type){
             return trackSimilarityDAO.findByFingerprintType(type).map(c -> c.isEmpty()).orElse(true);
         }
 

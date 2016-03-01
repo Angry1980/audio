@@ -16,7 +16,7 @@ public abstract class TrackSimilarity {
         return 0;
     }
 
-    public abstract FingerprintType getFingerprintType();
+    public abstract ComparingType getComparingType();
 
     public TrackSimilarity add(int value){
         return ImmutableTrackSimilarity.builder().from(this).value(getValue() + value).build();
@@ -40,12 +40,12 @@ public abstract class TrackSimilarity {
         TrackSimilarity that = (TrackSimilarity) o;
         return getTrack1() == that.getTrack1() &&
                 getTrack2() == that.getTrack2() &&
-                getFingerprintType().equals(that.getFingerprintType());
+                getComparingType().equals(that.getComparingType());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getTrack1(), getTrack2(), getFingerprintType());
+        return Objects.hash(getTrack1(), getTrack2(), getComparingType());
     }
 
 }

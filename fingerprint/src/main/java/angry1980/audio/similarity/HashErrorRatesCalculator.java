@@ -15,17 +15,17 @@ public class HashErrorRatesCalculator implements Calculator<Fingerprint> {
 
     private static final double positiveLimit = 0.8;
 
-    private FingerprintType type;
+    private ComparingType type;
     private HashErrorRatesCalculatorTrackSource trackSource;
     private FingerprintDAO<Fingerprint> fingerprintDAO;
     private int batchSize;
     private int errorLimit;
 
-    public HashErrorRatesCalculator(FingerprintType type, HashErrorRatesCalculatorTrackSource trackSource, FingerprintDAO<Fingerprint> fingerprintDAO){
+    public HashErrorRatesCalculator(ComparingType type, HashErrorRatesCalculatorTrackSource trackSource, FingerprintDAO<Fingerprint> fingerprintDAO){
         this(type, trackSource, fingerprintDAO, 25, 8);
     }
 
-    public HashErrorRatesCalculator(FingerprintType type,
+    public HashErrorRatesCalculator(ComparingType type,
                                     HashErrorRatesCalculatorTrackSource trackSource,
                                     FingerprintDAO<Fingerprint> fingerprintDAO,
                                     int batchSize,
@@ -54,7 +54,7 @@ public class HashErrorRatesCalculator implements Calculator<Fingerprint> {
                         .track1(trackId)
                         .track2(n.getNumber())
                         .value(n.getValue())
-                        .fingerprintType(type)
+                        .comparingType(type)
                         .build()
                 ).collect(Collectors.toList());
     }

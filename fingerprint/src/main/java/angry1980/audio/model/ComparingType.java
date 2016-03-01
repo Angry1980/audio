@@ -1,10 +1,38 @@
 package angry1980.audio.model;
 
 public enum ComparingType {
-    CHROMAPRINT,
-    CHROMAPRINT_ER,
-    PEAKS,
-    LASTFM,
-    LASTFM_ER,
+    CHROMAPRINT(FingerprintType.CHROMAPRINT),
+    CHROMAPRINT_ER(FingerprintType.CHROMAPRINT, SimilarityType.ERROR_RATE),
+    PEAKS(FingerprintType.PEAKS),
+    LASTFM(FingerprintType.LASTFM),
+    LASTFM_ER(FingerprintType.LASTFM, SimilarityType.ERROR_RATE),
     ;
+
+    private FingerprintType fingerprintType;
+    private SimilarityType similarityType;
+
+    ComparingType(FingerprintType fingerprintType) {
+        this(fingerprintType, SimilarityType.MASKED);
+    }
+
+    ComparingType(FingerprintType fingerprintType, SimilarityType similarityType) {
+        this.fingerprintType = fingerprintType;
+        this.similarityType = similarityType;
+    }
+
+    public FingerprintType getFingerprintType() {
+        return fingerprintType;
+    }
+
+    public SimilarityType getSimilarityType() {
+        return similarityType;
+    }
+
+    @Override
+    public String toString() {
+        return "ComparingType{" +
+                "fingerprintType=" + fingerprintType +
+                ", similarityType=" + similarityType +
+                '}';
+    }
 }

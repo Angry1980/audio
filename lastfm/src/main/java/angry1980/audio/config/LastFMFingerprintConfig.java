@@ -3,14 +3,16 @@ package angry1980.audio.config;
 import angry1980.audio.Adapter;
 import angry1980.audio.dao.*;
 import angry1980.audio.fingerprint.*;
+import angry1980.audio.fingerprint.Calculator;
 import angry1980.audio.model.Fingerprint;
 import angry1980.audio.model.FingerprintType;
-import angry1980.audio.similarity.FindSimilarTracks;
-import angry1980.audio.similarity.FindSimilarTracksImpl;
+import angry1980.audio.similarity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+
+import java.util.Arrays;
 
 @Configuration
 @Profile("LASTFM")
@@ -55,7 +57,21 @@ public class LastFMFingerprintConfig {
 
     @Bean
     public angry1980.audio.similarity.Calculator<Fingerprint> lastFMFingerprintCalculator(){
-        return lastFMInvertedIndex();
+        return new ComplexCalculator<>(
+                Arrays.asList(
+                        lastFMInvertedIndex(),
+                        lastFMErrorRatesSimilarityCalculator()
+                )
+        );
+
+    }
+
+    @Bean
+    public angry1980.audio.similarity.Calculator<Fingerprint> lastFMErrorRatesSimilarityCalculator(){
+        return new HashErrorRatesCalculator(
+                new HashErrorRatesCalculatorTrackSourceImpl(trackDAO),
+                lastFMFingerprintDAO()
+        );
     }
 
     @Bean

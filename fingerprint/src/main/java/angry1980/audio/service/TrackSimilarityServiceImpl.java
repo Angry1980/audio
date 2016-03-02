@@ -6,6 +6,7 @@ import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.Track;
 import angry1980.audio.model.TrackSimilarity;
 import angry1980.audio.similarity.FindSimilarTracks;
+import angry1980.audio.similarity.FindSimilarTracksFakeImpl;
 import angry1980.audio.similarity.TrackSimilarities;
 import angry1980.audio.similarity.TracksToCalculate;
 import it.unimi.dsi.fastutil.longs.*;
@@ -30,17 +31,27 @@ public class TrackSimilarityServiceImpl implements TrackSimilarityService {
 
     public TrackSimilarityServiceImpl(TrackDAO trackDAO,
                                       TrackSimilarityDAO trackSimilarityDAO,
-                                      FindSimilarTracks findSimilarTracks,
                                       TracksToCalculate tracksToCalculate) {
         this.trackDAO = Objects.requireNonNull(trackDAO);
         this.trackSimilarityDAO = Objects.requireNonNull(trackSimilarityDAO);
-        this.findSimilarTracks = Objects.requireNonNull(findSimilarTracks);
+        this.findSimilarTracks = new FindSimilarTracksFakeImpl();
         this.tracksToCalculate = Objects.requireNonNull(tracksToCalculate);
+    }
+
+    public void setFindSimilarTracks(FindSimilarTracks findSimilarTracks) {
+        this.findSimilarTracks = findSimilarTracks;
     }
 
     @Override
     public Observable<Track> getTracksToCalculateSimilarity() {
         return tracksToCalculate.get();
+    }
+
+    @Override
+    public Observable<TrackSimilarities> findOrCalculateSimilarities(long trackId, ComparingType type, ComparingType... types) {
+        return trackDAO.get(trackId)
+                .map(track -> this.findOrCalculateSimilarities(track, type, types))
+                .orElseGet(() -> Observable.empty());
     }
 
     @Override

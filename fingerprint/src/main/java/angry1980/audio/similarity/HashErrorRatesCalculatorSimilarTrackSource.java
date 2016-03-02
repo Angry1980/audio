@@ -2,23 +2,24 @@ package angry1980.audio.similarity;
 
 import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.TrackSimilarity;
+import angry1980.audio.service.TrackSimilarityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.Optional;
 
-public class HashErrorRatesCalculatorSimilarTrackSource implements HashErrorRatesCalculatorTrackSource{
+public class HashErrorRatesCalculatorSimilarTrackSource implements HashErrorRatesCalculatorTrackSource {
 
     private static Logger LOG = LoggerFactory.getLogger(HashErrorRatesCalculatorSimilarTrackSource.class);
 
-    private ComparingType comparingType;
-    private FindSimilarTracks findSimilarTracks;
+    private TrackSimilarityService similarityService;
     private int limit;
+    private ComparingType comparingType;
 
-    public HashErrorRatesCalculatorSimilarTrackSource(ComparingType type, FindSimilarTracks findSimilarTracks) {
-        this.comparingType = Objects.requireNonNull(type);
-        this.findSimilarTracks = Objects.requireNonNull(findSimilarTracks);
+    public HashErrorRatesCalculatorSimilarTrackSource(TrackSimilarityService similarityService, ComparingType comparingType) {
+        this.similarityService = Objects.requireNonNull(similarityService);
+        this.comparingType = Objects.requireNonNull(comparingType);
         this.limit = 1;
     }
 
@@ -29,7 +30,8 @@ public class HashErrorRatesCalculatorSimilarTrackSource implements HashErrorRate
 
     @Override
     public Optional<long[]> get(long sourceTrackId) {
-        long[] result = findSimilarTracks.apply(sourceTrackId, comparingType).stream()
+        long[] result = similarityService.findOrCalculateSimilarities(sourceTrackId, comparingType)
+                .toBlocking().first().getSimilarities().stream()
                             .filter(ts -> ts.getValue() > limit)
                             .mapToLong(TrackSimilarity::getTrack2)
                             .toArray();

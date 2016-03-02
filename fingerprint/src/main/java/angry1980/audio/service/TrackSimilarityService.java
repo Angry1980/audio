@@ -10,6 +10,8 @@ public interface TrackSimilarityService {
 
     Observable<Track> getTracksToCalculateSimilarity();
 
+    Observable<TrackSimilarities> findOrCalculateSimilarities(long trackId, ComparingType type, ComparingType... types);
+
     Observable<TrackSimilarities> findOrCalculateSimilarities(Track track, ComparingType type, ComparingType... types);
 
     Observable<TrackSimilarity> findSimilarities(ComparingType comparingType, boolean truthPositive);

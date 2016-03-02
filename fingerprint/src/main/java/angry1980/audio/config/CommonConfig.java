@@ -7,6 +7,7 @@ import angry1980.audio.service.TrackSimilarityServiceImpl;
 import angry1980.audio.similarity.ComplexFindSimilarTracks;
 import angry1980.audio.similarity.FindSimilarTracks;
 import angry1980.audio.similarity.TracksToCalculate;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,8 +18,6 @@ import java.util.List;
 public class CommonConfig {
 
     @Autowired
-    private List<FindSimilarTracks> findSimilarTracksList;
-    @Autowired
     private TrackDAO trackDAO;
     @Autowired
     private TrackSimilarityDAO trackSimilarityDAO;
@@ -26,11 +25,10 @@ public class CommonConfig {
     private TracksToCalculate tracksToCalculate;
 
     @Bean
-    public TrackSimilarityService trackSimilarityService(){
+    public TrackSimilarityServiceImpl trackSimilarityService(){
         return new TrackSimilarityServiceImpl(
                 trackDAO,
                 trackSimilarityDAO,
-                new ComplexFindSimilarTracks(findSimilarTracksList),
                 tracksToCalculate
         );
     }

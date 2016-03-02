@@ -1,6 +1,6 @@
 package angry1980.audio.neo4j;
 
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 import angry1980.neo4j.Query;
 import com.google.common.collect.ImmutableMap;
 import org.neo4j.graphdb.Result;
@@ -11,15 +11,15 @@ import java.util.stream.Collectors;
 
 public abstract class FingerprintTypeQuery implements Query<FingerprintTypeQuery>{
 
-    private final FingerprintType type;
+    private final ComparingType type;
     private final int minWeight;
     private Map<Boolean, Integer> result;
 
-    public FingerprintTypeQuery(FingerprintType type) {
+    public FingerprintTypeQuery(ComparingType type) {
         this(type, 1);
     }
 
-    public FingerprintTypeQuery(FingerprintType type, int minWeight) {
+    public FingerprintTypeQuery(ComparingType type, int minWeight) {
         this.minWeight = minWeight;
         this.type = Objects.requireNonNull(type);
     }

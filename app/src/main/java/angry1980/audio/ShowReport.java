@@ -1,9 +1,8 @@
 package angry1980.audio;
 
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.service.TrackSimilarityStatsService;
 import angry1980.audio.stats.Stats;
-import angry1980.utils.SpringMapWrapper;
 import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,9 +25,9 @@ public class ShowReport {
     public static void main(String[] args){
         SpringApplication sa = new SpringApplication(ShowReport.class);
         sa.setAdditionalProfiles(
-                FingerprintType.CHROMAPRINT.name(),
-                FingerprintType.PEAKS.name(),
-                FingerprintType.LASTFM.name(),
+                ComparingType.CHROMAPRINT.name(),
+                ComparingType.PEAKS.name(),
+                ComparingType.LASTFM.name(),
                 "NEO4J"
         );
         ConfigurableApplicationContext context = sa.run(args);
@@ -67,20 +66,20 @@ public class ShowReport {
             }
         };
         trackSimilarityStatsService.compareFingerprintTypes(ImmutableMap.of(
-                        FingerprintType.CHROMAPRINT, 10,
-                        FingerprintType.CHROMAPRINT_ER, 10,
-                        FingerprintType.LASTFM, 10,
-                        FingerprintType.LASTFM_ER, 10,
-                        FingerprintType.PEAKS, 10
+                        ComparingType.CHROMAPRINT, 10,
+                        ComparingType.CHROMAPRINT_ER, 10,
+                        ComparingType.LASTFM, 10,
+                        ComparingType.LASTFM_ER, 10,
+                        ComparingType.PEAKS, 10
                 )
         ).subscribe(printer);
 /*
         trackSimilarityStatsService.compareFingerprintTypes(ImmutableMap.of(
-                FingerprintType.CHROMAPRINT, 665,
-                FingerprintType.CHROMAPRINT_ER, 1500,
-                FingerprintType.LASTFM, 466,
-                FingerprintType.LASTFM_ER, 844,
-                FingerprintType.PEAKS, 1102
+                ComparingType.CHROMAPRINT, 665,
+                ComparingType.CHROMAPRINT_ER, 1500,
+                ComparingType.LASTFM, 466,
+                ComparingType.LASTFM_ER, 844,
+                ComparingType.PEAKS, 1102
                 )
         ).subscribe(printer);
 */

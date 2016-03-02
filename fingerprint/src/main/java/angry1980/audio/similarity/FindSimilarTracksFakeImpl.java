@@ -1,6 +1,6 @@
 package angry1980.audio.similarity;
 
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.TrackSimilarity;
 import org.springframework.core.Ordered;
 
@@ -15,7 +15,7 @@ public class FindSimilarTracksFakeImpl implements FindSimilarTracks {
     }
 
     @Override
-    public List<TrackSimilarity> apply(long value, FingerprintType type) {
+    public List<TrackSimilarity> apply(long value, ComparingType type) {
         return Collections.emptyList();
     }
 

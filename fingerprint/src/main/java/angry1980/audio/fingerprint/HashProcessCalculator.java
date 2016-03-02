@@ -33,12 +33,12 @@ public class HashProcessCalculator extends ProcessCalculator<Fingerprint>{
     }
 
     @Override
-    protected Fingerprint create(Track track, byte[] hash) {
+    protected Fingerprint create(Track track, FingerprintType fingerprintType, byte[] hash) {
         LOG.debug("Creation of fingerprint entity for track {}", track.getId());
         Fingerprint f = ImmutableFingerprint.builder()
                 .trackId(track.getId())
                 .hashes(convert(track.getId(), hash))
-                .type(type)
+                .type(fingerprintType)
                 .build();
         LOG.debug("Fingerprint was created for track {}", track.getId());
         LOG.debug("There are {} hash values in fingerprint for track {} ", f.getHashes().size(), track.getId());

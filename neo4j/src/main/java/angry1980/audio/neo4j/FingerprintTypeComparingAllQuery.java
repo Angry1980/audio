@@ -1,6 +1,6 @@
 package angry1980.audio.neo4j;
 
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.stats.ImmutableFingerprintTypeData;
 import angry1980.audio.stats.ImmutableStats;
 import angry1980.audio.stats.Stats;
@@ -22,10 +22,10 @@ public class FingerprintTypeComparingAllQuery implements Query<FingerprintTypeCo
             + " return count(distinct(track)) as result, not(empty) as common, tp "
             ;
 
-    private Map<FingerprintType, Integer> minWeights;
+    private Map<ComparingType, Integer> minWeights;
     private Stats result;
 
-    public FingerprintTypeComparingAllQuery(Map<FingerprintType, Integer> minWeights) {
+    public FingerprintTypeComparingAllQuery(Map<ComparingType, Integer> minWeights) {
         this.minWeights = Objects.requireNonNull(minWeights);
     }
 
@@ -42,7 +42,7 @@ public class FingerprintTypeComparingAllQuery implements Query<FingerprintTypeCo
     public Map<String, Object> getParams() {
         Map<String, Object> result = new HashMap<>();
         int i = 0;
-        for(FingerprintType type : FingerprintType.values()){
+        for(ComparingType type : ComparingType.values()){
             i++;
             result.put("type" + i, type.name());
             result.put("minWeight" + i, minWeights.get(type));
@@ -62,9 +62,9 @@ public class FingerprintTypeComparingAllQuery implements Query<FingerprintTypeCo
                         )
                 );
         this.result = ImmutableStats.builder()
-                .addTypes(ImmutableFingerprintTypeData.builder().type(FingerprintType.CHROMAPRINT).weight(minWeights.get(FingerprintType.CHROMAPRINT)).build())
-                .addTypes(ImmutableFingerprintTypeData.builder().type(FingerprintType.LASTFM).weight(minWeights.get(FingerprintType.LASTFM)).build())
-                .addTypes(ImmutableFingerprintTypeData.builder().type(FingerprintType.PEAKS).weight(minWeights.get(FingerprintType.PEAKS)).build())
+                .addTypes(ImmutableFingerprintTypeData.builder().type(ComparingType.CHROMAPRINT).weight(minWeights.get(ComparingType.CHROMAPRINT)).build())
+                .addTypes(ImmutableFingerprintTypeData.builder().type(ComparingType.LASTFM).weight(minWeights.get(ComparingType.LASTFM)).build())
+                .addTypes(ImmutableFingerprintTypeData.builder().type(ComparingType.PEAKS).weight(minWeights.get(ComparingType.PEAKS)).build())
                 .falsePositive(map.getOrDefault(false, 0))
                 .truePositive(map.getOrDefault(true, 0))
                 .build();

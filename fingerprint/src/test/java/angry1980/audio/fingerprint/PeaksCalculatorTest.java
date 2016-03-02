@@ -33,7 +33,7 @@ public class PeaksCalculatorTest {
     @Test
     public void testTrack1(){
         List<TrackHash> hashes = getHashes(track1.getId());
-        Optional<Fingerprint> f = calculator.calculate(track1);
+        Optional<Fingerprint> f = calculator.calculate(track1, FingerprintType.PEAKS);
         assertTrue(f.isPresent());
         List<TrackHash> result = f.get().getHashes();
         assertNotNull(result);

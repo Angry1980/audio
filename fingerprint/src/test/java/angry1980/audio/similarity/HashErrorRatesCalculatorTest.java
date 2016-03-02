@@ -43,7 +43,6 @@ public class HashErrorRatesCalculatorTest {
         };
         firstTrackFingerprint = fingerprint(1, firstTrackFingerprintHashes);
         calculator = new HashErrorRatesCalculator(
-                FingerprintType.CHROMAPRINT,
                 new HashErrorRatesCalculatorTrackSourceImpl(trackDAO),
                 fingerprintDAO,
                 25,
@@ -54,20 +53,20 @@ public class HashErrorRatesCalculatorTest {
     @Test
     public void testEmptySourceResult(){
         when(trackDAO.findByCluster(1)).thenReturn(Collections.emptyList());
-        checkEmptyResult(calculator.calculate(firstTrackFingerprint));
+        checkEmptyResult(calculator.calculate(firstTrackFingerprint, ComparingType.CHROMAPRINT_ER));
     }
 
     @Test
     public void testTrackSourceResult(){
         setFilterResult(1, firstTrack);
-        checkEmptyResult(calculator.calculate(firstTrackFingerprint));
+        checkEmptyResult(calculator.calculate(firstTrackFingerprint, ComparingType.CHROMAPRINT_ER));
     }
 
     @Test
     public void testEmptyFingerprintResult(){
         Track another = track(2, 1);
         setFilterResult(1, firstTrack, another);
-        checkEmptyResult(calculator.calculate(firstTrackFingerprint));
+        checkEmptyResult(calculator.calculate(firstTrackFingerprint, ComparingType.CHROMAPRINT_ER));
     }
 
     @Test
@@ -75,12 +74,12 @@ public class HashErrorRatesCalculatorTest {
         Track another = track(2, 1);
         fingerprint(2, firstTrackFingerprintHashes);
         setFilterResult(1, firstTrack, another);
-        checkResult(calculator.calculate(firstTrackFingerprint), 1,
+        checkResult(calculator.calculate(firstTrackFingerprint, ComparingType.CHROMAPRINT_ER), 1,
                     ImmutableTrackSimilarity.builder()
                             .track1(1)
                             .track2(2)
                             .value(firstTrackFingerprintHashes.length)
-                            .fingerprintType(FingerprintType.CHROMAPRINT)
+                            .comparingType(ComparingType.CHROMAPRINT_ER)
                                 .build()
                 );
     }
@@ -92,7 +91,7 @@ public class HashErrorRatesCalculatorTest {
         System.arraycopy(firstTrackFingerprintHashes, 0, anotherHashes, 0, 19);
         Fingerprint anotherFingerprint = fingerprint(2, anotherHashes);
         setFilterResult(1, firstTrack, another);
-        checkEmptyResult(calculator.calculate(anotherFingerprint));
+        checkEmptyResult(calculator.calculate(anotherFingerprint, ComparingType.CHROMAPRINT_ER));
     }
 
     @Test
@@ -104,19 +103,19 @@ public class HashErrorRatesCalculatorTest {
                 .toArray();
         Fingerprint anotherFingerprint = fingerprint(2, anotherHashes);
         setFilterResult(1, firstTrack, another);
-        checkResult(calculator.calculate(firstTrackFingerprint), 1,
+        checkResult(calculator.calculate(firstTrackFingerprint, ComparingType.CHROMAPRINT_ER), 1,
                 ImmutableTrackSimilarity.builder()
                         .track1(1)
                         .track2(2)
                         .value(firstTrackFingerprintHashes.length)
-                        .fingerprintType(FingerprintType.CHROMAPRINT)
+                        .comparingType(ComparingType.CHROMAPRINT_ER)
                         .build());
         //9 different bits
         anotherHashes = Arrays.stream(firstTrackFingerprintHashes)
                 .map(hash -> hash ^ 511)
                 .toArray();
         when(anotherFingerprint.getHashes()).thenReturn(hashes(2, anotherHashes));
-        checkEmptyResult(calculator.calculate(firstTrackFingerprint));
+        checkEmptyResult(calculator.calculate(firstTrackFingerprint, ComparingType.CHROMAPRINT_ER));
     }
 
     private List<TrackSimilarity> checkResult(List<TrackSimilarity> result, int length, TrackSimilarity ... expected){
@@ -153,6 +152,7 @@ public class HashErrorRatesCalculatorTest {
         Fingerprint fingerprint = mock(Fingerprint.class);
         when(fingerprint.getTrackId()).thenReturn(trackId);
         when(fingerprint.getHashes()).thenReturn(hashes(trackId, hashes));
+        when(fingerprint.getType()).thenReturn(FingerprintType.CHROMAPRINT);
         when(fingerprintDAO.findByTrackId(trackId)).thenReturn(Optional.of(fingerprint));
         setFingerprintDAOResult(new long[]{trackId}, fingerprint);
         return fingerprint;

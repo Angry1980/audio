@@ -65,7 +65,6 @@ public class HashErrorRatesCalculatorBenchmark {
                 .forEach(fingerprintDAO::create);
         fingerprint = fingerprintDAO.findByTrackId(track).get();
         calculator = new HashErrorRatesCalculator(
-                            FingerprintType.CHROMAPRINT,
                             new TrackSource(),
                             fingerprintDAO,
                             batchSize,
@@ -75,7 +74,7 @@ public class HashErrorRatesCalculatorBenchmark {
 
     @Benchmark
     public Collection<TrackSimilarity> testCalculate(){
-        return calculator.calculate(fingerprint);
+        return calculator.calculate(fingerprint, ComparingType.CHROMAPRINT);
     }
 
     public class TrackSource implements HashErrorRatesCalculatorTrackSource{

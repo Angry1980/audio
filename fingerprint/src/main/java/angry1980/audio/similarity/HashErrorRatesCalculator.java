@@ -15,22 +15,19 @@ public class HashErrorRatesCalculator implements Calculator<Fingerprint> {
 
     private static final double positiveLimit = 0.8;
 
-    private FingerprintType type;
     private HashErrorRatesCalculatorTrackSource trackSource;
     private FingerprintDAO<Fingerprint> fingerprintDAO;
     private int batchSize;
     private int errorLimit;
 
-    public HashErrorRatesCalculator(FingerprintType type, HashErrorRatesCalculatorTrackSource trackSource, FingerprintDAO<Fingerprint> fingerprintDAO){
-        this(type, trackSource, fingerprintDAO, 25, 8);
+    public HashErrorRatesCalculator(HashErrorRatesCalculatorTrackSource trackSource, FingerprintDAO<Fingerprint> fingerprintDAO){
+        this(trackSource, fingerprintDAO, 25, 8);
     }
 
-    public HashErrorRatesCalculator(FingerprintType type,
-                                    HashErrorRatesCalculatorTrackSource trackSource,
+    public HashErrorRatesCalculator(HashErrorRatesCalculatorTrackSource trackSource,
                                     FingerprintDAO<Fingerprint> fingerprintDAO,
                                     int batchSize,
                                     int errorLimit) {
-        this.type = type;
         this.trackSource = Objects.requireNonNull(trackSource);
         this.fingerprintDAO = Objects.requireNonNull(fingerprintDAO);
         this.batchSize = batchSize;
@@ -38,15 +35,20 @@ public class HashErrorRatesCalculator implements Calculator<Fingerprint> {
     }
 
     @Override
-    public List<TrackSimilarity> calculate(Fingerprint fingerprint) {
+    public boolean test(SimilarityType similarityType) {
+        return SimilarityType.ERROR_RATE.equals(similarityType);
+    }
+
+    @Override
+    public List<TrackSimilarity> calculate(Fingerprint fingerprint, ComparingType comparingType) {
         return trackSource.get(fingerprint.getTrackId())
                 .map(fingerprintDAO::findByTrackIds)
-                .map(list -> calculate(fingerprint.getTrackId(), getHashes(fingerprint), list))
+                .map(list -> calculate(fingerprint.getTrackId(), getHashes(fingerprint), comparingType, list))
                 .orElseGet(() -> Collections.emptyList())
         ;
     }
 
-    private List<TrackSimilarity> calculate(long trackId, int[] source, Collection<Fingerprint> others){
+    private List<TrackSimilarity> calculate(long trackId, int[] source, ComparingType comparingType, Collection<Fingerprint> others){
         return others.stream()
                 .map(fp -> new Numbered<>(fp.getTrackId(), calculate(source, getHashes(fp))))
                 .filter(n -> n.getValue().compareTo(20) > 0)
@@ -54,7 +56,7 @@ public class HashErrorRatesCalculator implements Calculator<Fingerprint> {
                         .track1(trackId)
                         .track2(n.getNumber())
                         .value(n.getValue())
-                        .fingerprintType(type)
+                        .comparingType(comparingType)
                         .build()
                 ).collect(Collectors.toList());
     }

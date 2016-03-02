@@ -1,6 +1,6 @@
 package angry1980.audio;
 
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.service.TrackSimilarityService;
 import angry1980.audio.similarity.TrackSimilarities;
 import org.slf4j.Logger;
@@ -36,9 +36,9 @@ public class CalculateSimilarities {
         sa.setAdditionalProfiles(
                 "NETFLIX",
                 "CALCULATE",
-                FingerprintType.CHROMAPRINT.name(),
-                FingerprintType.PEAKS.name(),
-                FingerprintType.LASTFM.name()
+                ComparingType.CHROMAPRINT.name(),
+                ComparingType.PEAKS.name(),
+                ComparingType.LASTFM.name()
         );
         ConfigurableApplicationContext context = sa.run(args);
         context.registerShutdownHook();
@@ -57,8 +57,12 @@ public class CalculateSimilarities {
         trackSimilarityService.getTracksToCalculateSimilarity()
                 .doOnNext(track -> LOG.info("Similarity calculation for {}", track))
                 //.flatMap(trackSimilarityService::findOrCalculateSimilarities)
-                .flatMap(track -> trackSimilarityService.findOrCalculateSimilarities(track, FingerprintType.CHROMAPRINT))//, FingerprintType.PEAKS))
-                .subscribeOn(Schedulers.from(executor))
+                .flatMap(track -> trackSimilarityService.findOrCalculateSimilarities(track,
+                                                ComparingType.CHROMAPRINT,
+                                                ComparingType.LASTFM,
+                                                ComparingType.CHROMAPRINT_ER,
+                                                ComparingType.LASTFM_ER)
+                ).subscribeOn(Schedulers.from(executor))
                 .subscribe(new SubscriberImpl(latch));
     }
 

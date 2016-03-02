@@ -1,6 +1,8 @@
 package angry1980.audio.similarity;
 
 import angry1980.audio.dao.TrackSimilarityDAO;
+import angry1980.audio.fingerprint.GetOrCreateFingerprint;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.Fingerprint;
 import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.TrackSimilarity;
@@ -11,7 +13,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.LongFunction;
 import java.util.stream.Collectors;
 
 public class FindSimilarTracksImpl implements FindSimilarTracks {
@@ -19,12 +20,12 @@ public class FindSimilarTracksImpl implements FindSimilarTracks {
     private static Logger LOG = LoggerFactory.getLogger(FindSimilarTracksImpl.class);
 
     private TrackSimilarityDAO trackSimilarityDAO;
-    private LongFunction<Fingerprint> fingerprintHandler;
+    private GetOrCreateFingerprint<Fingerprint> fingerprintHandler;
     private Calculator calculator;
     private FingerprintType fingerprintType;
 
     public FindSimilarTracksImpl(TrackSimilarityDAO trackSimilarityDAO,
-                                 LongFunction<Fingerprint> fingerprintHandler,
+                                 GetOrCreateFingerprint<Fingerprint> fingerprintHandler,
                                  Calculator calculator,
                                  FingerprintType fingerprintType) {
         this.trackSimilarityDAO = Objects.requireNonNull(trackSimilarityDAO);
@@ -39,22 +40,21 @@ public class FindSimilarTracksImpl implements FindSimilarTracks {
     }
 
     @Override
-    public List<TrackSimilarity> apply(long trackId, FingerprintType type) {
-        return trackSimilarityDAO.findByTrackIdAndFingerprintType(trackId, fingerprintType)
-                    .orElseGet(() -> calculate(trackId).stream()
+    public List<TrackSimilarity> apply(long trackId, ComparingType type) {
+        return trackSimilarityDAO.findByTrackIdAndFingerprintType(trackId, type)
+                    .orElseGet(() -> calculate(trackId, type).stream()
                                         .map(trackSimilarityDAO::create)
                                         .map(Optional::get)
                                         .collect(Collectors.toList())
                     );
     }
 
-    private List<TrackSimilarity> calculate(long trackId){
-        LOG.debug("Start calculation of {} similarities for track {}", fingerprintType, trackId);
-        return Optional.of(trackId)
-                .map(fingerprintHandler::apply)
-                .map(fingerprint -> calculator.calculate(fingerprint))
+    private List<TrackSimilarity> calculate(long trackId, ComparingType type){
+        LOG.debug("Start calculation of {} similarities for track {}", type, trackId);
+        return Optional.ofNullable(fingerprintHandler.apply(trackId, type))
+                .map(fingerprint -> calculator.calculate(fingerprint, type))
                 .orElseGet(() -> {
-                    LOG.debug("It's not possible to calculate {} similarities for track {}", fingerprintType, trackId);
+                    LOG.debug("It's not possible to calculate {} similarities for track {}", type, trackId);
                     return Collections.<TrackSimilarity>emptyList();
                 });
     }

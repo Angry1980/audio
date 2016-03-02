@@ -1,6 +1,6 @@
 package angry1980.audio.neo4j;
 
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 
 public class FingerprintTypePositiveQuery extends FingerprintTypeQuery {
 
@@ -13,11 +13,11 @@ public class FingerprintTypePositiveQuery extends FingerprintTypeQuery {
 
 
 
-    public FingerprintTypePositiveQuery(FingerprintType type) {
+    public FingerprintTypePositiveQuery(ComparingType type) {
         super(type);
     }
 
-    public FingerprintTypePositiveQuery(FingerprintType type, int minWeight) {
+    public FingerprintTypePositiveQuery(ComparingType type, int minWeight) {
         super(type, minWeight);
     }
 

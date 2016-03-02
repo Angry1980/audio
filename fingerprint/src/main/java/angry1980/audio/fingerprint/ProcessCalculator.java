@@ -1,6 +1,7 @@
 package angry1980.audio.fingerprint;
 
 import angry1980.audio.Adapter;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.Fingerprint;
 import angry1980.audio.model.FingerprintType;
 import angry1980.audio.model.Track;
@@ -20,7 +21,7 @@ public abstract class ProcessCalculator<F extends Fingerprint> implements Calcul
 
         ProcessBuilder create(File file);
 
-        FingerprintType getType();
+        ComparingType getType();
     }
 
     private Adapter adapter;
@@ -32,16 +33,16 @@ public abstract class ProcessCalculator<F extends Fingerprint> implements Calcul
     }
 
     @Override
-    public Optional<F> calculate(Track track) {
+    public Optional<F> calculate(Track track, FingerprintType fingerprintType) {
         LOG.debug("Start of {} fingerprint calculation for track {}", processCreator.getType(), track.getId());
         return Optional.of(track)
                 .flatMap(adapter::getContent)
                 .map(this::calculateAudioHash)
-                .map(hash -> this.create(track, hash))
+                .map(hash -> this.create(track, fingerprintType, hash))
         ;
     }
 
-    protected abstract F create(Track track, byte[] hash);
+    protected abstract F create(Track track, FingerprintType fingerprintType, byte[] hash);
 
     private byte[] calculateAudioHash(File file){
         LOG.debug("Start of {} fingerprint calculation for file {}", processCreator.getType(), file.getAbsolutePath());

@@ -39,7 +39,7 @@ public class HashInvertedIndexTest {
 
     @Test
     public void testEmptyHashDAO(){
-        List<TrackSimilarity> result = index.calculate(fingerprint);
+        List<TrackSimilarity> result = index.calculate(fingerprint, Entities.defaultComparingType);
         assertNotNull(result);
         assertTrue(result.size() == 0);
     }
@@ -47,7 +47,7 @@ public class HashInvertedIndexTest {
     @Test
     public void testSourceTrack(){
         fillDAO(dao, Entities.trackHash(1, 1, 1), Entities.trackHash(1, 2, 1), Entities.trackHash(2, 1, 1));
-        index.calculate(fingerprint).stream()
+        index.calculate(fingerprint, Entities.defaultComparingType).stream()
                 .forEach(ts -> assertFalse(ts.getTrack2() == 1));
 
     }
@@ -55,7 +55,7 @@ public class HashInvertedIndexTest {
     @Test
     public void testWeightLimit(){
         fillDAO(dao, Entities.trackHash(2, 1, 1), Entities.trackHash(3, 1, 1), Entities.trackHash(3, 2, 1));
-        List<TrackSimilarity> result = index.calculate(fingerprint);
+        List<TrackSimilarity> result = index.calculate(fingerprint, Entities.defaultComparingType);
         assertNotNull(result);
         assertTrue(result.size() == 0);
     }
@@ -64,7 +64,7 @@ public class HashInvertedIndexTest {
     public void testResult1(){
         fillDAO(dao, Entities.trackHash(2, 1, 1), Entities.trackHash(2, 2, 1), Entities.trackHash(2, 3, 1));
         checkResult(
-                index.calculate(fingerprint),
+                index.calculate(fingerprint, Entities.defaultComparingType),
                 Entities.trackSimilarity(1, 2, 3),
                 3
         );
@@ -73,7 +73,7 @@ public class HashInvertedIndexTest {
     @Test
     public void testResult2(){
         fillDAO(dao, Entities.trackHash(2, 1, 1), Entities.trackHash(2, 2, 1), Entities.trackHash(2, 4, 1));
-        List<TrackSimilarity> result = index.calculate(fingerprint);
+        List<TrackSimilarity> result = index.calculate(fingerprint, Entities.defaultComparingType);
         assertNotNull(result);
         assertTrue(result.size() == 0);
     }
@@ -81,9 +81,9 @@ public class HashInvertedIndexTest {
     @Test
     public void testResult3(){
         fillDAO(dao, Entities.trackHash(2, 1, 1), Entities.trackHash(2, 2, 1), Entities.trackHash(2, 4, 1), Entities.trackHash(2, 5, 1));
-        List<TrackSimilarity> result = index.calculate(fingerprint);
+        List<TrackSimilarity> result = index.calculate(fingerprint, Entities.defaultComparingType);
         checkResult(
-                index.calculate(fingerprint),
+                index.calculate(fingerprint, Entities.defaultComparingType),
                 Entities.trackSimilarity(1, 2, 4),
                 4
         );
@@ -93,7 +93,7 @@ public class HashInvertedIndexTest {
     public void testResult4(){
         fillDAO(dao, Entities.trackHash(2, 1, 1), Entities.trackHash(2, 2, 1), Entities.trackHash(2, 3, 1));
         fillDAO(dao, Entities.trackHash(3, 1, 1), Entities.trackHash(3, 2, 1), Entities.trackHash(3, 3, 1));
-        List<TrackSimilarity> result = index.calculate(fingerprint);
+        List<TrackSimilarity> result = index.calculate(fingerprint, Entities.defaultComparingType);
         checkResult(result, Entities.trackSimilarity(1, 2, 3), 3);
         checkResult(result, Entities.trackSimilarity(1, 3, 3), 3);
     }

@@ -1,6 +1,6 @@
 package angry1980.audio;
 
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.service.TrackSimilarityStatsService;
 import angry1980.audio.stats.Stats;
 import org.slf4j.Logger;
@@ -25,24 +25,24 @@ public class CalculateBestFpTpWeights {
     public static void main(String[] args){
         SpringApplication sa = new SpringApplication(CalculateBestFpTpWeights.class);
         sa.setAdditionalProfiles(
-                FingerprintType.CHROMAPRINT.name(),
-                FingerprintType.PEAKS.name(),
-                FingerprintType.LASTFM.name(),
+                ComparingType.CHROMAPRINT.name(),
+                ComparingType.PEAKS.name(),
+                ComparingType.LASTFM.name(),
                 "NEO4J"
         );
         ConfigurableApplicationContext context = sa.run(args);
         context.registerShutdownHook();
         CalculateBestFpTpWeights calculator = context.getBean(CalculateBestFpTpWeights.class);
-        for(FingerprintType type : Arrays.asList(
-                //FingerprintType.CHROMAPRINT//,
-                FingerprintType.LASTFM//,
-                //FingerprintType.PEAKS
+        for(ComparingType type : Arrays.asList(
+                //ComparingType.CHROMAPRINT//,
+                ComparingType.LASTFM//,
+                //ComparingType.PEAKS
         )){
             LOG.info("Optimal weight value for {} is {}", type, calculator.calculate(type));
         }
     }
 
-    public int calculate(FingerprintType type){
+    public int calculate(ComparingType type){
         //todo: get init high and low values from service
         int low = 10;
         int high = 10000;
@@ -83,7 +83,7 @@ public class CalculateBestFpTpWeights {
         return calculate(state);
     }
 
-    private double calculateFpTp(FingerprintType type, int weight){
+    private double calculateFpTp(ComparingType type, int weight){
         Stats result = trackSimilarityStatsService.getResultDependsOnFingerprintType(type, weight);
         LOG.debug("Fp/Tp for {} is {}", weight, result);
         if(result.getTruePositive() == 0){
@@ -94,14 +94,14 @@ public class CalculateBestFpTpWeights {
 
     private class State{
 
-        FingerprintType type;
+        ComparingType type;
         int high;
         double highCurrent;
         int low;
         double lowCurrent;
         int iterationCount;
 
-        public State(FingerprintType type, int high, double highCurrent, int low, double lowCurrent) {
+        public State(ComparingType type, int high, double highCurrent, int low, double lowCurrent) {
             this.type = type;
             this.high = high;
             this.highCurrent = highCurrent;

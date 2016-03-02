@@ -1,6 +1,6 @@
 package angry1980.audio.neo4j;
 
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.stats.ImmutableFingerprintTypeData;
 import angry1980.audio.stats.ImmutableStats;
 import angry1980.audio.stats.Stats;
@@ -21,12 +21,12 @@ public class FingerprintTypeComparingQuery implements Query<FingerprintTypeCompa
         + " return count(distinct(track)) as result, not(empty) as common, tp "
         ;
 
-    private final FingerprintType type1;
-    private final FingerprintType type2;
-    private Map<FingerprintType, Integer> minWeights;
+    private final ComparingType type1;
+    private final ComparingType type2;
+    private Map<ComparingType, Integer> minWeights;
     private Stats result;
 
-    public FingerprintTypeComparingQuery(Map<FingerprintType, Integer> minWeights, FingerprintType type1, FingerprintType type2) {
+    public FingerprintTypeComparingQuery(Map<ComparingType, Integer> minWeights, ComparingType type1, ComparingType type2) {
         this.minWeights = Objects.requireNonNull(minWeights);
         this.type1 = Objects.requireNonNull(type1);
         this.type2 = Objects.requireNonNull(type2);

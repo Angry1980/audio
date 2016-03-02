@@ -35,7 +35,7 @@ public class PeaksCalculator implements Calculator<Fingerprint>{
     }
 
     @Override
-    public Optional<Fingerprint> calculate(Track track) {
+    public Optional<Fingerprint> calculate(Track track, FingerprintType fingerprintType) {
         LOG.debug("Start of peaks fingerprint calculation for track {}", track.getId());
         return Optional.of(track)
                     .flatMap(adapter::getContent)
@@ -44,7 +44,7 @@ public class PeaksCalculator implements Calculator<Fingerprint>{
                     .map(hashes -> ImmutableFingerprint.builder()
                                     .trackId(track.getId())
                                     .hashes(hashes)
-                                    .type(FingerprintType.PEAKS)
+                                    .type(fingerprintType)
                                         .build()
                     )
         ;

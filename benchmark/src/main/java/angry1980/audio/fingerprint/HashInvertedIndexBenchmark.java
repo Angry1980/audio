@@ -51,7 +51,7 @@ public class HashInvertedIndexBenchmark {
 
     @Benchmark
     public Collection<TrackSimilarity> testCalculate(){
-        return index.calculate(fingerprint);
+        return index.calculate(fingerprint, ComparingType.CHROMAPRINT);
     }
 
 }

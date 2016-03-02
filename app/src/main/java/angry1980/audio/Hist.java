@@ -1,6 +1,6 @@
 package angry1980.audio;
 
-import angry1980.audio.model.FingerprintType;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.TrackSimilarity;
 import it.unimi.dsi.fastutil.ints.Int2IntAVLTreeMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
@@ -19,9 +19,9 @@ public class Hist {
 
     private static Logger LOG = LoggerFactory.getLogger(Hist.class);
 
-    public static Hist calculate(Supplier<Observable<TrackSimilarity>> s, FingerprintType type){
+    public static Hist calculate(Supplier<Observable<TrackSimilarity>> s, ComparingType type){
         Hist hist = new Hist(type);
-        Map<FingerprintType, Set<TrackSimilarity>> tracks = new HashMap<>(FingerprintType.values().length);
+        Map<ComparingType, Set<TrackSimilarity>> tracks = new HashMap<>(ComparingType.values().length);
         s.get().subscribe(new Subscriber<TrackSimilarity>() {
             @Override
             public void onCompleted() {
@@ -34,18 +34,18 @@ public class Hist {
             @Override
             public void onNext(TrackSimilarity trackSimilarity) {
                 hist.add(trackSimilarity.getValue());
-                tracks.computeIfAbsent(trackSimilarity.getFingerprintType(), ft -> new HashSet<>()).add(trackSimilarity);
+                tracks.computeIfAbsent(trackSimilarity.getComparingType(), ft -> new HashSet<>()).add(trackSimilarity);
             }
         });
         return hist;
     }
 
-    private final FingerprintType type;
+    private final ComparingType type;
     private Int2IntSortedMap data;
     private long all;
     private int max;
 
-    public Hist(FingerprintType type) {
+    public Hist(ComparingType type) {
         this.type = type;
         this.data = new Int2IntAVLTreeMap();
         this.all = 0;

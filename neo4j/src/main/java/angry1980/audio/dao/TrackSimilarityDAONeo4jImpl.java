@@ -39,6 +39,25 @@ public class TrackSimilarityDAONeo4jImpl extends Neo4jRelation implements TrackS
     }
 
     @Override
+    //it makes less the count of transactions and theoretically can improve performance of data import
+    public Collection<TrackSimilarity> tryToCreateAll(Collection<TrackSimilarity> entities) {
+        getTemplate().execute(graphDB -> {
+            entities.stream().forEach(entity -> {
+                getNode(graphDB, Neo4jNodeType.TRACK, entity.getTrack1())
+                        .ifPresent(node1 -> {
+                            getNode(graphDB, Neo4jNodeType.TRACK, entity.getTrack2())
+                                    .ifPresent(node2 -> {
+                                        getOrCreateRelation(node1, node2, entity);
+                                        getOrCreateRelation(node2, node1, entity);
+                                    });
+                        });
+            });
+        });
+        return entities;
+
+    }
+
+    @Override
     public TrackSimilarity tryToCreate(TrackSimilarity entity) {
         getTemplate().execute(graphDB -> {
             getNode(graphDB, Neo4jNodeType.TRACK, entity.getTrack1())

@@ -75,11 +75,11 @@ public class ShowReport {
         ).subscribe(printer);
 /*
         trackSimilarityStatsService.compareFingerprintTypes(ImmutableMap.of(
-                ComparingType.CHROMAPRINT, 665,
-                ComparingType.CHROMAPRINT_ER, 1500,
-                ComparingType.LASTFM, 466,
-                ComparingType.LASTFM_ER, 844,
-                ComparingType.PEAKS, 1102
+                        ComparingType.CHROMAPRINT, 50,
+                        ComparingType.CHROMAPRINT_ER, 10,
+                        ComparingType.LASTFM, 367,
+                        ComparingType.LASTFM_ER, 10,
+                        ComparingType.PEAKS, 20
                 )
         ).subscribe(printer);
 */

@@ -71,6 +71,9 @@ public class HashInvertedIndex implements InvertedIndex<Fingerprint>, angry1980.
     }
 
     private int splitAndSum(IntSortedSet data, int filterWeight){
+        if(data.size() < filterWeight){
+            return 0;
+        }
         int result = 0;
         int prevTime = 0;
         int current = 0;

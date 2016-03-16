@@ -7,6 +7,7 @@ import angry1980.audio.stats.Stats;
 import angry1980.neo4j.Query;
 import org.neo4j.graphdb.Result;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -42,7 +43,7 @@ public class FingerprintTypeComparingAllQuery implements Query<FingerprintTypeCo
     public Map<String, Object> getParams() {
         Map<String, Object> result = new HashMap<>();
         int i = 0;
-        for(ComparingType type : ComparingType.values()){
+        for(ComparingType type : Arrays.asList(ComparingType.CHROMAPRINT, ComparingType.LASTFM, ComparingType.PEAKS)){
             i++;
             result.put("type" + i, type.name());
             result.put("minWeight" + i, minWeights.get(type));

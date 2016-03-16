@@ -39,6 +39,10 @@ public abstract class FingerprintTypeQuery implements Query<FingerprintTypeQuery
 
     }
 
+    public ComparingType getType() {
+        return type;
+    }
+
     public Map<Boolean, Integer> getValues() {
         return result;
     }

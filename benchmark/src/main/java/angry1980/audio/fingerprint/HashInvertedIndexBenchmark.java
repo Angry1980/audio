@@ -34,7 +34,7 @@ public class HashInvertedIndexBenchmark {
 
     @Setup
     public void init(TrackHashDAOState daoState){
-        index = new HashInvertedIndex(25, 50, daoState.dao);
+        index = new HashInvertedIndex(0.01, 0.05, daoState.dao);
         Collection<TrackHash> hashes = IntStream.range(0, daoState.hashes[track].length)
                 .mapToObj(time -> ImmutableTrackHash.builder()
                         .trackId(track)

@@ -76,7 +76,7 @@ public class LastFMFingerprintConfig {
 
     @Bean
     public HashInvertedIndex lastFMInvertedIndex(){
-        return new HashInvertedIndex(10, 10, lastFMTrackHashDAO());
+        return new HashInvertedIndex(0.01, 0.01, lastFMTrackHashDAO());
     }
 
     @Bean

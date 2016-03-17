@@ -29,7 +29,7 @@ public class PeaksFingerprintConfig {
 
     @Bean
     public HashInvertedIndex peaksInvertedIndex(){
-        return new HashInvertedIndex(10, 10, peakDAO());
+        return new HashInvertedIndex(0.01, 0.01, peakDAO());
     }
 
     @Bean

@@ -17,14 +17,20 @@ public class HashInvertedIndex implements InvertedIndex<Fingerprint>, angry1980.
 
     private static Logger LOG = LoggerFactory.getLogger(HashInvertedIndex.class);
 
-    private int filterWeight;
-    private int minWeight;
+    private double filterWeightPercent;
+    private double minWeightPercent;
     private TrackHashDAO hashDAO;
+    private Optional<Integer> silenceHash = Optional.empty();
 
-    public HashInvertedIndex(int filterWeight, int minWeight, TrackHashDAO hashDAO) {
-        this.filterWeight = filterWeight;
-        this.minWeight = minWeight;
+    public HashInvertedIndex(double filterWeightPercent, double minWeightPercent, TrackHashDAO hashDAO) {
+        this.filterWeightPercent = filterWeightPercent;
+        this.minWeightPercent = minWeightPercent;
         this.hashDAO = Objects.requireNonNull(hashDAO);
+    }
+
+    public HashInvertedIndex setSilenceHash(int silenceHash) {
+        this.silenceHash = Optional.of(silenceHash);
+        return this;
     }
 
     @Override
@@ -54,6 +60,8 @@ public class HashInvertedIndex implements InvertedIndex<Fingerprint>, angry1980.
         LOG.debug("Similarity calculation for {} of type {}", fingerprint.getTrackId(), fingerprint.getType());
         Long2ObjectMap<IntSortedSet> hashes = findByHashesAndSortByTrack(fingerprint.getHashes());
         LOG.debug("There are {} similarity candidates for {} of type {} ", new Object[]{hashes.size(), fingerprint.getTrackId(), fingerprint.getType()});
+        int minWeight = (int) Math.floor(fingerprint.getHashes().size() * minWeightPercent);
+        int filterWeight = (int) Math.floor(fingerprint.getHashes().size() * filterWeightPercent);;
         return hashes.entrySet().stream()
                 //.peek(entry -> LOG.debug("Results by track {}", entry))
                 .filter(entry -> !entry.getKey().equals(fingerprint.getTrackId()))
@@ -102,6 +110,9 @@ public class HashInvertedIndex implements InvertedIndex<Fingerprint>, angry1980.
         Long2ObjectMap<IntSortedSet> map = new Long2ObjectOpenHashMap<>();
         LongSet handled = new LongRBTreeSet();
         for(TrackHash th : hashes){
+            if(silenceHash.map(v -> v == th.getHash()).orElse(false)){
+                continue;
+            }
             if(handled.contains(th.getHash())){
                 continue;
             }

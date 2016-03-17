@@ -76,7 +76,7 @@ public class ChromaprintFingerprintConfig {
 
     @Bean
     public HashInvertedIndex chromaprintInvertedIndex(){
-        return new HashInvertedIndex(10, 10, chromaprintTrackHashDAO());
+        return new HashInvertedIndex(0.005, 0.01, chromaprintTrackHashDAO()).setSilenceHash(chromaprintSilenceHash());
     }
 
     @Bean
@@ -84,4 +84,8 @@ public class ChromaprintFingerprintConfig {
         return new TrackHashDAOInMemoryImpl();
     }
 
+    @Bean
+    public Integer chromaprintSilenceHash(){
+        return 2012835109;
+    }
 }

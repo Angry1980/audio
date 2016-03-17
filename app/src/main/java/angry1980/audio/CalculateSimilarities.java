@@ -59,9 +59,10 @@ public class CalculateSimilarities {
                 //.flatMap(trackSimilarityService::findOrCalculateSimilarities)
                 .flatMap(track -> trackSimilarityService.findOrCalculateSimilarities(track,
                                                 ComparingType.CHROMAPRINT,
-                                                ComparingType.LASTFM,
+                                                //ComparingType.LASTFM,
                                                 ComparingType.CHROMAPRINT_ER,
-                                                ComparingType.LASTFM_ER)
+                                                //ComparingType.LASTFM_ER,
+                                                ComparingType.PEAKS)
                 ).subscribeOn(Schedulers.from(executor))
                 .subscribe(new SubscriberImpl(latch));
     }

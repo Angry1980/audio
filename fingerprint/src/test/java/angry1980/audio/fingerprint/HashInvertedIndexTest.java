@@ -29,7 +29,7 @@ public class HashInvertedIndexTest {
     @Before
     public void init(){
         dao = new TrackHashDAOInMemoryImpl();
-        index = new HashInvertedIndex(1, 2, dao);
+        index = new HashInvertedIndex(0.34, 0.68, dao);
         fingerprint = Entities.hashFingerprint(1,
                 Entities.trackHash(1, 1, 1),
                 Entities.trackHash(1, 2, 1),

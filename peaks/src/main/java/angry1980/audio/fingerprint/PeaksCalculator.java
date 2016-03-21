@@ -1,14 +1,15 @@
 package angry1980.audio.fingerprint;
 
-import angry1980.audio.model.*;
 import angry1980.audio.Adapter;
+import angry1980.audio.model.*;
 import angry1980.audio.utils.SpectrumBuilder;
 import angry1980.utils.Numbered;
 import angry1980.utils.Ranges;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 

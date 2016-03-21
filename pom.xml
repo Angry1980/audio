@@ -55,6 +55,8 @@
         <module>lastfm</module>
         <module>neo4j</module>
         <module>benchmark</module>
+        <module>kafka</module>
+        <module>peaks</module>
     </modules>
 
     <properties>

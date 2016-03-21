@@ -2,8 +2,8 @@ package angry1980.audio.config;
 
 import angry1980.audio.Adapter;
 import angry1980.audio.dao.*;
-import angry1980.audio.fingerprint.HashInvertedIndex;
 import angry1980.audio.fingerprint.GetOrCreateFingerprint;
+import angry1980.audio.fingerprint.HashInvertedIndex;
 import angry1980.audio.fingerprint.PeaksCalculator;
 import angry1980.audio.model.Fingerprint;
 import angry1980.audio.model.FingerprintType;

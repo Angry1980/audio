@@ -44,6 +44,7 @@ public class FindSimilarTracksImpl implements FindSimilarTracks {
         return trackSimilarityDAO.findByTrackIdAndFingerprintType(trackId, type)
                     .orElseGet(() -> calculate(trackId, type).stream()
                                         .map(trackSimilarityDAO::create)
+                                        .filter(Optional::isPresent)
                                         .map(Optional::get)
                                         .collect(Collectors.toList())
                     );

@@ -59,6 +59,7 @@ public class TrackSimilarityConsumer {
                         c.accept(record.key());
                     }
                     long lastoffset = partitionRecords.get(partitionRecords.size() - 1).offset();
+                    //todo: user commitAsync
                     kafkaConsumer.commitSync(Collections.singletonMap(partition, new OffsetAndMetadata(lastoffset + 1)));
                 }
             } catch (CommitFailedException e) {

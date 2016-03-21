@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 @Configuration
 @Profile("CHROMAPRINT")
@@ -60,10 +61,15 @@ public class ChromaprintFingerprintConfig {
     public angry1980.audio.similarity.Calculator<Fingerprint> chromaprintSimilarityCalculator(){
         return new ComplexCalculator<>(
                 Arrays.asList(
-                        chromaprintInvertedIndex(),
+                        chromaprintInvertedIndexCalculator(),
                         chromaprintErrorRatesSimilarityCalculator()
                 )
         );
+    }
+
+    @Bean
+    public angry1980.audio.similarity.Calculator<Fingerprint> chromaprintInvertedIndexCalculator(){
+        return new InvertedIndexCalculator(0.005, 0.01, chromaprintInvertedIndex());
     }
 
     @Bean
@@ -76,7 +82,7 @@ public class ChromaprintFingerprintConfig {
 
     @Bean
     public HashInvertedIndex chromaprintInvertedIndex(){
-        return new HashInvertedIndex(0.005, 0.01, chromaprintTrackHashDAO()).setSilenceHash(chromaprintSilenceHash());
+        return new HashInvertedIndex(chromaprintTrackHashDAO(), Optional.ofNullable(chromaprintSilenceHash()));
     }
 
     @Bean

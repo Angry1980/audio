@@ -1,5 +1,6 @@
-package angry1980.audio.fingerprint;
+package angry1980.audio.similarity;
 
+import angry1980.audio.fingerprint.HashInvertedIndex;
 import angry1980.audio.model.*;
 import angry1980.audio.dao.TrackHashDAOState;
 import org.openjdk.jmh.annotations.*;
@@ -9,15 +10,16 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @State(Scope.Benchmark)
-public class HashInvertedIndexBenchmark {
+public class InvertedIndexCalculatorBenchmark {
 
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
-                .include(".*" + HashInvertedIndexBenchmark.class.getSimpleName() + ".*")
+                .include(".*" + InvertedIndexCalculatorBenchmark.class.getSimpleName() + ".*")
                 .jvmArgs("-server")
                 .warmupIterations(5)
                 .forks(1)
@@ -30,11 +32,11 @@ public class HashInvertedIndexBenchmark {
     public int track;
 
     private Fingerprint fingerprint;
-    private HashInvertedIndex index;
+    private InvertedIndexCalculator index;
 
     @Setup
     public void init(TrackHashDAOState daoState){
-        index = new HashInvertedIndex(0.01, 0.05, daoState.dao);
+        index = new InvertedIndexCalculator(0.01, 0.05, new HashInvertedIndex(daoState.dao, Optional.empty()));
         Collection<TrackHash> hashes = IntStream.range(0, daoState.hashes[track].length)
                 .mapToObj(time -> ImmutableTrackHash.builder()
                         .trackId(track)

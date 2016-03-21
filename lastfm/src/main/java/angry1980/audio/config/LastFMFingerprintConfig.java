@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 @Configuration
 @Profile("LASTFM")
@@ -59,11 +60,16 @@ public class LastFMFingerprintConfig {
     public angry1980.audio.similarity.Calculator<Fingerprint> lastFMFingerprintCalculator(){
         return new ComplexCalculator<>(
                 Arrays.asList(
-                        lastFMInvertedIndex(),
+                        lastFMInvertedIndexSimilarityCalculator(),
                         lastFMErrorRatesSimilarityCalculator()
                 )
         );
 
+    }
+
+    @Bean
+    public angry1980.audio.similarity.Calculator<Fingerprint> lastFMInvertedIndexSimilarityCalculator() {
+        return new InvertedIndexCalculator(0.01, 0.01, lastFMInvertedIndex());
     }
 
     @Bean
@@ -76,7 +82,7 @@ public class LastFMFingerprintConfig {
 
     @Bean
     public HashInvertedIndex lastFMInvertedIndex(){
-        return new HashInvertedIndex(0.01, 0.01, lastFMTrackHashDAO());
+        return new HashInvertedIndex(lastFMTrackHashDAO(), Optional.empty());
     }
 
     @Bean

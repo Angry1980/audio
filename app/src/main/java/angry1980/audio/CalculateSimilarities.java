@@ -21,10 +21,6 @@ import java.util.concurrent.Executor;
 public class CalculateSimilarities {
 
     private static Logger LOG = LoggerFactory.getLogger(CalculateSimilarities.class);
-//todo:
-//similarity type - comparing, minhash, errorrates
-// parameters for different implementations to props file
-//maven release
 
     @Autowired
     private Executor executor;

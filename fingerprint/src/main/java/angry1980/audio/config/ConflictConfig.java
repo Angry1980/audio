@@ -10,13 +10,14 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
 import java.util.List;
+import java.util.Optional;
 
 @Configuration
 @Order(Ordered.LOWEST_PRECEDENCE)
 public class ConflictConfig implements InitializingBean {
 
     @Autowired
-    private List<FindSimilarTracks> findSimilarTracksList;
+    private Optional<List<FindSimilarTracks>> findSimilarTracksList;
     @Autowired
     private TrackSimilarityServiceImpl trackSimilarityService;
 

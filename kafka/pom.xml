@@ -11,7 +11,16 @@
 
     <artifactId>audio-kafka</artifactId>
 
+    <properties>
+        <kafka.version>0.9.0.1</kafka.version>
+    </properties>
+
     <dependencies>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${kafka.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
@@ -30,11 +39,6 @@
         <dependency>
             <groupId>com.github.angry1980</groupId>
             <artifactId>audio-netflix</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.angry1980</groupId>
-            <artifactId>audio-lastfm</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

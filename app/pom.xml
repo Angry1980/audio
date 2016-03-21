@@ -44,6 +44,11 @@
         </dependency>
         <dependency>
             <groupId>com.github.angry1980</groupId>
+            <artifactId>audio-chromaprint</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.angry1980</groupId>
             <artifactId>audio-neo4j</artifactId>
             <version>${project.version}</version>
         </dependency>

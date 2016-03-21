@@ -12,12 +12,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Optional;
 
 @Configuration
 @Profile("CHROMAPRINT")
+@PropertySource({"classpath:chromaprint.properties"})
 public class ChromaprintFingerprintConfig {
 
     @Autowired
@@ -26,6 +30,8 @@ public class ChromaprintFingerprintConfig {
     private TrackSimilarityDAO trackSimilarityDAO;
     @Autowired
     private TrackDAO trackDAO;
+    @Autowired
+    private Environment env;
 
     @Bean
     public FingerprintDAO chromaprintFingerprintDAO(){
@@ -34,7 +40,11 @@ public class ChromaprintFingerprintConfig {
 
     @Bean
     public Calculator<Fingerprint> chromaprintCalculator(){
-        return new HashProcessCalculator(new ChromaprintProcessCreator(), adapter, FingerprintType.CHROMAPRINT);
+        return new HashProcessCalculator(
+                new ChromaprintProcessCreator(Optional.of(new File(env.getProperty("chromaprint.fpcalc.folder"))).filter(f -> f.isDirectory())),
+                adapter,
+                FingerprintType.CHROMAPRINT
+        );
     }
 
     @Bean

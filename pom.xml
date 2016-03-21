@@ -57,6 +57,7 @@
         <module>benchmark</module>
         <module>kafka</module>
         <module>peaks</module>
+        <module>chromaprint</module>
     </modules>
 
     <properties>

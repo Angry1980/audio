@@ -8,11 +8,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class ComplexCalculator<F extends Fingerprint> implements Calculator<F> {
+public class CompositeCalculator<F extends Fingerprint> implements Calculator<F> {
 
     private List<Calculator<F>> calculators;
 
-    public ComplexCalculator(List<Calculator<F>> calculators) {
+    public CompositeCalculator(List<Calculator<F>> calculators) {
         this.calculators = Objects.requireNonNull(calculators);
     }
 

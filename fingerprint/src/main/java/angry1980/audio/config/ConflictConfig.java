@@ -1,7 +1,7 @@
 package angry1980.audio.config;
 
 import angry1980.audio.service.TrackSimilarityServiceImpl;
-import angry1980.audio.similarity.ComplexFindSimilarTracks;
+import angry1980.audio.similarity.CompositeFindSimilarTracks;
 import angry1980.audio.similarity.FindSimilarTracks;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +23,6 @@ public class ConflictConfig implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        trackSimilarityService.setFindSimilarTracks(new ComplexFindSimilarTracks(findSimilarTracksList));
+        trackSimilarityService.setFindSimilarTracks(new CompositeFindSimilarTracks(findSimilarTracksList));
     }
 }

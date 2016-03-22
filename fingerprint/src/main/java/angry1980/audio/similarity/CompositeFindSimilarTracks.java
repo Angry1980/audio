@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class ComplexFindSimilarTracks implements FindSimilarTracks{
+public class CompositeFindSimilarTracks implements FindSimilarTracks{
 
     private FindSimilarTracks _default;
     private Optional<List<FindSimilarTracks>> findSimilarTracks;
 
-    public ComplexFindSimilarTracks(Optional<List<FindSimilarTracks>> findSimilarTracks) {
+    public CompositeFindSimilarTracks(Optional<List<FindSimilarTracks>> findSimilarTracks) {
         this.findSimilarTracks = Objects.requireNonNull(findSimilarTracks);
         this._default = new FindSimilarTracksFakeImpl();
     }

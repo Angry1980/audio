@@ -58,7 +58,7 @@ public class LastFMFingerprintConfig {
 
     @Bean
     public angry1980.audio.similarity.Calculator<Fingerprint> lastFMFingerprintCalculator(){
-        return new ComplexCalculator<>(
+        return new CompositeCalculator<>(
                 Arrays.asList(
                         lastFMInvertedIndexSimilarityCalculator(),
                         lastFMErrorRatesSimilarityCalculator()

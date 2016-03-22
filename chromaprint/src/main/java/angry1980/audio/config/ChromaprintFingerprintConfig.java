@@ -69,7 +69,7 @@ public class ChromaprintFingerprintConfig {
 
     @Bean
     public angry1980.audio.similarity.Calculator<Fingerprint> chromaprintSimilarityCalculator(){
-        return new ComplexCalculator<>(
+        return new CompositeCalculator<>(
                 Arrays.asList(
                         chromaprintInvertedIndexCalculator(),
                         chromaprintErrorRatesSimilarityCalculator()

@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import java.io.File;
+import java.util.Optional;
 
 @Configuration
 @Profile("NETFLIX")
@@ -14,6 +15,8 @@ public class NetflixConfig {
 
     @Value("${music.similarity.data.file}")
     private String tsDataFile;
+    @Value("${music.similarity.data.save:true}")
+    private boolean saveResults;
 
     @Bean
     public TrackSimilarityDAO trackSimilarityDAO(){
@@ -33,7 +36,7 @@ public class NetflixConfig {
 
     @Bean(destroyMethod = "save")
     public NetflixDataProvider netflixDataProvider(){
-        return new NetflixDataProvider(new File(tsDataFile), netflixData());
+        return new NetflixDataProvider(new File(tsDataFile), netflixData(), saveResults);
     }
 
 

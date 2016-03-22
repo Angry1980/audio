@@ -7,16 +7,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
-@SpringBootApplication
+@Configuration
+@EnableAutoConfiguration
 @ComponentScan(value = {"angry1980.audio.config"})
 public class CalculateSimilarities {
 
@@ -31,7 +33,8 @@ public class CalculateSimilarities {
         SpringApplication sa = new SpringApplication(CalculateSimilarities.class);
         sa.setAdditionalProfiles(
                 "NETFLIX",
-                "CALCULATE",
+                "KAFKA_TRACKS",//tracks from kafka topic
+                //"CALCULATE",//local source of tracks
                 ComparingType.CHROMAPRINT.name(),
                 ComparingType.PEAKS.name(),
                 ComparingType.LASTFM.name()

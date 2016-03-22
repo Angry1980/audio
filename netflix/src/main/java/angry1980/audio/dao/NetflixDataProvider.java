@@ -19,6 +19,8 @@ public class NetflixDataProvider implements InitializingBean {
 
     private File source;
     private NetflixData data;
+    private boolean save;
+
     private Vocabulary<String> stringVocabulary = new Vocabulary<>(
                                                 in -> in.readUTF(),
                                                 (out, node) -> out.writeUTF(node)
@@ -32,9 +34,10 @@ public class NetflixDataProvider implements InitializingBean {
                                                 (out, node) -> out.writeUTF(node.name())
     );
 
-    public NetflixDataProvider(File source, NetflixData data) {
+    public NetflixDataProvider(File source, NetflixData data, boolean save) {
         this.source = source;
         this.data = data;
+        this.save = save;
     }
 
     @Override
@@ -81,6 +84,9 @@ public class NetflixDataProvider implements InitializingBean {
     }
 
     public void save(){
+        if(!save){
+            return;
+        }
         if(!source.exists()) {
             try {
                 source.createNewFile();

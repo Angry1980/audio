@@ -1,4 +1,4 @@
-package angry1980.audio;
+package angry1980.audio.neo4j;
 
 import angry1980.audio.dao.*;
 import org.neo4j.graphdb.GraphDatabaseService;

@@ -1,6 +1,6 @@
 package angry1980.audio.stats;
 
-import angry1980.audio.Neo4jDAOConfig;
+import angry1980.audio.neo4j.Neo4jDAOConfig;
 import angry1980.audio.model.ComparingType;
 import angry1980.audio.service.TrackSimilarityStatsService;
 import org.slf4j.Logger;

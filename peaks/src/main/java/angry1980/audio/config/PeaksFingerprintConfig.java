@@ -14,12 +14,10 @@ import angry1980.audio.similarity.InvertedIndexCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 import java.util.Optional;
 
 @Configuration
-@Profile("PEAKS")
 public class PeaksFingerprintConfig {
 
     @Autowired

@@ -1,22 +1,21 @@
 package angry1980.audio.config;
 
 import angry1980.audio.dao.*;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 
 import java.io.File;
-import java.util.Optional;
 
 @Configuration
-@Profile("NETFLIX")
 public class NetflixConfig {
 
-    @Value("${music.similarity.data.file}")
-    private String tsDataFile;
-    @Value("${music.similarity.data.save:true}")
-    private boolean saveResults;
+    public static final String SIMILARITY_FILE_PROPERTY_NAME = "music.similarity.data.file";
+
+    @Autowired
+    private Environment env;
 
     @Bean
     public TrackSimilarityDAO trackSimilarityDAO(){
@@ -35,9 +34,9 @@ public class NetflixConfig {
 
 
     @Bean(destroyMethod = "save")
+    @ConditionalOnProperty(SIMILARITY_FILE_PROPERTY_NAME)
     public NetflixDataProvider netflixDataProvider(){
-        return new NetflixDataProvider(new File(tsDataFile), netflixData(), saveResults);
+        return new NetflixDataProvider(new File(env.getProperty(SIMILARITY_FILE_PROPERTY_NAME)), netflixData());
     }
-
 
 }

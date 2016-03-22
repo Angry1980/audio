@@ -1,16 +1,19 @@
 package angry1980.audio;
 
+import angry1980.audio.config.KafkaConfig;
+import angry1980.audio.config.LocalConfig;
+import angry1980.audio.config.NetflixConfig;
 import angry1980.audio.model.ComparingType;
 import angry1980.audio.service.TrackSimilarityService;
 import angry1980.audio.similarity.TrackSimilarities;
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
@@ -18,8 +21,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
 @Configuration
-@EnableAutoConfiguration
-@ComponentScan(value = {"angry1980.audio.config"})
+@Import(AppConfig.class)
 public class CalculateSimilarities {
 
     private static Logger LOG = LoggerFactory.getLogger(CalculateSimilarities.class);
@@ -31,14 +33,14 @@ public class CalculateSimilarities {
 
     public static void main(String[] args){
         SpringApplication sa = new SpringApplication(CalculateSimilarities.class);
-        sa.setAdditionalProfiles(
-                "NETFLIX",
-                "KAFKA_TRACKS",//tracks from kafka topic
-                //"CALCULATE",//local source of tracks
-                ComparingType.CHROMAPRINT.name(),
-                ComparingType.PEAKS.name(),
-                ComparingType.LASTFM.name()
-        );
+        //todo: as program arguments
+        sa.setDefaultProperties(ImmutableMap.of(
+                LocalConfig.INPUT_DIRECTORY_PROPERTY_NAME, "c:\\music",
+                NetflixConfig.SIMILARITY_FILE_PROPERTY_NAME, "c:\\work\\ts.data"
+                // as kafka consumer
+                , KafkaConfig.TRACKS_TOPIC_PROPERTY_NAME, "tracks"
+                , KafkaConfig.TRACKS_SOURCE_PROPERTY_NAME, "no matter what"
+        ));
         ConfigurableApplicationContext context = sa.run(args);
         context.registerShutdownHook();
         CountDownLatch latch = new CountDownLatch(1);
@@ -55,7 +57,6 @@ public class CalculateSimilarities {
     public void run(CountDownLatch latch){
         trackSimilarityService.getTracksToCalculateSimilarity()
                 .doOnNext(track -> LOG.info("Similarity calculation for {}", track))
-                //.flatMap(trackSimilarityService::findOrCalculateSimilarities)
                 .flatMap(track -> trackSimilarityService.findOrCalculateSimilarities(track,
                                                 ComparingType.CHROMAPRINT,
                                                 //ComparingType.LASTFM,

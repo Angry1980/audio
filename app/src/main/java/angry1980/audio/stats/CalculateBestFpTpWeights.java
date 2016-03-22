@@ -1,5 +1,6 @@
 package angry1980.audio.stats;
 
+import angry1980.audio.AppConfig;
 import angry1980.audio.neo4j.Neo4jDAOConfig;
 import angry1980.audio.model.ComparingType;
 import angry1980.audio.service.TrackSimilarityStatsService;
@@ -7,14 +8,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import java.util.Arrays;
 
-@SpringBootApplication
-@Import(Neo4jDAOConfig.class)
+@Configuration
+@Import(value = {AppConfig.class, Neo4jDAOConfig.class})
 public class CalculateBestFpTpWeights {
 
     private static Logger LOG = LoggerFactory.getLogger(CalculateBestFpTpWeights.class);

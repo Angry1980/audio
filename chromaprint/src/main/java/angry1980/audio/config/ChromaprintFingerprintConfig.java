@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Optional;
 
 @Configuration
-@Profile("CHROMAPRINT")
 @PropertySource({"classpath:chromaprint.properties"})
 public class ChromaprintFingerprintConfig {
 

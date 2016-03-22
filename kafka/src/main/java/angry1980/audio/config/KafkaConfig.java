@@ -2,23 +2,28 @@ package angry1980.audio.config;
 
 import angry1980.audio.dao.TrackDAO;
 import angry1980.audio.similarity.TracksToCalculate;
-import angry1980.audio.similarity.TracksToCalculateImpl;
 import angry1980.audio.similarity.TracksToCalculateKafkaImpl;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 
 import java.util.Properties;
 
 @Configuration
-@Profile(value = {"KAFKA", "KAFKA_TRACKS"})
+@ConditionalOnProperty(KafkaConfig.TRACKS_TOPIC_PROPERTY_NAME)
 public class KafkaConfig {
+
+    public static final String TRACKS_TOPIC_PROPERTY_NAME = "music.kafka.tracks.topic.name";
+    public static final String TRACKS_SOURCE_PROPERTY_NAME = "music.kafka.tracks.source";
 
     @Autowired
     private TrackDAO trackDAO;
+    @Autowired
+    private Environment env;
 
     @Bean
     public Properties kafkaProducerProperties() {
@@ -52,10 +57,10 @@ public class KafkaConfig {
         return props;
     }
 
-    @Bean
-    @Profile("KAFKA_TRACKS")
+    @Bean(destroyMethod = "stop")
+    @ConditionalOnProperty(TRACKS_SOURCE_PROPERTY_NAME)
     public TracksToCalculate tracksToCalculate(){
-        return new TracksToCalculateKafkaImpl(trackDAO, kafkaConsumerProperties(), "tracks");
+        return new TracksToCalculateKafkaImpl(trackDAO, kafkaConsumerProperties(), env.getProperty(TRACKS_TOPIC_PROPERTY_NAME));
     }
 
 }

@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 import rx.Observable;
+import rx.functions.Func1;
 
 import java.util.*;
 import java.util.function.Function;
@@ -29,17 +30,14 @@ public class TrackSimilarityServiceImpl implements TrackSimilarityService {
     private FindSimilarTracks findSimilarTracks;
     private TracksToCalculate tracksToCalculate;
 
-    public TrackSimilarityServiceImpl(TrackDAO trackDAO,
+    public TrackSimilarityServiceImpl(FindSimilarTracks findSimilarTracks,
+                                      TrackDAO trackDAO,
                                       TrackSimilarityDAO trackSimilarityDAO,
                                       TracksToCalculate tracksToCalculate) {
         this.trackDAO = Objects.requireNonNull(trackDAO);
         this.trackSimilarityDAO = Objects.requireNonNull(trackSimilarityDAO);
-        this.findSimilarTracks = new FindSimilarTracksFakeImpl();
+        this.findSimilarTracks = Objects.requireNonNull(findSimilarTracks);
         this.tracksToCalculate = Objects.requireNonNull(tracksToCalculate);
-    }
-
-    public void setFindSimilarTracks(FindSimilarTracks findSimilarTracks) {
-        this.findSimilarTracks = findSimilarTracks;
     }
 
     @Override
@@ -60,13 +58,10 @@ public class TrackSimilarityServiceImpl implements TrackSimilarityService {
         if(types.length > 0){
             r = r.mergeWith(Observable.from(types));
         }
-        return r
-                .doOnNext(t -> LOG.debug("{} is getting ready to handle by {} implementation", track.getId(), t))
+        return r.doOnNext(t -> LOG.debug("{} is getting ready to handle by {} implementation", track.getId(), t))
                 .map(t -> findSimilarTracks.apply(track.getId(), t))
-                .map(s -> {
-                        LOG.debug("{} was handled. There are {} similarities. ", track.getId(), s.size());
-                        return new TrackSimilarities(track, s);
-                });
+                .doOnNext(list -> LOG.debug("{} was handled. There are {} similarities. ", track.getId(), list.size()))
+                .map(list -> new TrackSimilarities(track, list));
     }
 
     @Override

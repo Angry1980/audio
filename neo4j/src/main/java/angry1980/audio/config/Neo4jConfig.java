@@ -6,20 +6,27 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 
 import java.io.File;
 
 @Configuration
-@Profile("NEO4J")
+@ConditionalOnProperty(Neo4jConfig.DATA_PATH_PROPERTY_NAME)
 public class Neo4jConfig implements InitializingBean{
+
+    public static final String DATA_PATH_PROPERTY_NAME = "music.similarity.db.path";
+
+    @Autowired
+    private Environment env;
 
     @Bean
     public GraphDatabaseService graphDatabaseService() {
         return new GraphDatabaseFactory()
-                    .newEmbeddedDatabaseBuilder(new File("c://work/ts.graphdb"))
+                    .newEmbeddedDatabaseBuilder(new File(env.getProperty(DATA_PATH_PROPERTY_NAME)))
                     //.setConfig(GraphDatabaseSettings.pagecache_memory, "512M" )
                     .newGraphDatabase()
         ;

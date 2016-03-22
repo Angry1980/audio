@@ -1,13 +1,19 @@
-package angry1980.audio;
+package angry1980.audio.stats;
 
+import angry1980.audio.Neo4jDAOConfig;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.service.TrackSimilarityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 
+import java.util.Arrays;
+import java.util.OptionalInt;
+
 @SpringBootApplication
 @Import(Neo4jDAOConfig.class)
-public class CalculateUniqieSimilaritiesHistWeights implements CalculateSimilaritiesWeights{
+public class CalculateCommonSimilaritiesHistWeights implements CalculateSimilaritiesWeights {
+
     @Autowired
     private TrackSimilarityService trackSimilarityService;
 
@@ -17,8 +23,8 @@ public class CalculateUniqieSimilaritiesHistWeights implements CalculateSimilari
 
     @Override
     public void calculate(){
-        new HistHandler(trackSimilarityService).handle(
-                (truthPositive, type) -> trackSimilarityService.findUniqueSimilarities(type, truthPositive)
+        new HistHandler(Arrays.asList(ComparingType.CHROMAPRINT), OptionalInt.of(85)).handle(
+                (onlyTruthPositive, type) -> trackSimilarityService.findCommonSimilarities(type, onlyTruthPositive)
         );
     }
 

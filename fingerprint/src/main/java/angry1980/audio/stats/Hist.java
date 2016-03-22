@@ -1,4 +1,4 @@
-package angry1980.audio;
+package angry1980.audio.stats;
 
 import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.TrackSimilarity;

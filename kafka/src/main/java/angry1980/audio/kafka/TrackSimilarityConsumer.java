@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -26,7 +25,7 @@ public class TrackSimilarityConsumer {
     private Consumer<Long, String> kafkaConsumer;
     private final ComparingType comparingType;
     private TrackDAO trackDAO;
-
+    private volatile boolean running = true;
 
     public TrackSimilarityConsumer(TrackSimilarityService trackSimilarityService,
                                     Consumer<Long, String> kafkaConsumer,
@@ -48,9 +47,13 @@ public class TrackSimilarityConsumer {
                 .subscribe(new SubscriberImpl(latch));
     }
 
+    public void stop(){
+        this.running = false;
+    }
+
     private void run(java.util.function.Consumer<Long> c){
-        while (true){//running) {
-            ConsumerRecords<Long, String> records = kafkaConsumer.poll(100);
+        while (running) {
+            ConsumerRecords<Long, String> records = kafkaConsumer.poll(Long.MAX_VALUE);
             try{
                 for (TopicPartition partition : records.partitions()) {
                     List<ConsumerRecord<Long, String>> partitionRecords = records.records(partition);
@@ -88,12 +91,7 @@ public class TrackSimilarityConsumer {
 
         @Override
         public void onCompleted() {
-            trackSimilarityService.getReport().subscribe(ts -> {
-                LOG.info("{} looks like", ts.getTrack());
-                ts.groupByTrack().entrySet().stream()
-                        .map(Object::toString)
-                        .forEach(LOG::info);
-            });
+            LOG.info("Consumer will be stopped in a few seconds");
             latch.countDown();
         }
 

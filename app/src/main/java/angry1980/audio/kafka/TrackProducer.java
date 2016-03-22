@@ -10,13 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import rx.Subscriber;
 
 import java.util.concurrent.CountDownLatch;
 
 @SpringBootApplication
-@Import(AppConfig.class)
+@ComponentScan(value = {"angry1980.audio.config"})
 public class TrackProducer {
 
     private static Logger LOG = LoggerFactory.getLogger(TrackProducer.class);
@@ -29,7 +30,8 @@ public class TrackProducer {
     public static void main(String[] args){
         SpringApplication sa = new SpringApplication(TrackProducer.class);
         sa.setAdditionalProfiles(
-                "NETFLIX"
+                "NETFLIX",
+                "KAFKA"
         );
         ConfigurableApplicationContext context = sa.run(args);
         context.registerShutdownHook();

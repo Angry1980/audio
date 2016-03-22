@@ -1,17 +1,15 @@
 package angry1980.audio.config;
 
-import angry1980.audio.model.Track;
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.util.Properties;
 
 @Configuration
+@Profile("KAFKA")
 public class KafkaConfig {
 
     @Bean

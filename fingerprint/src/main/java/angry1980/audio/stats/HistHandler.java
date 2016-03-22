@@ -1,34 +1,37 @@
-package angry1980.audio;
+package angry1980.audio.stats;
 
 import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.TrackSimilarity;
-import angry1980.audio.service.TrackSimilarityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
 
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.function.BiFunction;
 
 public class HistHandler {
 
     private static Logger LOG = LoggerFactory.getLogger(HistHandler.class);
 
-    private TrackSimilarityService trackSimilarityService;
+    private Collection<ComparingType> types;
+    private OptionalInt percent;
 
-    public HistHandler(TrackSimilarityService trackSimilarityService) {
-        this.trackSimilarityService = trackSimilarityService;
+    public HistHandler(Collection<ComparingType> types) {
+        this(types, OptionalInt.empty());
+    }
+
+    public HistHandler(Collection<ComparingType> types, OptionalInt percent) {
+        this.types = Objects.requireNonNull(types);
+        this.percent = Objects.requireNonNull(percent);
     }
 
     public void handle(BiFunction<Boolean, ComparingType, Observable<TrackSimilarity>> function){
-        for(ComparingType type : Arrays.asList(
-                ComparingType.CHROMAPRINT//,
-                //ComparingType.LASTFM//,
-                //ComparingType.PEAKS
-        )){
-            Optional<Hist.Interval> bestFP = calculate(function, type, 70, false);
-            Optional<Hist.Interval> bestTP = calculate(function, type, 70, true);
+        for(ComparingType type : types){
+            Optional<Hist.Interval> bestFP = calculate(function, type, percent.orElse(70), false);
+            Optional<Hist.Interval> bestTP = calculate(function, type, percent.orElse(70), true);
             if (bestFP.isPresent()) {
                 LOG.info("Best false positive interval for {} is {}", type, bestFP.get());
             } else {

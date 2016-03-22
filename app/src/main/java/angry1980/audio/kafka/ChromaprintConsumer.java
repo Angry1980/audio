@@ -3,21 +3,21 @@ package angry1980.audio.kafka;
 import angry1980.audio.dao.TrackDAO;
 import angry1980.audio.model.ComparingType;
 import angry1980.audio.service.TrackSimilarityService;
-import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ComponentScan;
 
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
 @SpringBootApplication
-@Import(AppConfig.class)
+@ComponentScan(value = {"angry1980.audio.config"})
 public class ChromaprintConsumer {
 
     private static Logger LOG = LoggerFactory.getLogger(ChromaprintConsumer.class);
@@ -35,6 +35,7 @@ public class ChromaprintConsumer {
         SpringApplication sa = new SpringApplication(ChromaprintConsumer.class);
         sa.setAdditionalProfiles(
                 "NETFLIX",
+                "KAFKA",
                 "CALCULATE",
                 ComparingType.CHROMAPRINT.name()
         );

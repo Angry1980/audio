@@ -41,7 +41,7 @@ public class ChromaprintFingerprintConfig {
     @Bean
     public Calculator<Fingerprint> chromaprintCalculator(){
         return new HashProcessCalculator(
-                new ChromaprintProcessCreator(Optional.of(new File(env.getProperty("chromaprint.fpcalc.folder"))).filter(f -> f.isDirectory())),
+                new ChromaprintProcessCreator(Optional.of(new File(env.getProperty("music.chromaprint.fpcalc.folder"))).filter(f -> f.isDirectory())),
                 adapter,
                 FingerprintType.CHROMAPRINT
         );

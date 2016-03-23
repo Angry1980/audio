@@ -59,6 +59,11 @@ public class TrackSimilarityDAONetflixImpl extends Netflix<String> implements Tr
         String value = value(entity);
         addConnection(value, NetflixRelationType.TYPE_OF, data.getTypes().add(entity.getComparingType()));
         int ordinal = data.getSimilarities().get(value);
+        if(data.getTracks().get(entity.getTrack1()) == -1
+                || data.getTracks().get(entity.getTrack2()) == -1){
+            LOG.error("There is not one of  such tracks {} {}", entity.getTrack1(), entity.getTrack2());
+            return null;
+        }
         addEdge(entity.getTrack1(), ordinal);
         LOG.debug("Connection from {} to similarity node {} was added", entity.getTrack1(), value);
         addEdge(entity.getTrack2(), ordinal);
@@ -68,21 +73,6 @@ public class TrackSimilarityDAONetflixImpl extends Netflix<String> implements Tr
 
     private void addEdge(long track, int ordinal){
         int trackOrdinal = data.getTracks().get(track);
-        if(trackOrdinal == -1){
-            data.getGraph().addConnection(
-                    NetflixNodeType.TRACK.name(),
-                    data.getTracks().add(track),
-                    NetflixRelationType.IS.name(),
-                    data.getClusters().add(0L)
-            );
-            data.getGraph().addConnection(
-                    NetflixNodeType.TRACK.name(),
-                    data.getTracks().get(track),
-                    NetflixRelationType.SITUATED.name(),
-                    data.getPaths().add("")
-            );
-            trackOrdinal = data.getTracks().add(track);
-        }
         data.getGraph().addConnection(
                 NetflixNodeType.TRACK.name(),
                 trackOrdinal,

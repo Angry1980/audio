@@ -3,8 +3,11 @@ package angry1980.audio;
 import angry1980.audio.config.KafkaProducerConsumerConfig;
 import angry1980.audio.config.NetflixConfig;
 import angry1980.audio.dao.NetflixDataProvider;
+import angry1980.audio.dao.TrackDAO;
 import angry1980.audio.dao.TrackSimilarityDAO;
 import angry1980.audio.kafka.StreamConsumer;
+import angry1980.audio.model.ImmutableTrack;
+import angry1980.audio.model.Track;
 import angry1980.audio.model.TrackSimilarity;
 import com.google.common.collect.ImmutableMap;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -27,6 +30,8 @@ public class KafkaSimilarityConsumer {
     @Autowired
     private Consumer kafkaConsumer;
     @Autowired
+    private TrackDAO trackDAO;
+    @Autowired
     private TrackSimilarityDAO similarityDAO;
     @Autowired
     private NetflixDataProvider dataProvider;
@@ -48,8 +53,14 @@ public class KafkaSimilarityConsumer {
     }
 
     public void run(){
+        Track from = ImmutableTrack.builder().id(0).cluster(0).path("").build();
         new StreamConsumer<Long, TrackSimilarity>(kafkaConsumer).get()
-                .doOnNext(similarityDAO::create)
+                .doOnNext(ts -> {
+                    //todo: hot fix
+                    trackDAO.create(ImmutableTrack.builder().from(from).id(ts.getTrack1()).build());
+                    trackDAO.create(ImmutableTrack.builder().from(from).id(ts.getTrack2()).build());
+                    similarityDAO.create(ts);
+                })
                 .forEach(ts -> {
                     LOG.info(ts.toString());
                     dataProvider.save();

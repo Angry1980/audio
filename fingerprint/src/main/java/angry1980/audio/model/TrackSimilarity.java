@@ -1,10 +1,12 @@
 package angry1980.audio.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value;
 
 import java.util.Objects;
 
 @Value.Immutable
+@JsonDeserialize(as = ImmutableTrackSimilarity.class)
 public abstract class TrackSimilarity {
 
     public abstract long getTrack1();

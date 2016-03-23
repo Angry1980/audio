@@ -48,7 +48,6 @@ public class LastFMFingerprintConfig {
     public GetOrCreateFingerprint lastFMGetOrCreateFingerprint(){
         return new GetOrCreateFingerprint(
                 lastFMFingerprintDAO(),
-                trackDAO,
                 lastFMCalculator(),
                 lastFMInvertedIndex()
         );

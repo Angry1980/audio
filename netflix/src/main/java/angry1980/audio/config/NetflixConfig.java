@@ -2,6 +2,7 @@ package angry1980.audio.config;
 
 import angry1980.audio.dao.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +19,7 @@ public class NetflixConfig {
     private Environment env;
 
     @Bean
+    @ConditionalOnMissingBean(TrackSimilarityDAO.class)
     public TrackSimilarityDAO trackSimilarityDAO(){
         return new TrackSimilarityDAONetflixImpl(netflixData());
     }

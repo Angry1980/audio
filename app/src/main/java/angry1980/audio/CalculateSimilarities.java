@@ -1,8 +1,6 @@
 package angry1980.audio;
 
-import angry1980.audio.config.KafkaConfig;
-import angry1980.audio.config.LocalConfig;
-import angry1980.audio.config.NetflixConfig;
+import angry1980.audio.config.KafkaProducerConsumerConfig;
 import angry1980.audio.model.ComparingType;
 import angry1980.audio.service.TrackSimilarityService;
 import angry1980.audio.similarity.TrackSimilarities;
@@ -21,7 +19,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
 @Configuration
-@Import(AppConfig.class)
+@Import(value = {AppConfig.class, CalculateSimilaritiesConfig.class})
 public class CalculateSimilarities {
 
     private static Logger LOG = LoggerFactory.getLogger(CalculateSimilarities.class);
@@ -39,8 +37,11 @@ public class CalculateSimilarities {
                 //LocalConfig.INPUT_DIRECTORY_PROPERTY_NAME, "c:\\music",
                 //NetflixConfig.SIMILARITY_FILE_PROPERTY_NAME, "c:\\work\\ts.data"
                 // as kafka consumer
-                KafkaConfig.TRACKS_TOPIC_PROPERTY_NAME, "tracks",
-                KafkaConfig.TRACKS_SOURCE_PROPERTY_NAME, "no matter what"
+                KafkaProducerConsumerConfig.SERVERS_PROPERTY_NAME, "localhost:9092",
+                KafkaProducerConsumerConfig.CONSUMER_SERIALIZER_PROPERTY_NAME, "angry1980.audio.kafka.TrackSerializer",
+                KafkaProducerConsumerConfig.CONSUMER_TOPIC_PROPERTY_NAME, "tracks",
+                KafkaProducerConsumerConfig.PRODUCER_SERIALIZER_PROPERTY_NAME, "angry1980.audio.kafka.TrackSimilaritySerializer",
+                KafkaProducerConsumerConfig.PRODUCER_TOPIC_PROPERTY_NAME, "similarities"
         ));
         ConfigurableApplicationContext context = sa.run(args);
         context.registerShutdownHook();

@@ -23,8 +23,6 @@ public class PeaksFingerprintConfig {
     @Autowired
     private TrackSimilarityDAO trackSimilarityDAO;
     @Autowired
-    private TrackDAO trackDAO;
-    @Autowired
     private Adapter adapter;
 
     @Bean
@@ -51,7 +49,6 @@ public class PeaksFingerprintConfig {
     public GetOrCreateFingerprint peaksGetOrCreateFingerprint(){
         return new GetOrCreateFingerprint(
                 peaksFingerprintDAO(),
-                trackDAO,
                 peaksCalculator(),
                 peaksInvertedIndex()
         );

@@ -6,7 +6,6 @@ import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.Track;
 import angry1980.audio.model.TrackSimilarity;
 import angry1980.audio.similarity.FindSimilarTracks;
-import angry1980.audio.similarity.FindSimilarTracksFakeImpl;
 import angry1980.audio.similarity.TrackSimilarities;
 import angry1980.audio.similarity.TracksToCalculate;
 import it.unimi.dsi.fastutil.longs.*;
@@ -14,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 import rx.Observable;
-import rx.functions.Func1;
 
 import java.util.*;
 import java.util.function.Function;
@@ -59,7 +57,7 @@ public class TrackSimilarityServiceImpl implements TrackSimilarityService {
             r = r.mergeWith(Observable.from(types));
         }
         return r.doOnNext(t -> LOG.debug("{} is getting ready to handle by {} implementation", track.getId(), t))
-                .map(t -> findSimilarTracks.apply(track.getId(), t))
+                .map(t -> findSimilarTracks.apply(track, t))
                 .doOnNext(list -> LOG.debug("{} was handled. There are {} similarities. ", track.getId(), list.size()))
                 .map(list -> new TrackSimilarities(track, list));
     }

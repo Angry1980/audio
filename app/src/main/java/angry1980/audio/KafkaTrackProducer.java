@@ -1,6 +1,6 @@
 package angry1980.audio;
 
-import angry1980.audio.config.KafkaConfig;
+import angry1980.audio.config.KafkaProducerConsumerConfig;
 import angry1980.audio.config.LocalConfig;
 import angry1980.audio.model.Track;
 import angry1980.audio.service.TrackSimilarityService;
@@ -37,7 +37,9 @@ public class KafkaTrackProducer {
         //todo: as program argument
         sa.setDefaultProperties(ImmutableMap.of(
                 LocalConfig.INPUT_DIRECTORY_PROPERTY_NAME, "c:\\music",
-                KafkaConfig.TRACKS_TOPIC_PROPERTY_NAME, "tracks"
+                KafkaProducerConsumerConfig.SERVERS_PROPERTY_NAME, "localhost:9092",
+                KafkaProducerConsumerConfig.PRODUCER_TOPIC_PROPERTY_NAME, "tracks",
+                KafkaProducerConsumerConfig.PRODUCER_SERIALIZER_PROPERTY_NAME, "angry1980.audio.kafka.TrackSerializer"
         ));
         ConfigurableApplicationContext context = sa.run(args);
         context.registerShutdownHook();
@@ -55,7 +57,7 @@ public class KafkaTrackProducer {
     public void run(CountDownLatch latch){
         trackSimilarityService.getTracksToCalculateSimilarity()
                 .doOnNext(track -> LOG.info("{} is ready to send to kafka", track))
-                .subscribe(new SubscriberImpl(env.getProperty(KafkaConfig.TRACKS_TOPIC_PROPERTY_NAME), latch));
+                .subscribe(new SubscriberImpl(env.getProperty(KafkaProducerConsumerConfig.PRODUCER_TOPIC_PROPERTY_NAME), latch));
     }
 
     public class SubscriberImpl extends Subscriber<Track> {

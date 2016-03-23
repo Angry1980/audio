@@ -32,8 +32,6 @@ public class ChromaprintFingerprintConfig {
     private TrackDAO trackDAO;
     @Autowired
     private Environment env;
-    @Autowired
-    private ApplicationContext context;
 
     @Bean
     public FingerprintDAO chromaprintFingerprintDAO(){
@@ -63,7 +61,6 @@ public class ChromaprintFingerprintConfig {
     public GetOrCreateFingerprint chromaprintGetOrCreateFingerprint(){
         return new GetOrCreateFingerprint(
                 chromaprintFingerprintDAO(),
-                trackDAO,
                 chromaprintCalculator(),
                 chromaprintInvertedIndex()
         );

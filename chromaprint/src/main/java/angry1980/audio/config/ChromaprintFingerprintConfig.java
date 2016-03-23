@@ -4,14 +4,15 @@ import angry1980.audio.Adapter;
 import angry1980.audio.dao.*;
 import angry1980.audio.fingerprint.*;
 import angry1980.audio.fingerprint.Calculator;
+import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.Fingerprint;
 import angry1980.audio.model.FingerprintType;
 import angry1980.audio.similarity.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
@@ -31,6 +32,8 @@ public class ChromaprintFingerprintConfig {
     private TrackDAO trackDAO;
     @Autowired
     private Environment env;
+    @Autowired
+    private ApplicationContext context;
 
     @Bean
     public FingerprintDAO chromaprintFingerprintDAO(){
@@ -84,9 +87,16 @@ public class ChromaprintFingerprintConfig {
     @Bean
     public angry1980.audio.similarity.Calculator<Fingerprint> chromaprintErrorRatesSimilarityCalculator(){
         return new HashErrorRatesCalculator(
-                new HashErrorRatesCalculatorTrackSourceImpl(trackDAO),
+                chromaprintHashErrorRatesCalculatorTrackSource(),
                 chromaprintFingerprintDAO()
         );
+    }
+
+    @Bean
+    public HashErrorRatesCalculatorTrackSource chromaprintHashErrorRatesCalculatorTrackSource(){
+        return new HashErrorRatesCalculatorTrackSourceImpl(trackDAO);
+        //solution of unresolvable circular reference
+        //return new HashErrorRatesCalculatorTrackSourceProxy(context, ComparingType.PEAKS);
     }
 
     @Bean
@@ -103,4 +113,5 @@ public class ChromaprintFingerprintConfig {
     public Integer chromaprintSilenceHash(){
         return 2012835109;
     }
+
 }

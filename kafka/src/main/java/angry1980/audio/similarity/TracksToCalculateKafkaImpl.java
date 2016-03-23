@@ -1,6 +1,5 @@
 package angry1980.audio.similarity;
 
-import angry1980.audio.dao.TrackDAO;
 import angry1980.audio.model.Track;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
@@ -16,13 +15,11 @@ public class TracksToCalculateKafkaImpl implements TracksToCalculate {
 
     private Properties kafkaConsumerProperties;
     private String tracksTopicName;
-    private TrackDAO trackDAO;
     private volatile boolean running = true;
 
-    public TracksToCalculateKafkaImpl(TrackDAO trackDAO, Properties kafkaConsumerProperties, String tracksTopicName) {
+    public TracksToCalculateKafkaImpl(Properties kafkaConsumerProperties, String tracksTopicName) {
         this.kafkaConsumerProperties = Objects.requireNonNull(kafkaConsumerProperties);
         this.tracksTopicName = Objects.requireNonNull(tracksTopicName);
-        this.trackDAO = Objects.requireNonNull(trackDAO);
     }
 
     @Override
@@ -32,12 +29,11 @@ public class TracksToCalculateKafkaImpl implements TracksToCalculate {
 
     @Override
     public Observable<Track> get() {
-        KafkaConsumer<Long, String> kafkaConsumer = new KafkaConsumer<>(kafkaConsumerProperties);
+        KafkaConsumer<Long, Track> kafkaConsumer = new KafkaConsumer<>(kafkaConsumerProperties);
         kafkaConsumer.subscribe(Arrays.asList(tracksTopicName));
         return Observable.<Track>create(subscriber -> {
             try{
-                //todo: value as track asap
-                run(kafkaConsumer, trackId -> trackDAO.get(trackId).ifPresent(track -> subscriber.onNext(track)));
+                run(kafkaConsumer, track -> subscriber.onNext(track));
             } finally {
                 subscriber.onCompleted();
                 kafkaConsumer.close();
@@ -53,15 +49,15 @@ public class TracksToCalculateKafkaImpl implements TracksToCalculate {
             }
         });
 */
-    private void run(KafkaConsumer<Long, String> kafkaConsumer, java.util.function.Consumer<Long> c){
+    private void run(KafkaConsumer<Long, Track> kafkaConsumer, java.util.function.Consumer<Track> c){
         while (running) {
-            ConsumerRecords<Long, String> records = kafkaConsumer.poll(Long.MAX_VALUE);
+            ConsumerRecords<Long, Track> records = kafkaConsumer.poll(Long.MAX_VALUE);
             try{
                 for (TopicPartition partition : records.partitions()) {
-                    List<ConsumerRecord<Long, String>> partitionRecords = records.records(partition);
-                    for (ConsumerRecord<Long, String> record : partitionRecords) {
+                    List<ConsumerRecord<Long, Track>> partitionRecords = records.records(partition);
+                    for (ConsumerRecord<Long, Track> record : partitionRecords) {
                         LOG.info("offset = {}, key = {}, value = {}", new Object[]{record.offset(), record.key(), record.value()});
-                        c.accept(record.key());
+                        c.accept(record.value());
                     }
                     long lastoffset = partitionRecords.get(partitionRecords.size() - 1).offset();
                     //todo: user commitAsync

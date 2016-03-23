@@ -1,6 +1,6 @@
 package angry1980.audio.config;
 
-import angry1980.audio.dao.TrackDAO;
+import angry1980.audio.model.Track;
 import angry1980.audio.similarity.TracksToCalculate;
 import angry1980.audio.similarity.TracksToCalculateKafkaImpl;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -21,8 +21,6 @@ public class KafkaConfig {
     public static final String TRACKS_SOURCE_PROPERTY_NAME = "music.kafka.tracks.source";
 
     @Autowired
-    private TrackDAO trackDAO;
-    @Autowired
     private Environment env;
 
     @Bean
@@ -35,12 +33,12 @@ public class KafkaConfig {
         props.put("linger.ms", 1);
         props.put("buffer.memory", 33554432);
         props.put("key.serializer", "org.apache.kafka.common.serialization.LongSerializer");
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("value.serializer", "angry1980.audio.kafka.TrackSerializer");
         return props;
     }
 
     @Bean(destroyMethod = "close")
-    public Producer<Long, String> kafkaProducer() {
+    public Producer<Long, Track> kafkaProducer() {
         return new KafkaProducer<>(kafkaProducerProperties());
     }
 
@@ -53,14 +51,14 @@ public class KafkaConfig {
         props.put("auto.commit.interval.ms", "1000");
         props.put("session.timeout.ms", "30000");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.LongDeserializer");
-        props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put("value.deserializer", "angry1980.audio.kafka.TrackSerializer");
         return props;
     }
 
     @Bean(destroyMethod = "stop")
     @ConditionalOnProperty(TRACKS_SOURCE_PROPERTY_NAME)
     public TracksToCalculate tracksToCalculate(){
-        return new TracksToCalculateKafkaImpl(trackDAO, kafkaConsumerProperties(), env.getProperty(TRACKS_TOPIC_PROPERTY_NAME));
+        return new TracksToCalculateKafkaImpl(kafkaConsumerProperties(), env.getProperty(TRACKS_TOPIC_PROPERTY_NAME));
     }
 
 }

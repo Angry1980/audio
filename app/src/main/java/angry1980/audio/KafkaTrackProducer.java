@@ -28,7 +28,7 @@ public class KafkaTrackProducer {
     @Autowired
     private TrackSimilarityService trackSimilarityService;
     @Autowired
-    private Producer<Long, String> kafkaProducer;
+    private Producer<Long, Track> kafkaProducer;
     @Autowired
     private Environment env;
 
@@ -76,7 +76,7 @@ public class KafkaTrackProducer {
         @Override
         public void onNext(Track track) {
             try{
-                kafkaProducer.send(new ProducerRecord<>(topic, track.getId(), Long.toString(track.getId())));
+                kafkaProducer.send(new ProducerRecord<>(topic, track.getId(), track));
                 LOG.info("Sending {} to kafka is finished", track.getId());
             } catch (Exception e){
                 LOG.error(e.getMessage());

@@ -35,11 +35,12 @@ public class CalculateSimilarities {
         SpringApplication sa = new SpringApplication(CalculateSimilarities.class);
         //todo: as program arguments
         sa.setDefaultProperties(ImmutableMap.of(
+                //local source
                 LocalConfig.INPUT_DIRECTORY_PROPERTY_NAME, "c:\\music",
-                NetflixConfig.SIMILARITY_FILE_PROPERTY_NAME, "c:\\work\\ts.data"
+                //NetflixConfig.SIMILARITY_FILE_PROPERTY_NAME, "c:\\work\\ts.data"
                 // as kafka consumer
-                , KafkaConfig.TRACKS_TOPIC_PROPERTY_NAME, "tracks"
-                , KafkaConfig.TRACKS_SOURCE_PROPERTY_NAME, "no matter what"
+                KafkaConfig.TRACKS_TOPIC_PROPERTY_NAME, "tracks",
+                KafkaConfig.TRACKS_SOURCE_PROPERTY_NAME, "no matter what"
         ));
         ConfigurableApplicationContext context = sa.run(args);
         context.registerShutdownHook();

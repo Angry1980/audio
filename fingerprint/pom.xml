@@ -35,6 +35,16 @@
             <version>${spring.boot.version}</version>
         </dependency>
 
+        <!-- jackson -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
         <!-- MP3 decoder/player/converter -->
         <dependency>
             <groupId>com.googlecode.soundlibs</groupId>

@@ -96,7 +96,7 @@ public class ChromaprintFingerprintConfig {
     public HashErrorRatesCalculatorTrackSource chromaprintHashErrorRatesCalculatorTrackSource(){
         return new HashErrorRatesCalculatorTrackSourceImpl(trackDAO);
         //solution of unresolvable circular reference
-        //return new HashErrorRatesCalculatorTrackSourceProxy(context, ComparingType.PEAKS);
+        //return new HashErrorRatesCalculatorTrackSourceProxy(context, ComparingType.LASTFM);
     }
 
     @Bean

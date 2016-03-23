@@ -1,10 +1,12 @@
 package angry1980.audio.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value;
 
 import java.util.Objects;
 
 @Value.Immutable
+@JsonDeserialize(as = ImmutableTrack.class)
 public abstract class Track {
 
     public abstract String getPath();

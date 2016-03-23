@@ -36,7 +36,7 @@ public class CalculateSimilarities {
         //todo: as program arguments
         sa.setDefaultProperties(ImmutableMap.of(
                 //local source
-                LocalConfig.INPUT_DIRECTORY_PROPERTY_NAME, "c:\\music",
+                //LocalConfig.INPUT_DIRECTORY_PROPERTY_NAME, "c:\\music",
                 //NetflixConfig.SIMILARITY_FILE_PROPERTY_NAME, "c:\\work\\ts.data"
                 // as kafka consumer
                 KafkaConfig.TRACKS_TOPIC_PROPERTY_NAME, "tracks",

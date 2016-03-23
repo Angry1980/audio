@@ -25,7 +25,12 @@ public class TrackSimilarityDAONetflixImpl extends Netflix<String> implements Tr
     public List<TrackSimilarity> tryToFindByTrackId(long trackId) {
         LOG.debug("Try to find similarities for track {}", trackId);
         List<TrackSimilarity> tss = new ArrayList<>();
-        OrdinalIterator it = data.getGraph().getConnectionIterator(NetflixNodeType.TRACK.name(), data.getTracks().get(trackId), NetflixRelationType.HAS.name());
+        int t = data.getTracks().get(trackId);
+        if(t == -1){
+            //there is no such track
+            return tss;
+        }
+        OrdinalIterator it = data.getGraph().getConnectionIterator(NetflixNodeType.TRACK.name(), t, NetflixRelationType.HAS.name());
         int s;
         while((s = it.nextOrdinal()) != OrdinalIterator.NO_MORE_ORDINALS) {
             String value =  data.getSimilarities().get(s);

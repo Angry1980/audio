@@ -55,6 +55,9 @@
         <module>lastfm</module>
         <module>neo4j</module>
         <module>benchmark</module>
+        <module>kafka</module>
+        <module>peaks</module>
+        <module>chromaprint</module>
     </modules>
 
     <properties>
@@ -158,6 +161,16 @@
                 <groupId>it.unimi.dsi</groupId>
                 <artifactId>fastutil</artifactId>
                 <version>7.0.6</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>2.7.3</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.7.3</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

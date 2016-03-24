@@ -2,10 +2,7 @@ package angry1980.audio.similarity;
 
 import angry1980.audio.dao.TrackSimilarityDAO;
 import angry1980.audio.fingerprint.GetOrCreateFingerprint;
-import angry1980.audio.model.ComparingType;
-import angry1980.audio.model.Fingerprint;
-import angry1980.audio.model.FingerprintType;
-import angry1980.audio.model.TrackSimilarity;
+import angry1980.audio.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,9 +37,9 @@ public class FindSimilarTracksImpl implements FindSimilarTracks {
     }
 
     @Override
-    public List<TrackSimilarity> apply(long trackId, ComparingType type) {
-        return trackSimilarityDAO.findByTrackIdAndFingerprintType(trackId, type)
-                    .orElseGet(() -> calculate(trackId, type).stream()
+    public List<TrackSimilarity> apply(Track track, ComparingType type) {
+        return trackSimilarityDAO.findByTrackIdAndFingerprintType(track.getId(), type)
+                    .orElseGet(() -> calculate(track, type).stream()
                                         .map(trackSimilarityDAO::create)
                                         .filter(Optional::isPresent)
                                         .map(Optional::get)
@@ -50,12 +47,12 @@ public class FindSimilarTracksImpl implements FindSimilarTracks {
                     );
     }
 
-    private List<TrackSimilarity> calculate(long trackId, ComparingType type){
-        LOG.debug("Start calculation of {} similarities for track {}", type, trackId);
-        return Optional.ofNullable(fingerprintHandler.apply(trackId, type))
+    private List<TrackSimilarity> calculate(Track track, ComparingType type){
+        LOG.debug("Start calculation of {} similarities for track {}", type, track.getId());
+        return Optional.ofNullable(fingerprintHandler.apply(track, type))
                 .map(fingerprint -> calculator.calculate(fingerprint, type))
                 .orElseGet(() -> {
-                    LOG.debug("It's not possible to calculate {} similarities for track {}", type, trackId);
+                    LOG.debug("It's not possible to calculate {} similarities for track {}", type, track.getId());
                     return Collections.<TrackSimilarity>emptyList();
                 });
     }

@@ -1,15 +1,18 @@
 package angry1980.audio;
 
+import angry1980.audio.config.Neo4jConfig;
+import angry1980.audio.config.NetflixConfig;
 import angry1980.audio.model.ComparingType;
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-@SpringBootApplication
+@Configuration
 @Import(ImportFromNetflixToNeo4jConfig.class)
 public class ImportFromNetflixToNeo4j {
 
@@ -22,13 +25,11 @@ public class ImportFromNetflixToNeo4j {
 
     public static void main(String[] args){
         SpringApplication sa = new SpringApplication(ImportFromNetflixToNeo4j.class);
-        sa.setAdditionalProfiles(
-                ComparingType.CHROMAPRINT.name(),
-                ComparingType.PEAKS.name(),
-                ComparingType.LASTFM.name(),
-                "NEO4J",
-                "NETFLIX"
-        );
+        //todo: as program argument
+        sa.setDefaultProperties(ImmutableMap.of(
+                NetflixConfig.SIMILARITY_FILE_PROPERTY_NAME, "c:\\work\\ts.data",
+                Neo4jConfig.DATA_PATH_PROPERTY_NAME, "c:\\work\\ts.graphdb"
+        ));
         ConfigurableApplicationContext context = sa.run(args);
         context.registerShutdownHook();
         context.getBean(ImportFromNetflixToNeo4j.class)

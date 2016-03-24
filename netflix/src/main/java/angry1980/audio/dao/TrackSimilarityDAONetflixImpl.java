@@ -25,7 +25,12 @@ public class TrackSimilarityDAONetflixImpl extends Netflix<String> implements Tr
     public List<TrackSimilarity> tryToFindByTrackId(long trackId) {
         LOG.debug("Try to find similarities for track {}", trackId);
         List<TrackSimilarity> tss = new ArrayList<>();
-        OrdinalIterator it = data.getGraph().getConnectionIterator(NetflixNodeType.TRACK.name(), data.getTracks().get(trackId), NetflixRelationType.HAS.name());
+        int t = data.getTracks().get(trackId);
+        if(t == -1){
+            //there is no such track
+            return tss;
+        }
+        OrdinalIterator it = data.getGraph().getConnectionIterator(NetflixNodeType.TRACK.name(), t, NetflixRelationType.HAS.name());
         int s;
         while((s = it.nextOrdinal()) != OrdinalIterator.NO_MORE_ORDINALS) {
             String value =  data.getSimilarities().get(s);
@@ -54,21 +59,26 @@ public class TrackSimilarityDAONetflixImpl extends Netflix<String> implements Tr
         String value = value(entity);
         addConnection(value, NetflixRelationType.TYPE_OF, data.getTypes().add(entity.getComparingType()));
         int ordinal = data.getSimilarities().get(value);
-        data.getGraph().addConnection(
-                NetflixNodeType.TRACK.name(),
-                data.getTracks().get(entity.getTrack1()),
-                NetflixRelationType.HAS.name(),
-                ordinal
-        );
+        if(data.getTracks().get(entity.getTrack1()) == -1
+                || data.getTracks().get(entity.getTrack2()) == -1){
+            LOG.error("There is not one of  such tracks {} {}", entity.getTrack1(), entity.getTrack2());
+            return null;
+        }
+        addEdge(entity.getTrack1(), ordinal);
         LOG.debug("Connection from {} to similarity node {} was added", entity.getTrack1(), value);
-        data.getGraph().addConnection(
-                NetflixNodeType.TRACK.name(),
-                data.getTracks().get(entity.getTrack2()),
-                NetflixRelationType.HAS.name(),
-                ordinal
-        );
+        addEdge(entity.getTrack2(), ordinal);
         LOG.debug("Connection from {} to similarity node {} was added", entity.getTrack2(), value);
         return entity;
+    }
+
+    private void addEdge(long track, int ordinal){
+        int trackOrdinal = data.getTracks().get(track);
+        data.getGraph().addConnection(
+                NetflixNodeType.TRACK.name(),
+                trackOrdinal,
+                NetflixRelationType.HAS.name(),
+                ordinal
+        );
     }
 
     @Override

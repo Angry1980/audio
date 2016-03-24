@@ -1,6 +1,8 @@
 package angry1980.audio;
 
+import angry1980.audio.config.Neo4jConfig;
 import angry1980.audio.model.ComparingType;
+import angry1980.audio.neo4j.Neo4jDAOConfig;
 import angry1980.audio.service.TrackSimilarityStatsService;
 import angry1980.audio.stats.Stats;
 import com.google.common.collect.ImmutableMap;
@@ -8,13 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import rx.Subscriber;
 
-@SpringBootApplication
-@Import(Neo4jDAOConfig.class)
+@Configuration
+@Import(value = {AppConfig.class, Neo4jDAOConfig.class})
 public class ShowReport {
 
     private static Logger LOG = LoggerFactory.getLogger(ShowReport.class);
@@ -24,12 +26,10 @@ public class ShowReport {
 
     public static void main(String[] args){
         SpringApplication sa = new SpringApplication(ShowReport.class);
-        sa.setAdditionalProfiles(
-                ComparingType.CHROMAPRINT.name(),
-                ComparingType.PEAKS.name(),
-                ComparingType.LASTFM.name(),
-                "NEO4J"
-        );
+        //todo: as program argument
+        sa.setDefaultProperties(ImmutableMap.of(
+                Neo4jConfig.DATA_PATH_PROPERTY_NAME, "c:\\work\\ts.graphdb"
+        ));
         ConfigurableApplicationContext context = sa.run(args);
         context.registerShutdownHook();
         context.getBean(ShowReport.class).print();

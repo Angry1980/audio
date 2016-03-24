@@ -10,13 +10,11 @@ import angry1980.audio.similarity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 import java.util.Arrays;
 import java.util.Optional;
 
 @Configuration
-@Profile("LASTFM")
 public class LastFMFingerprintConfig {
 
     @Autowired
@@ -50,7 +48,6 @@ public class LastFMFingerprintConfig {
     public GetOrCreateFingerprint lastFMGetOrCreateFingerprint(){
         return new GetOrCreateFingerprint(
                 lastFMFingerprintDAO(),
-                trackDAO,
                 lastFMCalculator(),
                 lastFMInvertedIndex()
         );
@@ -58,7 +55,7 @@ public class LastFMFingerprintConfig {
 
     @Bean
     public angry1980.audio.similarity.Calculator<Fingerprint> lastFMFingerprintCalculator(){
-        return new ComplexCalculator<>(
+        return new CompositeCalculator<>(
                 Arrays.asList(
                         lastFMInvertedIndexSimilarityCalculator(),
                         lastFMErrorRatesSimilarityCalculator()

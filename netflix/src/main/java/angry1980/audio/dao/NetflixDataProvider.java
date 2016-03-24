@@ -19,6 +19,7 @@ public class NetflixDataProvider implements InitializingBean {
 
     private File source;
     private NetflixData data;
+
     private Vocabulary<String> stringVocabulary = new Vocabulary<>(
                                                 in -> in.readUTF(),
                                                 (out, node) -> out.writeUTF(node)

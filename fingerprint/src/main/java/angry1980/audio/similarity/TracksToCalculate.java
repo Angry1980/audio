@@ -7,4 +7,7 @@ public interface TracksToCalculate {
 
     Observable<Track> get();
 
+    default void stop(){
+    }
+
 }

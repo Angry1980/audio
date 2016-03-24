@@ -27,4 +27,5 @@ public interface Adapter {
     default void clean(){
 
     }
+
 }

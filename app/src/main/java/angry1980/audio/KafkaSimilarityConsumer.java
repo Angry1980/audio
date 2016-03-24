@@ -5,7 +5,9 @@ import angry1980.audio.config.NetflixConfig;
 import angry1980.audio.dao.NetflixDataProvider;
 import angry1980.audio.dao.TrackDAO;
 import angry1980.audio.dao.TrackSimilarityDAO;
+import angry1980.audio.kafka.ImmutableConsumerProperties;
 import angry1980.audio.kafka.StreamConsumer;
+import angry1980.audio.kafka.TrackSimilarityDeserializer;
 import angry1980.audio.model.ImmutableTrack;
 import angry1980.audio.model.Track;
 import angry1980.audio.model.TrackSimilarity;
@@ -42,8 +44,13 @@ public class KafkaSimilarityConsumer {
         sa.setDefaultProperties(ImmutableMap.of(
                 NetflixConfig.SIMILARITY_FILE_PROPERTY_NAME, "c:\\work\\ts.data",
                 KafkaProducerConsumerConfig.SERVERS_PROPERTY_NAME, "localhost:9092",
-                KafkaProducerConsumerConfig.CONSUMER_SERIALIZER_PROPERTY_NAME, "angry1980.audio.kafka.TrackSimilaritySerializer",
-                KafkaProducerConsumerConfig.CONSUMER_TOPIC_PROPERTY_NAME, "similarities"
+                KafkaProducerConsumerConfig.CONSUMER_ENABLED_PROPERTY_NAME, "true",
+                KafkaProducerConsumerConfig.CONSUMER_PROPERTIES,
+                ImmutableConsumerProperties.builder()
+                        .valueDeserializer(TrackSimilarityDeserializer.class)
+                        .topicName("similarities")
+                        .groupName("similarityStorage")
+                        .build()
         ));
         ConfigurableApplicationContext context = sa.run(args);
         context.registerShutdownHook();

@@ -38,8 +38,7 @@ public class KafkaTrackProducer {
         sa.setDefaultProperties(ImmutableMap.of(
                 LocalConfig.INPUT_DIRECTORY_PROPERTY_NAME, "c:\\music",
                 KafkaProducerConsumerConfig.SERVERS_PROPERTY_NAME, "localhost:9092",
-                KafkaProducerConsumerConfig.PRODUCER_TOPIC_PROPERTY_NAME, "tracks",
-                KafkaProducerConsumerConfig.PRODUCER_SERIALIZER_PROPERTY_NAME, "angry1980.audio.kafka.TrackSerializer"
+                KafkaProducerConsumerConfig.PRODUCER_TOPIC_PROPERTY_NAME, "tracks"
         ));
         ConfigurableApplicationContext context = sa.run(args);
         context.registerShutdownHook();

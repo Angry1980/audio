@@ -35,7 +35,7 @@ public class CalculateSimilaritiesConfig {
 
     @Bean(destroyMethod = "stop")
     @ConditionalOnBean(Consumer.class)
-    @ConditionalOnProperty(KafkaProducerConsumerConfig.CONSUMER_TOPIC_PROPERTY_NAME)
+    @ConditionalOnProperty(KafkaProducerConsumerConfig.CONSUMER_ENABLED_PROPERTY_NAME)
     public TracksToCalculate tracksToCalculate(){
         return new TracksToCalculateKafkaImpl(kafkaConsumer.get());
     }

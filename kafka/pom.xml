@@ -26,6 +26,11 @@
             <artifactId>audio-fingerprint</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.immutables</groupId>
+            <artifactId>value</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

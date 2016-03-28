@@ -58,6 +58,7 @@
         <module>kafka</module>
         <module>peaks</module>
         <module>chromaprint</module>
+        <module>cassandra</module>
     </modules>
 
     <properties>

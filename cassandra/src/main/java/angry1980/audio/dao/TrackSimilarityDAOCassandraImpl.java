@@ -19,7 +19,7 @@ public class TrackSimilarityDAOCassandraImpl implements TrackSimilarityDAO{
 
     /*
 
-create table similarityCommand(
+create table trackSimilarity(
 	id uuid primary key,
 	track1 bigint,
 	track2 bigint,
@@ -35,7 +35,7 @@ create table similarityCommand(
     public TrackSimilarityDAOCassandraImpl(Session session, String keyspace) {
         this.session = session;
         this.insertStatement = session.prepare(
-                insertInto(keyspace, "similarityCommand")
+                insertInto(keyspace, "trackSimilarity")
                         .value("id", bindMarker())
                         .value("track1", bindMarker())
                         .value("track2", bindMarker())

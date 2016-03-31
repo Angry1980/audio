@@ -6,7 +6,6 @@ import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.Track;
 import angry1980.audio.model.TrackSimilarity;
 import angry1980.audio.similarity.FindSimilarTracks;
-import angry1980.audio.similarity.TrackSimilarities;
 import angry1980.audio.similarity.TracksToCalculate;
 import it.unimi.dsi.fastutil.longs.*;
 import org.slf4j.Logger;
@@ -44,32 +43,17 @@ public class TrackSimilarityServiceImpl implements TrackSimilarityService {
     }
 
     @Override
-    public Observable<TrackSimilarities> findOrCalculateSimilarities(long trackId, ComparingType type, ComparingType... types) {
+    public Observable<TrackSimilarity> findOrCalculateSimilarities(long trackId, ComparingType... types) {
         return trackDAO.get(trackId)
-                .map(track -> this.findOrCalculateSimilarities(track, type, types))
+                .map(track -> this.findOrCalculateSimilarities(track, types))
                 .orElseGet(() -> Observable.empty());
     }
 
     @Override
-    public Observable<TrackSimilarities> findOrCalculateSimilarities(Track track, ComparingType type, ComparingType... types) {
-        Observable<ComparingType> r = Observable.just(type);
-        if(types.length > 0){
-            r = r.mergeWith(Observable.from(types));
-        }
-        return r.doOnNext(t -> LOG.debug("{} is getting ready to handle by {} implementation", track.getId(), t))
-                .map(t -> findSimilarTracks.apply(track, t))
-                .doOnNext(list -> LOG.debug("{} was handled. There are {} similarities. ", track.getId(), list.size()))
-                .map(list -> new TrackSimilarities(track, list));
-    }
-
-    @Override
-    public Observable<TrackSimilarities> getReport() {
-        return Observable.create(subscriber -> {
-            trackDAO.getAllOrEmpty().stream()
-                    .map(track -> new TrackSimilarities(track, trackSimilarityDAO.findByTrackIdOrEmpty(track.getId())))
-                    .forEach(subscriber::onNext);
-            subscriber.onCompleted();
-        });
+    public Observable<TrackSimilarity> findOrCalculateSimilarities(Track track, ComparingType... types) {
+        return Observable.from(types)
+                .doOnNext(t -> LOG.debug("{} is getting ready to handle by {} implementation", track.getId(), t))
+                .flatMap(t -> findSimilarTracks.apply(track, t));
     }
 
     @Override

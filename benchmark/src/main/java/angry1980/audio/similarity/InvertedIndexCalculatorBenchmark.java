@@ -53,7 +53,7 @@ public class InvertedIndexCalculatorBenchmark {
 
     @Benchmark
     public Collection<TrackSimilarity> testCalculate(){
-        return index.calculate(fingerprint, ComparingType.CHROMAPRINT);
+        return index.calculate(fingerprint, ComparingType.CHROMAPRINT).toList().toBlocking().single();
     }
 
 }

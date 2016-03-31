@@ -1,12 +1,16 @@
 package angry1980.audio;
 
 import angry1980.audio.config.KafkaProducerConsumerConfig;
+import angry1980.audio.config.LocalConfig;
+import angry1980.audio.config.NetflixConfig;
 import angry1980.audio.kafka.ImmutableConsumerProperties;
 import angry1980.audio.kafka.TrackDeserializer;
 import angry1980.audio.model.ComparingType;
+import angry1980.audio.model.TrackSimilarity;
 import angry1980.audio.service.TrackSimilarityService;
-import angry1980.audio.similarity.TrackSimilarities;
 import com.google.common.collect.ImmutableMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +19,10 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import rx.Subscriber;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Configuration
 @Import(value = {AppConfig.class, CalculateSimilaritiesConfig.class})
@@ -30,9 +38,10 @@ public class CalculateSimilarities {
         //todo: as program arguments
         sa.setDefaultProperties(ImmutableMap.of(
                 //local source
-                //LocalConfig.INPUT_DIRECTORY_PROPERTY_NAME, "c:\\music",
-                //NetflixConfig.SIMILARITY_FILE_PROPERTY_NAME, "c:\\work\\ts.data"
+                LocalConfig.INPUT_DIRECTORY_PROPERTY_NAME, "c:\\music",
+                NetflixConfig.SIMILARITY_FILE_PROPERTY_NAME, "c:\\work\\ts.data"
                 // as kafka consumer
+/*
                 KafkaProducerConsumerConfig.SERVERS_PROPERTY_NAME, "localhost:9092",
                 KafkaProducerConsumerConfig.CONSUMER_ENABLED_PROPERTY_NAME, "true",
                 KafkaProducerConsumerConfig.CONSUMER_PROPERTIES,
@@ -42,6 +51,7 @@ public class CalculateSimilarities {
                             .topicName("tracks")
                             .build(),
                 KafkaProducerConsumerConfig.PRODUCER_TOPIC_PROPERTY_NAME, "similarities"
+                */
         ));
         sa.setRegisterShutdownHook(true);
         sa.setLogStartupInfo(false);
@@ -64,8 +74,9 @@ public class CalculateSimilarities {
                 .subscribe(new SubscriberImpl());
     }
 
-    public class SubscriberImpl extends Subscriber<TrackSimilarities>{
+    public class SubscriberImpl extends Subscriber<TrackSimilarity>{
 
+        private Long2ObjectMap<Long2ObjectMap<List<TrackSimilarity>>> similarities = new Long2ObjectOpenHashMap<>();
 
         public SubscriberImpl(){
         }
@@ -76,18 +87,20 @@ public class CalculateSimilarities {
         }
 
         @Override
-        public void onNext(TrackSimilarities result) {
-            LOG.info("Similarity calculation for {} is finished", result.getTrack());
+        public void onNext(TrackSimilarity ts) {
+            similarities.computeIfAbsent(ts.getTrack1(), t1 -> new Long2ObjectOpenHashMap<>())
+                    .computeIfAbsent(ts.getTrack2(), t2 -> new ArrayList<>()).add(ts);
+            LOG.info("Result of similarity calculation {} was added", ts);
         }
 
         @Override
         public void onCompleted() {
-            trackSimilarityService.getReport().subscribe(ts -> {
-                LOG.info("{} looks like", ts.getTrack());
-                ts.groupByTrack().entrySet().stream()
-                        .map(Object::toString)
-                        .forEach(LOG::info);
-            });
+            similarities.long2ObjectEntrySet().stream()
+                    .peek(entry -> LOG.info("{} looks like", entry.getLongKey()))
+                    .forEach(entry -> entry.getValue().entrySet().stream()
+                                        .map(Object::toString)
+                                        .forEach(LOG::info)
+                    );
         }
 
     }

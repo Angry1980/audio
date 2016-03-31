@@ -7,10 +7,9 @@ import it.unimi.dsi.fastutil.ints.IntSortedSet;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.Observable;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class InvertedIndexCalculator implements Calculator<Fingerprint> {
 
@@ -33,13 +32,13 @@ public class InvertedIndexCalculator implements Calculator<Fingerprint> {
     }
 
     @Override
-    public List<TrackSimilarity> calculate(Fingerprint fingerprint, ComparingType comparingType) {
+    public Observable<TrackSimilarity> calculate(Fingerprint fingerprint, ComparingType comparingType) {
         LOG.debug("Similarity calculation for {} of type {}", fingerprint.getTrackId(), fingerprint.getType());
         Long2ObjectMap<IntSortedSet> hashes = index.find(fingerprint);
         LOG.debug("There are {} similarity candidates for {} of type {} ", new Object[]{hashes.size(), fingerprint.getTrackId(), fingerprint.getType()});
         int minWeight = (int) Math.floor(fingerprint.getHashes().size() * minWeightPercent);
         int filterWeight = (int) Math.floor(fingerprint.getHashes().size() * filterWeightPercent);;
-        return hashes.entrySet().stream()
+        return Observable.from(hashes.entrySet())
                 //.peek(entry -> LOG.debug("Results by track {}", entry))
                 .filter(entry -> !entry.getKey().equals(fingerprint.getTrackId()))
                 .map(entry -> new Numbered<>(entry.getKey(), this.splitAndSum(entry.getValue(), filterWeight)))
@@ -50,9 +49,7 @@ public class InvertedIndexCalculator implements Calculator<Fingerprint> {
                         .comparingType(comparingType)
                         .value(n.getValue())
                         .build()
-
-                ).peek(ts -> LOG.debug("{} was created", ts))
-                .collect(Collectors.toList());
+                );
     }
 
     private int splitAndSum(IntSortedSet data, int filterWeight){

@@ -8,10 +8,10 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
+import rx.Observable;
 
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -73,15 +73,18 @@ public class HashErrorRatesCalculatorBenchmark {
     }
 
     @Benchmark
-    public Collection<TrackSimilarity> testCalculate(){
-        return calculator.calculate(fingerprint, ComparingType.CHROMAPRINT);
+    public List<TrackSimilarity> testCalculate(){
+        return calculator.calculate(fingerprint, ComparingType.CHROMAPRINT).toList().toBlocking().single();
     }
 
     public class TrackSource implements HashErrorRatesCalculatorTrackSource{
 
         @Override
-        public Optional<long[]> get(long sourceTrackId) {
-            return Optional.of(tracks);
+        public Observable<Long> get(long sourceTrackId) {
+            return Observable.create(subscriber -> {
+                    Arrays.stream(tracks).forEach(subscriber::onNext);
+                    subscriber.onCompleted();
+            });
         }
     }
 

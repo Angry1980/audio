@@ -3,8 +3,8 @@ package angry1980.audio.similarity;
 import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.Fingerprint;
 import angry1980.audio.model.TrackSimilarity;
+import rx.Observable;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,11 +17,11 @@ public class CompositeCalculator<F extends Fingerprint> implements Calculator<F>
     }
 
     @Override
-    public List<TrackSimilarity> calculate(F fingerprint, ComparingType comparingType) {
+    public Observable<TrackSimilarity> calculate(F fingerprint, ComparingType comparingType) {
         return calculators.stream()
                 .filter(calc -> calc.test(comparingType.getSimilarityType()))
                 .findAny()
                 .map(calc -> calc.calculate(fingerprint, comparingType))
-                .orElseGet(() -> Collections.emptyList());
+                .orElseGet(() -> Observable.empty());
     }
 }

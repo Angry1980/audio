@@ -84,7 +84,6 @@ public class CalculateSimilarities {
     public class SubscriberImpl extends Subscriber<TrackSimilarity>{
 
         private final AtomicInteger counter = new AtomicInteger();
-        private final AtomicInteger unique = new AtomicInteger();
         private final CountDownLatch latch;
         private Long2ObjectMap<Long2ObjectMap<Collection<TrackSimilarity>>> similarities = new Long2ObjectOpenHashMap<>();
 
@@ -100,10 +99,8 @@ public class CalculateSimilarities {
 
         @Override
         public void onNext(TrackSimilarity ts) {
-            if(similarities.computeIfAbsent(ts.getTrack1(), t1 -> new Long2ObjectOpenHashMap<>())
-                    .computeIfAbsent(ts.getTrack2(), t2 -> new HashSet<>()).add(ts)){
-                unique.incrementAndGet();
-            }
+            similarities.computeIfAbsent(ts.getTrack1(), t1 -> new Long2ObjectOpenHashMap<>())
+                    .computeIfAbsent(ts.getTrack2(), t2 -> new HashSet<>()).add(ts);
             LOG.info("Result {} of similarity calculation {} was added", counter.getAndIncrement(), ts);
         }
 
@@ -114,7 +111,7 @@ public class CalculateSimilarities {
         }
 
         void print(){
-            LOG.info("There were calculated {} similarities, unique {}", counter.get(), unique.get());
+            LOG.info("There were calculated {} similarities", counter.get());
             similarities.long2ObjectEntrySet().stream()
                     .peek(entry -> LOG.info("{} looks like", entry.getLongKey()))
                     .forEach(entry -> entry.getValue().entrySet().stream()

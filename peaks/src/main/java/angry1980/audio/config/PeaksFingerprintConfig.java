@@ -66,7 +66,7 @@ public class PeaksFingerprintConfig {
                 ),
                 trackRepository
         );
-        commandBus.subscribe(ImmutableCalculateTrackSimilarityCommand.class.getName(), handler);
+        commandBus.subscribe(ImmutableCalculateTrackSimilarityCommand.class.getName() + FingerprintType.PEAKS.name(), handler);
         return handler;
     }
 

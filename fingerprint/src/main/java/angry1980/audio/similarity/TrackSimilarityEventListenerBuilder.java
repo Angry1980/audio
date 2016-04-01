@@ -4,8 +4,10 @@ import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.Track;
 import angry1980.audio.model.TrackSimilarity;
 import org.axonframework.commandhandling.CommandCallback;
+import org.axonframework.commandhandling.GenericCommandMessage;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.domain.EventMessage;
+import org.axonframework.domain.MetaData;
 import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventhandling.EventListener;
 import org.slf4j.Logger;
@@ -64,7 +66,14 @@ public class TrackSimilarityEventListenerBuilder{
             LOG.debug("Add subscriber of event stream of track {}", track.getId());
             subscribers.add(subscriber);
             if(sent.compareAndSet(false, true)){
-                commandGateway.send(ImmutableCalculateTrackSimilarityCommand.builder().track(track).type(type).build(), new Callback());
+                commandGateway.send(
+                        new GenericCommandMessage<>(
+                                ImmutableCalculateTrackSimilarityCommand.class.getName() + type.getFingerprintType().name(),
+                                ImmutableCalculateTrackSimilarityCommand.builder().track(track).type(type).build(),
+                                MetaData.emptyInstance()
+                        ),
+                        new Callback()
+                );
             }
         }
 

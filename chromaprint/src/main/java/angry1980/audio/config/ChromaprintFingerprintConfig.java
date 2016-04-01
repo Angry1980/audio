@@ -79,7 +79,7 @@ public class ChromaprintFingerprintConfig {
                 ),
                 trackRepository
         );
-        commandBus.subscribe(ImmutableCalculateTrackSimilarityCommand.class.getName(), handler);
+        commandBus.subscribe(ImmutableCalculateTrackSimilarityCommand.class.getName() + FingerprintType.CHROMAPRINT.name(), handler);
         return handler;
     }
 

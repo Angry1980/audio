@@ -3,10 +3,7 @@ package angry1980.audio.config;
 import angry1980.audio.dao.TrackDAO;
 import angry1980.audio.dao.TrackSimilarityDAO;
 import angry1980.audio.service.TrackSimilarityServiceImpl;
-import angry1980.audio.similarity.CompositeFindSimilarTracks;
-import angry1980.audio.similarity.FindSimilarTracks;
-import angry1980.audio.similarity.TracksToCalculate;
-import angry1980.audio.similarity.TracksToCalculateImpl;
+import angry1980.audio.similarity.*;
 import angry1980.audio.track.TrackAggregator;
 import angry1980.audio.track.TrackStorageEventListener;
 import org.axonframework.commandhandling.CommandBus;
@@ -91,13 +88,5 @@ public class CommonConfig {
     public TrackStorageEventListener trackStorageEventListener(){
         return new TrackStorageEventListener(trackDAO);
     }
-/*
-    @Bean
-    public CalculateTrackSimilaritiesCommandHandler calculateTrackSimilaritiesCommandHandler(){
-        CalculateTrackSimilaritiesCommandHandler handler = new CalculateTrackSimilaritiesCommandHandler(eventRepository(), new CompositeFindSimilarTracks(findSimilarTracksList));
-        commandBus().subscribe(ImmutableCalculateTrackSimilaritiesCommand.class.getName(), handler);
-        return handler;
-    }
-*/
 
 }

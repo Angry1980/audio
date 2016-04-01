@@ -23,6 +23,8 @@ import rx.Subscriber;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Configuration
 @Import(value = {AppConfig.class, CalculateSimilaritiesConfig.class})
@@ -57,11 +59,17 @@ public class CalculateSimilarities {
         sa.setLogStartupInfo(false);
         ConfigurableApplicationContext context = sa.run(args);
         LOG.info("Starting application");
-        context.getBean(CalculateSimilarities.class).run();
+        CountDownLatch latch = new CountDownLatch(1);
+        context.getBean(CalculateSimilarities.class).run(latch);
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            LOG.error("Error hile calculating similarities", e);
+        }
         context.close();
     }
 
-    public void run(){
+    public void run(CountDownLatch latch){
         trackSimilarityService.getTracksToCalculateSimilarity()
                 .doOnNext(track -> LOG.info("Similarity calculation for {}", track))
                 .flatMap(track -> trackSimilarityService.findOrCalculateSimilarities(track,
@@ -71,37 +79,46 @@ public class CalculateSimilarities {
                                                 //ComparingType.LASTFM_ER,
                                                 ComparingType.PEAKS)
                 )//.subscribeOn(Schedulers.from(executor))
-                .subscribe(new SubscriberImpl());
+                .subscribe(new SubscriberImpl(latch));
     }
 
     public class SubscriberImpl extends Subscriber<TrackSimilarity>{
 
+        private final AtomicInteger counter = new AtomicInteger();
+        private final CountDownLatch latch;
         private Long2ObjectMap<Long2ObjectMap<List<TrackSimilarity>>> similarities = new Long2ObjectOpenHashMap<>();
 
-        public SubscriberImpl(){
+        public SubscriberImpl(CountDownLatch latch){
+            this.latch = latch;
         }
 
         @Override
         public void onError(Throwable throwable) {
             LOG.error("Error while track similarity calculation", throwable);
+            latch.countDown();
         }
 
         @Override
         public void onNext(TrackSimilarity ts) {
             similarities.computeIfAbsent(ts.getTrack1(), t1 -> new Long2ObjectOpenHashMap<>())
                     .computeIfAbsent(ts.getTrack2(), t2 -> new ArrayList<>()).add(ts);
-            LOG.info("Result of similarity calculation {} was added", ts);
+            LOG.info("Result {} of similarity calculation {} was added", counter.getAndIncrement(), ts);
         }
 
         @Override
         public void onCompleted() {
+            print();
+            latch.countDown();
+        }
+
+        void print(){
+            LOG.info("There were calculated {} similarities", counter.get());
             similarities.long2ObjectEntrySet().stream()
                     .peek(entry -> LOG.info("{} looks like", entry.getLongKey()))
                     .forEach(entry -> entry.getValue().entrySet().stream()
-                                        .map(Object::toString)
-                                        .forEach(LOG::info)
+                            .map(Object::toString)
+                            .forEach(LOG::info)
                     );
         }
-
     }
 }

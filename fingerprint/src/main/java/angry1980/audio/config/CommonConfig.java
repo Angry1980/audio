@@ -5,7 +5,7 @@ import angry1980.audio.dao.TrackSimilarityDAO;
 import angry1980.audio.service.TrackSimilarityServiceImpl;
 import angry1980.audio.similarity.*;
 import angry1980.audio.track.TrackAggregator;
-import angry1980.audio.track.TrackStorageEventListener;
+import angry1980.audio.track.StorageEventListener;
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.SimpleCommandBus;
 import org.axonframework.commandhandling.annotation.AggregateAnnotationCommandHandler;
@@ -85,8 +85,8 @@ public class CommonConfig {
     }
 
     @Bean
-    public TrackStorageEventListener trackStorageEventListener(){
-        return new TrackStorageEventListener(trackDAO);
+    public StorageEventListener trackStorageEventListener(){
+        return new StorageEventListener(trackDAO, trackSimilarityDAO);
     }
 
 }

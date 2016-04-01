@@ -38,16 +38,10 @@ public class FindSimilarTracksImpl implements FindSimilarTracks {
     public Observable<TrackSimilarity> apply(Track track, ComparingType type) {
         return trackSimilarityDAO.findByTrackIdAndFingerprintType(track.getId(), type)
                     .map(Observable::from)
-                    .orElseGet(() -> calculate(track, type)
-                                        //todo: use event bus
-                                        .map(ts -> trackSimilarityDAO.create(ts))
-                                        .filter(Optional::isPresent)
-                                        .map(Optional::get)
-                    );
+                    .orElseGet(() -> calculate(track, type));
     }
 
     private Observable<TrackSimilarity> calculate(Track track, ComparingType type){
-        //todo: send command
         LOG.debug("Start calculation of {} similarities for track {}", type, track.getId());
         return Optional.ofNullable(fingerprintHandler.apply(track, type))
                 .map(fingerprint -> calculator.calculate(fingerprint, type))

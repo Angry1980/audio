@@ -28,26 +28,34 @@ public class CalculateTrackSimilarityCommandHandler implements CommandHandler<Im
     @Override
     public Object handle(CommandMessage<ImmutableCalculateTrackSimilarityCommand> commandMessage, UnitOfWork unitOfWork) throws Throwable {
         ImmutableCalculateTrackSimilarityCommand command = commandMessage.getPayload();
-        LOG.debug("Start calculation of {} similarities for track {}", command.getType(), command.getTrack().getId());
-        TrackAggregator aggregator = repository.load(command.getTrackId());
         findSimilarTracks.apply(command.getTrack(), command.getType())
-                    .subscribe(new Subscriber<TrackSimilarity>() {
-                            @Override
-                            public void onCompleted() {
-                                LOG.debug("Finish similarities calculating for {}", command.getTrack().getId());
-                            }
+                .subscribe(new Subscriber<TrackSimilarity>() {
 
-                            @Override
-                            public void onError(Throwable e) {
-                                LOG.debug("Error while calculating similarities for {}: {}", command.getTrack().getId(), e);
-                            }
+                    private TrackAggregator aggregator;
 
-                            @Override
-                            public void onNext(TrackSimilarity o) {
-                                LOG.debug("Add {} to aggregator of track {}", o, aggregator.getIdentifier());
-                                aggregator.addSimilarity(o);
-                            }
-                    });
+                    @Override
+                    public void onStart() {
+                        LOG.debug("Start calculation of {} similarities for track {}", command.getType(), command.getTrack().getId());
+                        aggregator = repository.load(command.getTrackId());
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        LOG.debug("Finish similarities calculating for {}", command.getTrack().getId());
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.debug("Error while calculating similarities for {}: {}", command.getTrack().getId(), e);
+                    }
+
+                    @Override
+                    public void onNext(TrackSimilarity o) {
+                        LOG.debug("Add {} to aggregator of track {}", o, aggregator.getIdentifier());
+                        aggregator.addSimilarity(o);
+                    }
+
+                });
         return null;
     }
 

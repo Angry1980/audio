@@ -51,21 +51,12 @@ public class PeaksFingerprintConfig {
                 trackSimilarityDAO,
                 FingerprintType.PEAKS,
                 commandGateway,
-                commandBus,
                 eventBus
         );
-/*
-        return new FindSimilarTracksImpl(
-                trackSimilarityDAO,
-                peaksGetOrCreateFingerprint(),
-                peaksFingerprintCalculator(),
-                FingerprintType.PEAKS
-        );
-*/
     }
 
     @Bean
-    public CalculateTrackSimilarityCommandHandler calculateTrackSimilarityCommandHandler(){
+    public CalculateTrackSimilarityCommandHandler peaksCalculateTrackSimilarityCommandHandler(){
         CalculateTrackSimilarityCommandHandler handler = new CalculateTrackSimilarityCommandHandler(
                 new FindSimilarTracksImpl(
                         trackSimilarityDAO,

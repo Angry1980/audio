@@ -19,10 +19,12 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import rx.Subscriber;
+import rx.schedulers.Schedulers;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Configuration
@@ -33,6 +35,8 @@ public class CalculateSimilarities {
 
     @Autowired
     private TrackSimilarityService trackSimilarityService;
+    @Autowired
+    private Executor executor;
 
     public static void main(String[] args){
         SpringApplication sa = new SpringApplication(CalculateSimilarities.class);
@@ -77,7 +81,9 @@ public class CalculateSimilarities {
                                                 ComparingType.CHROMAPRINT_ER,
                                                 //ComparingType.LASTFM_ER,
                                                 ComparingType.PEAKS)
-                )//.subscribeOn(Schedulers.from(executor))
+                        // netflix graph builder does not support multithreading
+                        //.subscribeOn(Schedulers.from(executor))
+                )
                 .subscribe(new SubscriberImpl(latch));
     }
 
@@ -102,6 +108,7 @@ public class CalculateSimilarities {
             similarities.computeIfAbsent(ts.getTrack1(), t1 -> new Long2ObjectOpenHashMap<>())
                     .computeIfAbsent(ts.getTrack2(), t2 -> new HashSet<>()).add(ts);
             LOG.info("Result {} of similarity calculation {} was added", counter.getAndIncrement(), ts);
+            //request(1);
         }
 
         @Override

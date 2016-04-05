@@ -1,9 +1,11 @@
 package angry1980.audio.dao;
 
 import angry1980.audio.model.TrackHash;
-import it.unimi.dsi.fastutil.longs.*;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 public class TrackHashDAOInMemoryImpl implements TrackHashDAO {
@@ -11,7 +13,7 @@ public class TrackHashDAOInMemoryImpl implements TrackHashDAO {
     private static Comparator<TrackHash> c = Comparator.comparingInt(TrackHash::getTime);
 
     private final long mask;
-    private final Long2ObjectMap<Collection<TrackHash>> index;
+    private final ConcurrentMap<Long, Collection<TrackHash>> index;
 
     public TrackHashDAOInMemoryImpl(){
         this(16, -1);
@@ -22,14 +24,14 @@ public class TrackHashDAOInMemoryImpl implements TrackHashDAO {
     }
 
     public TrackHashDAOInMemoryImpl(int expectedSize, long mask){
-        this.index = new Long2ObjectOpenHashMap<>(expectedSize);
+        this.index = new ConcurrentHashMap<>(expectedSize);
         this.mask = mask;
     }
 
     @Override
     public Optional<TrackHash> create(TrackHash hash) {
         if(hash != null){
-            index.computeIfAbsent(getKey(hash.getHash()), l -> new ArrayList<>()).add(hash);
+            index.computeIfAbsent(getKey(hash.getHash()), l -> new CopyOnWriteArrayList<>()).add(hash);
         }
         return Optional.ofNullable(hash);
     }

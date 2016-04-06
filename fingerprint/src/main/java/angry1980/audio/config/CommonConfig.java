@@ -6,6 +6,7 @@ import angry1980.audio.service.TrackSimilarityServiceImpl;
 import angry1980.audio.similarity.*;
 import angry1980.audio.track.TrackAggregator;
 import angry1980.audio.track.StorageEventListener;
+import org.axonframework.commandhandling.AsynchronousCommandBus;
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.SimpleCommandBus;
 import org.axonframework.commandhandling.annotation.AggregateAnnotationCommandHandler;
@@ -59,6 +60,13 @@ public class CommonConfig {
         return new SimpleCommandBus();
     }
 
+    /*
+    @Bean(destroyMethod = "shutdown")
+    //todo: netflix storage is not thread safe
+    public CommandBus commandBus(){
+        return new AsynchronousCommandBus();
+    }
+*/
     @Bean
     public CommandGateway commandGateway(){
         return new DefaultCommandGateway(commandBus());

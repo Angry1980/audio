@@ -53,7 +53,8 @@ public class TrackSimilarityServiceImpl implements TrackSimilarityService {
     public Observable<TrackSimilarity> findOrCalculateSimilarities(Track track, ComparingType... types) {
         return Observable.from(types)
                 .doOnNext(t -> LOG.debug("{} is getting ready to handle by {} implementation", track.getId(), t))
-                .flatMap(t -> findSimilarTracks.apply(track, t));
+                .flatMap(t -> findSimilarTracks.apply(track, t))
+                .onErrorReturn(throwable -> null);
     }
 
     @Override

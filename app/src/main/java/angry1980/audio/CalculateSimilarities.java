@@ -23,6 +23,7 @@ import rx.schedulers.Schedulers;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -83,7 +84,7 @@ public class CalculateSimilarities {
                                                 ComparingType.PEAKS)
                         // netflix graph builder does not support multithreading
                         //.subscribeOn(Schedulers.from(executor))
-                )
+                ).filter(Objects::nonNull)
                 .subscribe(new SubscriberImpl(latch));
     }
 

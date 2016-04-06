@@ -29,6 +29,7 @@ public class AppConfig implements InitializingBean{
     @Override
     public void afterPropertiesSet() throws Exception {
         if(tracksProvider.isPresent()){
+            //todo: invoke after dataProvider initialization
             tracksProvider.get().init();
         }
     }

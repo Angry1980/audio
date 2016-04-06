@@ -90,7 +90,6 @@ public class FindSimilarTracksAxonImpl implements FindSimilarTracks {
             callback.add(subscriber);
             LOG.debug("TrackSimilarityCalculatedEvent listener was added");
             subscriber.add(Subscriptions.create(() -> {
-                //todo: remove subscriber from callback ?
                 eventBus.unsubscribe(listener);
                 LOG.debug("TrackSimilarityCalculatedEvent listener was removed");
             }));

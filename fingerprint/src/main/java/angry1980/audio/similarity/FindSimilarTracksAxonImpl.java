@@ -78,6 +78,7 @@ public class FindSimilarTracksAxonImpl implements FindSimilarTracks {
                     );
                     Observable<TrackSimilarity> o = subject
                             .map(EventMessage::getPayload)
+                            .ofType(TrackSimilarityCalculatedEvent.class)
                             .cast(TrackSimilarityCalculatedEvent.class)
                             .map(TrackSimilarityCalculatedEvent::getSimilarity)
                             .filter(s -> track.getId() == s.getTrack1() && type.equals(s.getComparingType()))

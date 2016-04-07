@@ -5,12 +5,10 @@ import angry1980.audio.fingerprint.GetOrCreateFingerprint;
 import angry1980.audio.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.Observable;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class FindSimilarTracksImpl implements FindSimilarTracks {
 
@@ -37,23 +35,19 @@ public class FindSimilarTracksImpl implements FindSimilarTracks {
     }
 
     @Override
-    public List<TrackSimilarity> apply(Track track, ComparingType type) {
+    public Observable<TrackSimilarity> apply(Track track, ComparingType type) {
         return trackSimilarityDAO.findByTrackIdAndFingerprintType(track.getId(), type)
-                    .orElseGet(() -> calculate(track, type).stream()
-                                        .map(trackSimilarityDAO::create)
-                                        .filter(Optional::isPresent)
-                                        .map(Optional::get)
-                                        .collect(Collectors.toList())
-                    );
+                    .map(Observable::from)
+                    .orElseGet(() -> calculate(track, type));
     }
 
-    private List<TrackSimilarity> calculate(Track track, ComparingType type){
+    private Observable<TrackSimilarity> calculate(Track track, ComparingType type){
         LOG.debug("Start calculation of {} similarities for track {}", type, track.getId());
         return Optional.ofNullable(fingerprintHandler.apply(track, type))
                 .map(fingerprint -> calculator.calculate(fingerprint, type))
                 .orElseGet(() -> {
                     LOG.debug("It's not possible to calculate {} similarities for track {}", type, track.getId());
-                    return Collections.<TrackSimilarity>emptyList();
+                    return Observable.empty();
                 });
     }
 

@@ -7,10 +7,12 @@ import angry1980.audio.fingerprint.HashInvertedIndex;
 import angry1980.audio.fingerprint.PeaksCalculator;
 import angry1980.audio.model.Fingerprint;
 import angry1980.audio.model.FingerprintType;
-import angry1980.audio.similarity.Calculator;
-import angry1980.audio.similarity.FindSimilarTracks;
-import angry1980.audio.similarity.FindSimilarTracksImpl;
-import angry1980.audio.similarity.InvertedIndexCalculator;
+import angry1980.audio.similarity.*;
+import angry1980.audio.track.TrackAggregator;
+import org.axonframework.commandhandling.CommandBus;
+import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.eventhandling.EventBus;
+import org.axonframework.repository.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +26,14 @@ public class PeaksFingerprintConfig {
     private TrackSimilarityDAO trackSimilarityDAO;
     @Autowired
     private Adapter adapter;
+    @Autowired
+    private CommandGateway commandGateway;
+    @Autowired
+    private EventBus eventBus;
+    @Autowired
+    private CommandBus commandBus;
+    @Autowired
+    private Repository<TrackAggregator> trackRepository;
 
     @Bean
     public HashInvertedIndex peaksInvertedIndex(){
@@ -37,12 +47,27 @@ public class PeaksFingerprintConfig {
 
     @Bean
     public FindSimilarTracks peaksFindSimilarTracks(){
-        return new FindSimilarTracksImpl(
+        return new FindSimilarTracksAxonImpl(
                 trackSimilarityDAO,
-                peaksGetOrCreateFingerprint(),
-                peaksFingerprintCalculator(),
-                FingerprintType.PEAKS
+                FingerprintType.PEAKS,
+                commandGateway,
+                eventBus
         );
+    }
+
+    @Bean
+    public CalculateTrackSimilarityCommandHandler peaksCalculateTrackSimilarityCommandHandler(){
+        CalculateTrackSimilarityCommandHandler handler = new CalculateTrackSimilarityCommandHandler(
+                new FindSimilarTracksImpl(
+                        trackSimilarityDAO,
+                        peaksGetOrCreateFingerprint(),
+                        peaksFingerprintCalculator(),
+                        FingerprintType.PEAKS
+                ),
+                trackRepository
+        );
+        commandBus.subscribe(ImmutableCalculateTrackSimilarityCommand.class.getName() + FingerprintType.PEAKS.name(), handler);
+        return handler;
     }
 
     @Bean

@@ -4,13 +4,16 @@ import angry1980.audio.Adapter;
 import angry1980.audio.dao.*;
 import angry1980.audio.fingerprint.*;
 import angry1980.audio.fingerprint.Calculator;
-import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.Fingerprint;
 import angry1980.audio.model.FingerprintType;
 import angry1980.audio.similarity.*;
 
+import angry1980.audio.track.TrackAggregator;
+import org.axonframework.commandhandling.CommandBus;
+import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.eventhandling.EventBus;
+import org.axonframework.repository.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -32,6 +35,14 @@ public class ChromaprintFingerprintConfig {
     private TrackDAO trackDAO;
     @Autowired
     private Environment env;
+    @Autowired
+    private CommandGateway commandGateway;
+    @Autowired
+    private EventBus eventBus;
+    @Autowired
+    private CommandBus commandBus;
+    @Autowired
+    private Repository<TrackAggregator> trackRepository;
 
     @Bean
     public FingerprintDAO chromaprintFingerprintDAO(){
@@ -49,12 +60,27 @@ public class ChromaprintFingerprintConfig {
 
     @Bean
     public FindSimilarTracks chromaprintFindSimilarTracks(){
-        return new FindSimilarTracksImpl(
+        return new FindSimilarTracksAxonImpl(
                 trackSimilarityDAO,
-                chromaprintGetOrCreateFingerprint(),
-                chromaprintSimilarityCalculator(),
-                FingerprintType.CHROMAPRINT
+                FingerprintType.CHROMAPRINT,
+                commandGateway,
+                eventBus
         );
+    }
+
+    @Bean
+    public CalculateTrackSimilarityCommandHandler chromaprintCalculateTrackSimilarityCommandHandler(){
+        CalculateTrackSimilarityCommandHandler handler = new CalculateTrackSimilarityCommandHandler(
+                new FindSimilarTracksImpl(
+                        trackSimilarityDAO,
+                        chromaprintGetOrCreateFingerprint(),
+                        chromaprintSimilarityCalculator(),
+                        FingerprintType.CHROMAPRINT
+                ),
+                trackRepository
+        );
+        commandBus.subscribe(ImmutableCalculateTrackSimilarityCommand.class.getName() + FingerprintType.CHROMAPRINT.name(), handler);
+        return handler;
     }
 
     @Bean

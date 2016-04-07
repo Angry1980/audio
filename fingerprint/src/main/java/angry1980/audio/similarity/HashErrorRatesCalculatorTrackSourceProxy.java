@@ -3,6 +3,7 @@ package angry1980.audio.similarity;
 import angry1980.audio.model.ComparingType;
 import angry1980.audio.service.TrackSimilarityService;
 import org.springframework.context.ApplicationContext;
+import rx.Observable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -21,8 +22,8 @@ public class HashErrorRatesCalculatorTrackSourceProxy implements HashErrorRatesC
     }
 
     @Override
-    public Optional<long[]> get(long sourceTrackId) {
-        return getTrackSource().flatMap(ts -> ts.get(sourceTrackId));
+    public Observable<Long> get(long sourceTrackId) {
+        return getTrackSource().map(ts -> ts.get(sourceTrackId)).orElseGet(() -> Observable.empty());
     }
 
     private Optional<HashErrorRatesCalculatorTrackSource> getTrackSource(){

@@ -2,6 +2,7 @@ package angry1980.audio.similarity;
 
 import angry1980.audio.dao.TrackDAO;
 import angry1980.audio.model.Track;
+import rx.Observable;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -23,13 +24,13 @@ public class HashErrorRatesCalculatorTrackSourceImpl implements HashErrorRatesCa
     }
 
     @Override
-    public Optional<long[]> get(long sourceTrackId) {
+    public Observable<Long> get(long sourceTrackId) {
         return getTracks(sourceTrackId)
-                .map(tracks -> tracks.stream()
-                        .mapToLong(Track::getId)
-                        .filter(trackId -> trackId != sourceTrackId)
-                        .toArray()
-                );
+                .map(Observable::from)
+                .orElseGet(() -> Observable.empty())
+                .map(Track::getId)
+                .filter(trackId -> trackId != sourceTrackId)
+        ;
     }
 
     private Optional<Collection<Track>> getTracks(long sourceTrackId){

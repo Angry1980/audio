@@ -9,11 +9,10 @@ import com.netflix.nfgraph.compressed.NFCompressedGraph;
 import com.netflix.nfgraph.util.OrdinalMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 import java.io.*;
 
-public class NetflixDataProvider implements InitializingBean {
+public class NetflixDataProvider  {
 
     private static Logger LOG = LoggerFactory.getLogger(NetflixDataProvider.class);
 
@@ -36,10 +35,6 @@ public class NetflixDataProvider implements InitializingBean {
     public NetflixDataProvider(File source, NetflixData data) {
         this.source = source;
         this.data = data;
-    }
-
-    @Override
-    public void afterPropertiesSet() {
         init();
     }
 

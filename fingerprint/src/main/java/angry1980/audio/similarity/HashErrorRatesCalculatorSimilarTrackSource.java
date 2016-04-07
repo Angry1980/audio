@@ -3,11 +3,13 @@ package angry1980.audio.similarity;
 import angry1980.audio.model.ComparingType;
 import angry1980.audio.model.TrackSimilarity;
 import angry1980.audio.service.TrackSimilarityService;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.Observable;
 
 import java.util.Objects;
-import java.util.Optional;
 
 public class HashErrorRatesCalculatorSimilarTrackSource implements HashErrorRatesCalculatorTrackSource {
 
@@ -29,13 +31,11 @@ public class HashErrorRatesCalculatorSimilarTrackSource implements HashErrorRate
     }
 
     @Override
-    public Optional<long[]> get(long sourceTrackId) {
-        long[] result = similarityService.findOrCalculateSimilarities(sourceTrackId, comparingType)
-                .toBlocking().first().getSimilarities().stream()
-                            .filter(ts -> ts.getValue() > limit)
-                            .mapToLong(TrackSimilarity::getTrack2)
-                            .toArray();
-        LOG.debug("There are {} tracks which are looking similar to {} by {}", new Object[]{result.length, sourceTrackId, comparingType});
-        return Optional.of(result);
+    public Observable<Long> get(long sourceTrackId) {
+        LongSet sent = new LongOpenHashSet();
+        return similarityService.findOrCalculateSimilarities(sourceTrackId, comparingType)
+                .filter(ts -> sent.contains(ts.getTrack2()))
+                .doOnNext(ts -> sent.add(ts.getTrack2()))
+                .map(TrackSimilarity::getTrack2);
     }
 }

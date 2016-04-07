@@ -5,6 +5,7 @@ import angry1980.audio.dao.TrackDAO;
 import angry1980.audio.model.*;
 import org.junit.Before;
 import org.junit.Test;
+import rx.Observable;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -66,6 +67,7 @@ public class HashErrorRatesCalculatorTest {
     public void testEmptyFingerprintResult(){
         Track another = track(2, 1);
         setFilterResult(1, firstTrack, another);
+        when(fingerprintDAO.findByTrackId(eq(2L))).thenReturn(Optional.empty());
         checkEmptyResult(calculator.calculate(firstTrackFingerprint, ComparingType.CHROMAPRINT_ER));
     }
 
@@ -118,12 +120,21 @@ public class HashErrorRatesCalculatorTest {
         checkEmptyResult(calculator.calculate(firstTrackFingerprint, ComparingType.CHROMAPRINT_ER));
     }
 
+    private List<TrackSimilarity> checkResult(Observable<TrackSimilarity> result, int length, TrackSimilarity ... expected){
+        return checkResult(result.toList().toBlocking().single(), length, expected);
+    }
+
     private List<TrackSimilarity> checkResult(List<TrackSimilarity> result, int length, TrackSimilarity ... expected){
         assertNotNull(result);
         assertTrue(result.size() == length);
         Arrays.stream(expected)
                 .forEach(ts -> assertTrue(result.contains(ts)));
         return result;
+    }
+
+    private List<TrackSimilarity> checkEmptyResult(Observable<TrackSimilarity> result){
+        assertNotNull(result);
+        return checkEmptyResult(result.toList().toBlocking().single());
     }
 
     private List<TrackSimilarity> checkEmptyResult(List<TrackSimilarity> result){

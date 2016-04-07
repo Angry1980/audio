@@ -42,7 +42,6 @@ public class TrackSimilarityDAONetflixImpl extends Netflix<String> implements Tr
         }
         LOG.debug("There are {} existed similarities for track {}", tss.size(), trackId);
         return tss;
-
     }
 
     @Override

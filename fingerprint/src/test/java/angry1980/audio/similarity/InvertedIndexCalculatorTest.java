@@ -9,6 +9,7 @@ import angry1980.audio.model.TrackHash;
 import angry1980.audio.model.TrackSimilarity;
 import org.junit.Before;
 import org.junit.Test;
+import rx.Observable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,7 +38,7 @@ public class InvertedIndexCalculatorTest {
 
     @Test
     public void testEmptyHashDAO(){
-        List<TrackSimilarity> result = calculator.calculate(fingerprint, Entities.defaultComparingType);
+        List<TrackSimilarity> result = toList(calculator.calculate(fingerprint, Entities.defaultComparingType));
         assertNotNull(result);
         assertTrue(result.size() == 0);
     }
@@ -45,7 +46,7 @@ public class InvertedIndexCalculatorTest {
     @Test
     public void testSourceTrack(){
         fillDAO(dao, Entities.trackHash(1, 1, 1), Entities.trackHash(1, 2, 1), Entities.trackHash(2, 1, 1));
-        calculator.calculate(fingerprint, Entities.defaultComparingType).stream()
+        toList(calculator.calculate(fingerprint, Entities.defaultComparingType)).stream()
                 .forEach(ts -> assertFalse(ts.getTrack2() == 1));
 
     }
@@ -53,7 +54,7 @@ public class InvertedIndexCalculatorTest {
     @Test
     public void testWeightLimit(){
         fillDAO(dao, Entities.trackHash(2, 1, 1), Entities.trackHash(3, 1, 1), Entities.trackHash(3, 2, 1));
-        List<TrackSimilarity> result = calculator.calculate(fingerprint, Entities.defaultComparingType);
+        List<TrackSimilarity> result = toList(calculator.calculate(fingerprint, Entities.defaultComparingType));
         assertNotNull(result);
         assertTrue(result.size() == 0);
     }
@@ -62,7 +63,7 @@ public class InvertedIndexCalculatorTest {
     public void testResult1(){
         fillDAO(dao, Entities.trackHash(2, 1, 1), Entities.trackHash(2, 2, 1), Entities.trackHash(2, 3, 1));
         checkResult(
-                calculator.calculate(fingerprint, Entities.defaultComparingType),
+                toList(calculator.calculate(fingerprint, Entities.defaultComparingType)),
                 Entities.trackSimilarity(1, 2, 3),
                 3
         );
@@ -71,7 +72,7 @@ public class InvertedIndexCalculatorTest {
     @Test
     public void testResult2(){
         fillDAO(dao, Entities.trackHash(2, 1, 1), Entities.trackHash(2, 2, 1), Entities.trackHash(2, 4, 1));
-        List<TrackSimilarity> result = calculator.calculate(fingerprint, Entities.defaultComparingType);
+        List<TrackSimilarity> result = toList(calculator.calculate(fingerprint, Entities.defaultComparingType));
         assertNotNull(result);
         assertTrue(result.size() == 0);
     }
@@ -79,7 +80,7 @@ public class InvertedIndexCalculatorTest {
     @Test
     public void testResult3(){
         fillDAO(dao, Entities.trackHash(2, 1, 1), Entities.trackHash(2, 2, 1), Entities.trackHash(2, 4, 1), Entities.trackHash(2, 5, 1));
-        List<TrackSimilarity> result = calculator.calculate(fingerprint, Entities.defaultComparingType);
+        List<TrackSimilarity> result = toList(calculator.calculate(fingerprint, Entities.defaultComparingType));
         checkResult(
                 result,
                 Entities.trackSimilarity(1, 2, 4),
@@ -91,7 +92,7 @@ public class InvertedIndexCalculatorTest {
     public void testResult4(){
         fillDAO(dao, Entities.trackHash(2, 1, 1), Entities.trackHash(2, 2, 1), Entities.trackHash(2, 3, 1));
         fillDAO(dao, Entities.trackHash(3, 1, 1), Entities.trackHash(3, 2, 1), Entities.trackHash(3, 3, 1));
-        List<TrackSimilarity> result = calculator.calculate(fingerprint, Entities.defaultComparingType);
+        List<TrackSimilarity> result = toList(calculator.calculate(fingerprint, Entities.defaultComparingType));
         checkResult(result, Entities.trackSimilarity(1, 2, 3), 3);
         checkResult(result, Entities.trackSimilarity(1, 3, 3), 3);
     }
@@ -107,4 +108,7 @@ public class InvertedIndexCalculatorTest {
         Arrays.stream(hashes).forEach(dao::create);
     }
 
+    private <T> List<T> toList(Observable<T> result){
+        return result.toList().toBlocking().single();
+    }
 }

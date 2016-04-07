@@ -2,12 +2,12 @@ package angry1980.audio.similarity;
 
 import angry1980.audio.dao.FingerprintDAO;
 import angry1980.audio.model.*;
-import angry1980.utils.Numbered;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rx.Observable;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Objects;
+import java.util.Optional;
 
 public class HashErrorRatesCalculator implements Calculator<Fingerprint> {
 
@@ -40,25 +40,26 @@ public class HashErrorRatesCalculator implements Calculator<Fingerprint> {
     }
 
     @Override
-    public List<TrackSimilarity> calculate(Fingerprint fingerprint, ComparingType comparingType) {
+    public Observable<TrackSimilarity> calculate(Fingerprint fingerprint, ComparingType comparingType) {
         return trackSource.get(fingerprint.getTrackId())
-                .map(fingerprintDAO::findByTrackIds)
-                .map(list -> calculate(fingerprint.getTrackId(), getHashes(fingerprint), comparingType, list))
-                .orElseGet(() -> Collections.emptyList())
+                .map(trackId -> fingerprintDAO.findByTrackId(trackId)
+                                    .flatMap(f -> calculate(fingerprint.getTrackId(), getHashes(fingerprint), comparingType, f))
+                ).filter(Optional::isPresent)
+                .map(Optional::get)
         ;
     }
 
-    private List<TrackSimilarity> calculate(long trackId, int[] source, ComparingType comparingType, Collection<Fingerprint> others){
-        return others.stream()
-                .map(fp -> new Numbered<>(fp.getTrackId(), calculate(source, getHashes(fp))))
-                .filter(n -> n.getValue().compareTo(20) > 0)
-                .map(n -> ImmutableTrackSimilarity.builder()
+    private Optional<TrackSimilarity> calculate(long trackId, int[] source, ComparingType comparingType, Fingerprint fp){
+        return Optional.of(getHashes(fp))
+                .map(hashes -> calculate(source, hashes))
+                .filter(value -> value.compareTo(20) > 0)
+                .map(value -> ImmutableTrackSimilarity.builder()
                         .track1(trackId)
-                        .track2(n.getNumber())
-                        .value(n.getValue())
+                        .track2(fp.getTrackId())
+                        .value(value)
                         .comparingType(comparingType)
                         .build()
-                ).collect(Collectors.toList());
+        );
     }
 
     private int[] getHashes(Fingerprint fingerprint){

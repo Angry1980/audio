@@ -1,8 +1,9 @@
 package angry1980.audio.similarity;
 
-import java.util.Optional;
+import rx.Observable;
 
 public interface HashErrorRatesCalculatorTrackSource {
 
-    Optional<long[]> get(long sourceTrackId);
+    Observable<Long> get(long sourceTrackId);
+
 }

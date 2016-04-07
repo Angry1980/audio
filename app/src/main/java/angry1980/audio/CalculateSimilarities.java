@@ -44,10 +44,10 @@ public class CalculateSimilarities {
         //todo: as program arguments
         sa.setDefaultProperties(ImmutableMap.of(
                 //local source
-                LocalConfig.INPUT_DIRECTORY_PROPERTY_NAME, "c:\\music",
-                NetflixConfig.SIMILARITY_FILE_PROPERTY_NAME, "c:\\work\\ts.data"
+                //LocalConfig.INPUT_DIRECTORY_PROPERTY_NAME, "c:\\music",
+                //NetflixConfig.SIMILARITY_FILE_PROPERTY_NAME, "c:\\work\\ts.data"
                 // as kafka consumer
-/*
+
                 KafkaProducerConsumerConfig.SERVERS_PROPERTY_NAME, "localhost:9092",
                 KafkaProducerConsumerConfig.CONSUMER_ENABLED_PROPERTY_NAME, "true",
                 KafkaProducerConsumerConfig.CONSUMER_PROPERTIES,
@@ -57,7 +57,6 @@ public class CalculateSimilarities {
                             .topicName("tracks")
                             .build(),
                 KafkaProducerConsumerConfig.PRODUCER_TOPIC_PROPERTY_NAME, "similarities"
-                */
         ));
         sa.setRegisterShutdownHook(true);
         sa.setLogStartupInfo(false);

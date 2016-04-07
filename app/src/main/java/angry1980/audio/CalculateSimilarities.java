@@ -85,23 +85,21 @@ public class CalculateSimilarities {
                         // netflix graph builder does not support multithreading
                         //.subscribeOn(Schedulers.from(executor))
                 ).filter(Objects::nonNull)
-                .subscribe(new SubscriberImpl(latch));
+                .finallyDo(() -> latch.countDown())
+                .subscribe(new SubscriberImpl());
     }
 
     public class SubscriberImpl extends Subscriber<TrackSimilarity>{
 
         private final AtomicInteger counter = new AtomicInteger();
-        private final CountDownLatch latch;
         private Long2ObjectMap<Long2ObjectMap<Collection<TrackSimilarity>>> similarities = new Long2ObjectOpenHashMap<>();
 
-        public SubscriberImpl(CountDownLatch latch){
-            this.latch = latch;
+        public SubscriberImpl(){
         }
 
         @Override
         public void onError(Throwable throwable) {
             LOG.error("Error while track similarity calculation", throwable);
-            latch.countDown();
         }
 
         @Override
@@ -115,7 +113,6 @@ public class CalculateSimilarities {
         @Override
         public void onCompleted() {
             print();
-            latch.countDown();
         }
 
         void print(){
